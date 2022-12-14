@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="MudBlazor" Version="6.1.5" />
+    <PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.10" />
   </ItemGroup>
 
   <ItemGroup>

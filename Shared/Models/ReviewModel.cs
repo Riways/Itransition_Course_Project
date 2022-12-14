@@ -22,6 +22,6 @@ namespace totten_romatoes.Shared.Models
 
     public enum Category
     {
-        Book, Movie, Music, Device, Person, Game, Other
+        Other, Book, Movie, Music, Device, Person, Game
     }
 }
