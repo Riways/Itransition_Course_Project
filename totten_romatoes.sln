@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "totten_romatoes.Server", "Server\totten_romatoes.Server.csproj", "{48B90339-6EC1-46D6-A366-B830FD7D6083}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "totten_romatoes.Server", "Server\totten_romatoes.Server.csproj", "{48B90339-6EC1-46D6-A366-B830FD7D6083}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "totten_romatoes.Client", "Client\totten_romatoes.Client.csproj", "{DC25098E-3615-49F1-A9F0-FB3AE4F44624}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "totten_romatoes.Client", "Client\totten_romatoes.Client.csproj", "{DC25098E-3615-49F1-A9F0-FB3AE4F44624}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "totten_romatoes.Shared", "Shared\totten_romatoes.Shared.csproj", "{834EC820-AC5C-48CE-9F7E-95F866C5FC34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "totten_romatoes.Shared", "Shared\totten_romatoes.Shared.csproj", "{834EC820-AC5C-48CE-9F7E-95F866C5FC34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
