@@ -13,7 +13,8 @@
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
             <MudText Typo="Typo.h5" Class="mt-1">Application</MudText>
-        </MudDrawerHeader>
+        </MudDrawerHeader> 
+        <NavMenuOld/>
     </MudDrawer>
     <MudMainContent>
         @Body
@@ -21,7 +22,7 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
+    bool _drawerOpen = false;
 
     void DrawerToggle()
     {

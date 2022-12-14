@@ -1,0 +1,15 @@
+﻿
+
+@if(reviews == null)
+{
+    <MudText Typo="Typo.h2"> No reviews found</MudText>
+}else{
+    foreach(var review in reviews)
+    {
+        <Review/>
+    }
+}
+
+@code {
+    List<ReviewModel> reviews { get; set; }
+}

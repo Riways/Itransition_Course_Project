@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using totten_romatoes.Server.Data;
-using totten_romatoes.Server.Models;
+using totten_romatoes.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
