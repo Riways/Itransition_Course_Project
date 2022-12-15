@@ -21,11 +21,15 @@ namespace totten_romatoes.Server.Data
                  .Property(e => e.ReviewCategory)
                  .HasConversion(
                      v => v.ToString(),
-                     v => (Category)Enum.Parse(typeof(Category), v)); 
+                     v => (Category)Enum.Parse(typeof(Category), v));
+            modelBuilder
+                 .Entity<ReviewModel>()
+                 .Property(e => e.AuthorId)
+                 .IsRequired();
         }
 
         public DbSet<ReviewModel>? Reviews { get; set; }
-        public DbSet<Comment>? Comments { get; set; }
-        public DbSet<Grade>? Grades { get; set; }
+        public DbSet<CommentModel>? Comments { get; set; }
+        public DbSet<GradeModel>? Grades { get; set; }
     }
 }

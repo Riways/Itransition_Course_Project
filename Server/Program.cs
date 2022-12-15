@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using totten_romatoes.Server.Data;
+using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,10 +17,19 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+    {
+        options.IdentityResources["openid"].UserClaims.Add("name");
+        options.ApiResources.Single().UserClaims.Add("name");
+        options.IdentityResources["openid"].UserClaims.Add("role");
+        options.ApiResources.Single().UserClaims.Add("role");
+    });
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
+
+builder.Services.AddTransient<IReviewService,ReviewService>();
+builder.Services.AddTransient<IUserService,UserService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

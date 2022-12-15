@@ -105,7 +105,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("Use");
 
-                    b.ToTable("Keys");
+                    b.ToTable("Keys", (string)null);
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
@@ -388,7 +388,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("ReviewModelId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.Grade", b =>
@@ -415,7 +415,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("ReviewId");
 
-                    b.ToTable("Grades");
+                    b.ToTable("Grades", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>
@@ -450,7 +450,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

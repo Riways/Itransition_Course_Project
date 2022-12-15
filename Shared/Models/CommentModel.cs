@@ -2,7 +2,7 @@
 
 namespace totten_romatoes.Shared.Models
 {
-    public class Comment
+    public class CommentModel
     {
         public int Id { get; set; }
         [Required]

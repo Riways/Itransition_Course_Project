@@ -8,7 +8,7 @@ using totten_romatoes.Shared.Models;
 
 namespace totten_romatoes.Shared.Models
 {
-    public class Grade
+    public class GradeModel
     {
         public int Id { get; set; }
         [Required]

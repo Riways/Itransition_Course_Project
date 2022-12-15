@@ -1,5 +1,6 @@
 ﻿@page "/create-review"
-
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Large">
     <MudGrid Spacing="4" Class="mt-16" Justify="Justify.Center">
@@ -8,7 +9,7 @@
                 <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create new review</MudText>
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudTextField T="string" Variant="Variant.Outlined" Label="Subject" />
+                        <MudTextField T="string" @bind-Value="_reviewSubject" Variant="Variant.Outlined" Label="Subject" />
                     </MudItem>
                     <MudItem xs="6">
                         <MudSelect @bind-Value="_chosenCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
@@ -19,7 +20,7 @@
                         </MudSelect>
                     </MudItem>
                     <MudItem xs="6">
-                        <MudSelect T="int" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelect T="int" @bind-Value="_chosenGrade" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                             @for(int i=0; i <=10; i++)
                             {
                                 <MudSelectItem T="int" Value="@i"/>
@@ -30,8 +31,19 @@
                         <MarkdownEditor @bind-Value="@_reviewBody" />
                     </MudItem>
                     <MudItem xs="12" Class="d-flex justify-end">
-                        <MudButton Variant="Variant.Filled" DisableElevation="true" Color="Color.Primary" Size="Size.Large" Class="mt-3">Publish</MudButton>
+                        <MudButton Variant="Variant.Filled"  DisableElevation="true" Color="Color.Primary" Disabled="@(_reviewBody.Length==0 || _reviewSubject.Length == 0)" Size="Size.Large" Class="mt-3" OnClick="PublishNewReview">Publish</MudButton>
                     </MudItem>
+                    @if (_isPublishActionFired)
+                    {
+                        if (_isPublishWasSuccesful)
+                        {
+                            <p>TODO:SUCCESS</p>
+                        }
+                        else
+                        {
+                            <p>TODO:FAIL</p>
+                        }
+                    }
                 </MudGrid>
             </MudPaper>
         </MudItem>
@@ -40,7 +52,32 @@
 
 
 @code {
+    [Inject]
+    private HttpClient _httpClient { get; set; }
+    [Inject]
+    private AuthenticationStateProvider _authenticationStateProvider{ get; set; }
+    private string _reviewSubject { get; set; } = "";
     private Category _chosenCategory { get; set; }
-    private string _reviewSubject { get; set; } = "Type your review here";
+    private int _chosenGrade { get; set; }
     string _reviewBody = "";
+    private bool _isPublishActionFired = false;
+    private bool _isPublishWasSuccesful = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+    }
+
+    public async Task PublishNewReview()
+    {
+        if(_reviewBody.Length > 0 && _reviewSubject.Length > 0)
+        {
+            ReviewModel newReview = new ReviewModel(_reviewSubject, _chosenCategory, _chosenGrade, _reviewBody);
+            HttpResponseMessage response =  await _httpClient.PostAsJsonAsync<ReviewModel>("api/ReviewModels", newReview);
+            _isPublishWasSuccesful = response.IsSuccessStatusCode;
+            _isPublishActionFired = true;
+        }
+    }
 }

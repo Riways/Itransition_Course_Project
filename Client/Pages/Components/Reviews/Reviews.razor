@@ -1,6 +1,6 @@
 ﻿
 
-@if(reviews == null)
+@if(reviews == null || reviews.Count == 0)
 {
     <MudText Typo="Typo.h2"> No reviews found</MudText>
 }else{

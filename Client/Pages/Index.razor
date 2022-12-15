@@ -10,7 +10,7 @@
             <Reviews/>
         </MudItem>
         <MudItem  lg="3">
-            <MudHidden Breakpoint="Breakpoint.LgAndUp"  >
+            <MudHidden Breakpoint="Breakpoint.LgAndDown"  >
                 <TagCloud/>
                 <MudText Typo="Typo.h5"  GutterBottom="true">Cart</MudText>
                 <MudPaper Class="d-flex flex-column" Style="height:100%;" Outlined="true">
@@ -54,3 +54,20 @@
 </MudContainer>
 
 
+@code{
+    [Inject]
+    HttpClient httpClient{ get; set; }
+    private ReviewModel[]? reviewModels;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //try
+        //{
+            //reviewModels = await httpClient.GetFromJsonAsync<ReviewModel[]>("ReviewModel");
+        //}
+        //catch (AccessTokenNotAvailableException exception)
+        //{
+        //    exception.Redirect();
+        //}
+    }
+}
