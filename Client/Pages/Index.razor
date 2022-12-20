@@ -1,16 +1,18 @@
 ﻿@page "/"
 @using totten_romatoes.Client.Pages.Components.Reviews
+@using totten_romatoes.Client.Pages.Components.Tags
 @using totten_romatoes.Client.Pages.Components
+
 <PageTitle>Index</PageTitle>
 
-<MudContainer Class="mt-16" MaxWidth="MaxWidth.Large">
+<MudContainer Class="mt-1" MaxWidth="MaxWidth.Large">
     <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Reviews</MudText>
-    <MudGrid Spacing="4" Class="mt-16" Justify="Justify.Center">
-        <MudItem md="12" lg="9">
+    <MudGrid Spacing="6" Class="mt-1" Justify="Justify.Center">
+        <MudItem xs="12" lg="9">
             <Reviews/>
         </MudItem>
-        <MudItem  lg="3">
-            <MudHidden Breakpoint="Breakpoint.LgAndDown"  >
+        <MudHidden Breakpoint="Breakpoint.MdAndDown"  >
+            <MudItem  lg="3">
                 <TagCloud/>
                 <MudText Typo="Typo.h5"  GutterBottom="true">Cart</MudText>
                 <MudPaper Class="d-flex flex-column" Style="height:100%;" Outlined="true">
@@ -48,26 +50,10 @@
                         </div>
                     </div>
                 </MudPaper>
-            </MudHidden>
-        </MudItem>
+            </MudItem>
+        </MudHidden>
+
     </MudGrid>
 </MudContainer>
 
 
-@code{
-    [Inject]
-    HttpClient httpClient{ get; set; }
-    private ReviewModel[]? reviewModels;
-
-    protected override async Task OnInitializedAsync()
-    {
-        //try
-        //{
-            //reviewModels = await httpClient.GetFromJsonAsync<ReviewModel[]>("ReviewModel");
-        //}
-        //catch (AccessTokenNotAvailableException exception)
-        //{
-        //    exception.Redirect();
-        //}
-    }
-}

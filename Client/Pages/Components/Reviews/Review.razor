@@ -1,5 +1,61 @@
-﻿<h3>Review</h3>
-
+﻿<MudPaper  Width="100%" Outlined="true"  >
+    <MudGrid Spacing="0">
+        <MudItem  xs="12"  id="reviewHeader">
+            <div Class="border-bottom pa-4">
+                <MudAvatar Class="d-inline-flex" Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
+                <MudText Class="d-inline-flex mx-2"  Typo="Typo.h6" >
+                        @CurrentReview.Author.UserName  
+                </MudText >
+                <MudText Class="d-inline-flex" Typo="Typo.body2" >
+                        @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                </MudText>
+            </div>
+        </MudItem>
+        <MudItem Class="px-4 py-2" xs="12">
+            <MudChip Size="Size.Small">TAGS</MudChip>
+        </MudItem>
+        <MudItem Class="pa-4"  xs="12">
+            <MudText Typo="Typo.h4" >
+               @CurrentReview.SubjectOfReview
+            </MudText>
+        </MudItem>
+        <MudItem Class="px-4" xs="12" id="reviewBody">
+            @((MarkupString)CurrentReview.ReviewBody)
+        </MudItem>
+        <MudItem xs="12">
+            ReadFull button(Only ob main page)
+        </MudItem>
+        <MudItem xs="12">
+            <div Class="d-flex border-top pa-4 align-content-center" >
+                <MudIcon   Icon="@Icons.Rounded.StarRate" Color="Color.Secondary" Size="Size.Large"></MudIcon>
+                <MudText Class="d-inline-flex pt-2" >
+                     @(_currenReviewRating == double.MinValue ? "4.5" : _currenReviewRating)
+                </MudText>
+                <MudText Class="d-inline-flex mx-2" >
+                    Views
+                </MudText>
+                
+                <MudIcon class="mt-1" Icon="@Icons.TwoTone.Comment"></MudIcon>
+            </div>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 @code {
+    [Parameter]
+    public ReviewModel CurrentReview{ get; set; }
+    private double _currenReviewRating = double.MinValue;
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CurrentReview.Grades != null && CurrentReview.Grades.Count > 0)
+        {
+            int gradesSum = CurrentReview.Grades.Select(g => g.Value).Sum();
+            _currenReviewRating = (double)gradesSum / CurrentReview.Grades.Count;
+        }
+    }
+
+    public Color RandomColorPick()
+    {
+        return (Color)Random.Shared.Next(0, 11);
+    }
 }

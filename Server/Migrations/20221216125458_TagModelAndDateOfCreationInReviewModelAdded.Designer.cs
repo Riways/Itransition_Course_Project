@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using totten_romatoes.Server.Data;
@@ -11,9 +12,10 @@ using totten_romatoes.Server.Data;
 namespace totten_romatoes.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221216125458_TagModelAndDateOfCreationInReviewModelAdded")]
+    partial class TagModelAndDateOfCreationInReviewModelAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,21 +301,6 @@ namespace totten_romatoes.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ReviewModelTagModel", b =>
-                {
-                    b.Property<long>("ReviewsId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TagsId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ReviewsId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("ReviewModelTagModel");
-                });
-
             modelBuilder.Entity("totten_romatoes.Shared.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -327,7 +314,6 @@ namespace totten_romatoes.Server.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -364,7 +350,6 @@ namespace totten_romatoes.Server.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -382,18 +367,18 @@ namespace totten_romatoes.Server.Migrations
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.CommentModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AuthorId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("ReviewModelId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("ReviewModelId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -410,18 +395,18 @@ namespace totten_romatoes.Server.Migrations
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.GradeModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AuthorId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("ReviewId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ReviewId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Value")
                         .HasColumnType("integer");
@@ -435,38 +420,13 @@ namespace totten_romatoes.Server.Migrations
                     b.ToTable("Grades");
                 });
 
-            modelBuilder.Entity("totten_romatoes.Shared.Models.ImageModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ImageName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AuthorGrade")
                         .HasColumnType("integer");
@@ -478,20 +438,13 @@ namespace totten_romatoes.Server.Migrations
                     b.Property<DateTime>("DateOfCreationInUTC")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("ImageId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("ReviewBody")
                         .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ReviewCategory")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<long?>("ReviewImageId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("SubjectOfReview")
                         .IsRequired()
@@ -502,24 +455,27 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("ReviewImageId");
-
                     b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.TagModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("ReviewModelId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ReviewModelId");
 
                     b.ToTable("TagModel");
                 });
@@ -575,21 +531,6 @@ namespace totten_romatoes.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReviewModelTagModel", b =>
-                {
-                    b.HasOne("totten_romatoes.Shared.Models.ReviewModel", null)
-                        .WithMany()
-                        .HasForeignKey("ReviewsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("totten_romatoes.Shared.Models.TagModel", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("totten_romatoes.Shared.Models.CommentModel", b =>
                 {
                     b.HasOne("totten_romatoes.Shared.Models.ApplicationUser", "Author")
@@ -614,7 +555,7 @@ namespace totten_romatoes.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("totten_romatoes.Shared.Models.ReviewModel", "Review")
-                        .WithMany("Grades")
+                        .WithMany()
                         .HasForeignKey("ReviewId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -632,20 +573,21 @@ namespace totten_romatoes.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("totten_romatoes.Shared.Models.ImageModel", "ReviewImage")
-                        .WithMany()
-                        .HasForeignKey("ReviewImageId");
-
                     b.Navigation("Author");
+                });
 
-                    b.Navigation("ReviewImage");
+            modelBuilder.Entity("totten_romatoes.Shared.Models.TagModel", b =>
+                {
+                    b.HasOne("totten_romatoes.Shared.Models.ReviewModel", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("ReviewModelId");
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Grades");
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }

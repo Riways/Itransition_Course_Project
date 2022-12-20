@@ -29,7 +29,9 @@ builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
 builder.Services.AddTransient<IReviewService,ReviewService>();
+builder.Services.AddTransient<IDropboxService,DropboxService>();
 builder.Services.AddTransient<IUserService,UserService>();
+builder.Services.AddTransient<IImageService,ImageService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

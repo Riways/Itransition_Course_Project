@@ -1,10 +1,5 @@
-﻿using AutoMapper.Internal;
-using Duende.IdentityServer.Extensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
 
@@ -15,13 +10,15 @@ namespace totten_romatoes.Server.Controllers
     [ApiController]
     public class ReviewModelsController : ControllerBase
     {
-        private readonly IUserService _userService;
         private readonly IReviewService _reviewService;
+        private readonly IDropboxService _dropboxService;
+        private readonly IImageService _imageService;
 
-        public ReviewModelsController(IUserService userService, IReviewService reviewService)
+        public ReviewModelsController(IReviewService reviewService, IDropboxService dropboxService, IImageService imageService)
         {
-            _userService = userService;
             _reviewService = reviewService;
+            _dropboxService = dropboxService;
+            _imageService = imageService;
         }
 
         // GET: api/ReviewModels
@@ -34,7 +31,7 @@ namespace totten_romatoes.Server.Controllers
 
         // GET: api/ReviewModels/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ReviewModel>> GetReviewModel(int id)
+        public async Task<ActionResult<ReviewModel>> GetReviewModel(long id)
         {
             var reviewModel = _reviewService.GetReviewById(id);
 
@@ -81,9 +78,14 @@ namespace totten_romatoes.Server.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<ReviewModel>> PostReviewModel(ReviewModel reviewModel)
-        {
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            reviewModel.AuthorId = userId;
+                      {
+                if (reviewModel.ReviewImage != null)
+            {
+                string imageUrlOnDropbox = await _dropboxService.UploadImageToDropbox(reviewModel.ReviewImage);
+                reviewModel.ReviewImage.ImageUrl = imageUrlOnDropbox;
+                await _imageService.SaveImageToDb(reviewModel.ReviewImage);
+                Console.WriteLine(reviewModel.ReviewImage.Id);
+            }
             _reviewService.AddReviewToDb(reviewModel);
             return CreatedAtAction("GetReviewModel", new { id = reviewModel.Id }, reviewModel);
         }

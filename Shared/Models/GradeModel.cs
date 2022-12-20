@@ -10,12 +10,14 @@ namespace totten_romatoes.Shared.Models
 {
     public class GradeModel
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         [Required]
         public ApplicationUser Author { get; set; }
         [Required]
         [Range(0,5)]
         public int Value { get; set; }
+        [Required]
+        public long ReviewId { get; set; }
         [Required]
         public ReviewModel Review { get; set; }
     }

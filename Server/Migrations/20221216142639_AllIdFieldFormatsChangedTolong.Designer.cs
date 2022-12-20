@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using totten_romatoes.Server.Data;
@@ -11,9 +12,10 @@ using totten_romatoes.Server.Data;
 namespace totten_romatoes.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221216142639_AllIdFieldFormatsChangedTolong")]
+    partial class AllIdFieldFormatsChangedTolong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -327,7 +329,6 @@ namespace totten_romatoes.Server.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -364,7 +365,6 @@ namespace totten_romatoes.Server.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -435,31 +435,6 @@ namespace totten_romatoes.Server.Migrations
                     b.ToTable("Grades");
                 });
 
-            modelBuilder.Entity("totten_romatoes.Shared.Models.ImageModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ImageName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>
                 {
                     b.Property<long>("Id")
@@ -478,20 +453,13 @@ namespace totten_romatoes.Server.Migrations
                     b.Property<DateTime>("DateOfCreationInUTC")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("ImageId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("ReviewBody")
                         .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ReviewCategory")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<long?>("ReviewImageId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("SubjectOfReview")
                         .IsRequired()
@@ -501,8 +469,6 @@ namespace totten_romatoes.Server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
-
-                    b.HasIndex("ReviewImageId");
 
                     b.ToTable("Reviews");
                 });
@@ -632,13 +598,7 @@ namespace totten_romatoes.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("totten_romatoes.Shared.Models.ImageModel", "ReviewImage")
-                        .WithMany()
-                        .HasForeignKey("ReviewImageId");
-
                     b.Navigation("Author");
-
-                    b.Navigation("ReviewImage");
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>

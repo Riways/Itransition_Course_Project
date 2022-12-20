@@ -1,50 +1,109 @@
 ﻿@page "/create-review"
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Security.Claims;
+@using PSC.Blazor.Components.MarkdownEditor.Enums;
 
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Large">
     <MudGrid Spacing="4" Class="mt-16" Justify="Justify.Center">
         <MudItem  xs="12" lg="10">
-            <MudPaper Class="pa-10 " Elevation="3">
-                <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create new review</MudText>
-                <MudGrid>
-                    <MudItem xs="12">
-                        <MudTextField T="string" @bind-Value="_reviewSubject" Variant="Variant.Outlined" Label="Subject" />
-                    </MudItem>
-                    <MudItem xs="6">
-                        <MudSelect @bind-Value="_chosenCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                            @foreach (Category category in Enum.GetValues(typeof(Category)))
-                            {
-                                <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+            <MudPaper Class="pa-10" Elevation="3">
+                <EditForm Model="@_review" OnValidSubmit="@PublishNewReview">
+                    <DataAnnotationsValidator/>
+                    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create new review</MudText>
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudTextField T="string" @bind-Value="_review.SubjectOfReview" For="@(() => _review.SubjectOfReview)" Variant="Variant.Outlined" Label="Subject" />
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    <MudSelect @bind-Value="_review.ReviewCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                                        @foreach (Category category in Enum.GetValues(typeof(Category)))
+                                        {
+                                                <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="12">
+                                    <MudSelect T="int" @bind-Value="_review.AuthorGrade" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                                        @for (int i = 0; i <= 10; i++)
+                                        {
+                                                <MudSelectItem T="int" Value="@i"/>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                            </MudGrid>
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="flex-1 " InputClass="absolute mud-width-full mud-height-full  overflow-hidden z-20" InputStyle="opacity:0"
+                                @ondragenter="@SetDragClass"  @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Error="@_isImageUploadFileNotValid" ErrorText="You can upload .png image with size less then 2 mb">
+                                <ButtonTemplate Context="upload_file_context">
+                                    <MudPaper  Outlined="true" Class="@DragClass">
+                                        @if (reviewImage != null)
+                                        {
+                                                <MudChip Color="Color.Dark" Text="@reviewImage.Name" />
+                                        }
+                                        else
+                                        {
+                                                <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
+                                        }
+                                    </MudPaper>
+                                </ButtonTemplate>
+                            </MudFileUpload>
+                            <MudToolBar DisableGutters="true" Class="gap-4">
+                                <MudButton Class="ml-auto " OnClick="Clear" Disabled="@(reviewImage == null)" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+                            </MudToolBar>
+                         </MudItem>
+
+                        <MudItem xs="12" >
+                            <MarkdownEditor Placeholder="Review body" @bind-Value="@_reviewBody" @bind-ValueHTML="@_review.ReviewBody"  >
+                                <Toolbar>
+                                    <MarkdownToolbarButton Name="bold" Action="MarkdownAction.Bold" Icon="fa fa-bold" Title="Bold" />
+                                    <MarkdownToolbarButton Name="italic" Action="MarkdownAction.Italic" Icon="fa fa-italic" Title="Italic" />
+                                    <MarkdownToolbarButton Name="heading" Action="MarkdownAction.Heading" Icon="fa fa-header" Title="Heading" />
+                                    <MarkdownToolbarButton Name="strikethrough" Action="MarkdownAction.Strikethrough" Icon="fa fa-strikethrough" Title="Strikethrough" />
+                                    <MarkdownToolbarButton Separator="true" Name="code" Action="MarkdownAction.Code" Icon="fa fa-code" Title="CodeBlock" />
+                                    <MarkdownToolbarButton Name="quote" Action="MarkdownAction.Quote" Icon="fa fa-quote-left" Title="Quote" />
+                                    <MarkdownToolbarButton Name="unordered-list" Action="MarkdownAction.UnorderedList" Icon="fa fa-list-ul" Title="Generic List" />
+                                    <MarkdownToolbarButton Name="ordered-list" Action="MarkdownAction.OrderedList" Icon="fa fa-list-ol" Title="Numbered List" />
+                                    <MarkdownToolbarButton Name="link" Action="MarkdownAction.Link" Icon="fa fa-link" Title="Link" />
+                                    <MarkdownToolbarButton Name="horizontal-rule" Action="MarkdownAction.HorizontalRule" Icon="fa fa-minus" Title="Insert Horizontal Line" />
+                                    <MarkdownToolbarButton Separator="true" Name="preview" Action="MarkdownAction.Preview" Icon="fa fa-eye no-disable" Title="Preview" />
+                                    <MarkdownToolbarButton Name="side-by-side	" Action="MarkdownAction.SideBySide" Icon="fa fa-columns no-disable no-mobile" Title="Side by Side" />
+                                    <MarkdownToolbarButton Name="guide" Action="MarkdownAction.Guide" Icon="fa fa-question-circle" Title="Markdown Guide" />
+                                </Toolbar>
+                            </MarkdownEditor>
+                        </MudItem >
+                        <MudItem xs="12">
+                            @if(reviewImage != null){
+                                   @reviewImage.ContentType
+                            }else{
+                                    <p>upload image</p>
                             }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="6">
-                        <MudSelect T="int" @bind-Value="_chosenGrade" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                            @for(int i=0; i <=10; i++)
+                        </MudItem>
+                        <MudItem xs="12">
+                            <ValidationSummary/>
+                        </MudItem>
+                        <MudItem xs="6" >
+                            TODO:ADDTAGSBUTTON
+                        </MudItem>
+                        <MudItem xs="6" Class="d-flex justify-end">
+                            <MudButton Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Color="Color.Primary" Size="Size.Large" Class="mt-3" >Publish</MudButton>
+                        </MudItem>
+                        @if (_isPublishActionFired)
+                        {
+                            if (_isPublishWasSuccesful)
                             {
-                                <MudSelectItem T="int" Value="@i"/>
+                                        <MudText Color="Color.Success">Your review published!</MudText>
                             }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="12" >
-                        <MarkdownEditor @bind-Value="@_reviewBody" />
-                    </MudItem>
-                    <MudItem xs="12" Class="d-flex justify-end">
-                        <MudButton Variant="Variant.Filled"  DisableElevation="true" Color="Color.Primary" Disabled="@(_reviewBody.Length==0 || _reviewSubject.Length == 0)" Size="Size.Large" Class="mt-3" OnClick="PublishNewReview">Publish</MudButton>
-                    </MudItem>
-                    @if (_isPublishActionFired)
-                    {
-                        if (_isPublishWasSuccesful)
-                        {
-                            <p>TODO:SUCCESS</p>
+                            else
+                            {
+                                        <MudText Color="Color.Error">Error</MudText>
+                            }
                         }
-                        else
-                        {
-                            <p>TODO:FAIL</p>
-                        }
-                    }
-                </MudGrid>
+                    </MudGrid>
+                </EditForm>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -53,31 +112,76 @@
 
 @code {
     [Inject]
-    private HttpClient _httpClient { get; set; }
+    private HttpClient? _httpClient { get; set; }
     [Inject]
-    private AuthenticationStateProvider _authenticationStateProvider{ get; set; }
-    private string _reviewSubject { get; set; } = "";
-    private Category _chosenCategory { get; set; }
-    private int _chosenGrade { get; set; }
-    string _reviewBody = "";
+    private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    private static string DefaultDragClass = "rounded-lg px-2 py-7 mud-height-full border-2 border-dashed z-10";
+    private string DragClass = DefaultDragClass;
+    private ReviewModel _review = new ReviewModel();
+    private IBrowserFile? reviewImage { get; set; }
+    string? _reviewBody = "Review body";
     private bool _isPublishActionFired = false;
     private bool _isPublishWasSuccesful = false;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-    }
+    private bool _isImageUploadFileNotValid = false;
 
     public async Task PublishNewReview()
     {
-        if(_reviewBody.Length > 0 && _reviewSubject.Length > 0)
-        {
-            ReviewModel newReview = new ReviewModel(_reviewSubject, _chosenCategory, _chosenGrade, _reviewBody);
-            HttpResponseMessage response =  await _httpClient.PostAsJsonAsync<ReviewModel>("api/ReviewModels", newReview);
-            _isPublishWasSuccesful = response.IsSuccessStatusCode;
-            _isPublishActionFired = true;
-        }
+        _review.AuthorId = await GetUserId();
+        _review.ReviewImage = await GenerateImageModelIfImageUploaded();
+        _review.DateOfCreationInUTC = DateTime.UtcNow;
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ReviewModel>("api/ReviewModels", _review);
+        _isPublishWasSuccesful = response.IsSuccessStatusCode;
+        _isPublishActionFired = true;
     }
+
+    private async Task<string> GetUserId()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirstValue("sub");
+    }
+
+    public async Task<ImageModel> GenerateImageModelIfImageUploaded()
+    {
+        if (reviewImage == null)
+            return null;
+        var buffer = new byte[reviewImage.Size];
+        await reviewImage.OpenReadStream().ReadAsync(buffer);
+        ImageModel image = new ImageModel();
+        image.ImageType = reviewImage.ContentType;
+        image.ImageName = reviewImage.Name;
+        image.ImageData = buffer;
+        return image;
+    }
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        IBrowserFile uploadedFile = e.File;
+        if(!uploadedFile.ContentType.Equals("image/png") || uploadedFile.Size > (2 * 1024 * 1024)){
+            _isImageUploadFileNotValid = true;
+            DragClass = $"{DefaultDragClass} mud-border-error";
+            return;
+        }
+        ClearDragClass();
+        reviewImage = e.File;
+    }
+
+    private async Task Clear()
+    {
+        reviewImage = null;
+        _isImageUploadFileNotValid = false;
+        ClearDragClass();
+        await Task.Delay(100);
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+
 }

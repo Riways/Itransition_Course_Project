@@ -1,4 +1,5 @@
-﻿using totten_romatoes.Client.Pages.Components.Reviews;
+﻿using Microsoft.EntityFrameworkCore;
+using totten_romatoes.Client.Pages.Components.Reviews;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Shared.Models;
 
@@ -8,7 +9,7 @@ namespace totten_romatoes.Server.Services
     {
         public void AddReviewToDb(ReviewModel newReview);
         public List<ReviewModel> GetAllReviews();
-        public ReviewModel GetReviewById(int id);
+        public ReviewModel GetReviewById(long id);
         public void AddCommentToDb(CommentModel newComment);
         public void AddGradeToDb(GradeModel newGrade);
     }
@@ -30,10 +31,10 @@ namespace totten_romatoes.Server.Services
 
         public List<ReviewModel> GetAllReviews()
         {
-            return _dbContext.Reviews.ToList();
+            return _dbContext.Reviews.Include(r => r.Author).ToList();
         }
 
-        public ReviewModel GetReviewById(int id)
+        public ReviewModel GetReviewById(long id)
         {
             return _dbContext.Reviews.Single(r => r.Id == id);
         }

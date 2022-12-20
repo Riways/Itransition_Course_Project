@@ -1,15 +1,27 @@
 ﻿
 
-@if(reviews == null || reviews.Count == 0)
+@if(_reviews == null || _reviews.Count == 0)
 {
-    <MudText Typo="Typo.h2"> No reviews found</MudText>
+    <MudText Typo="Typo.h2"> No _reviews found</MudText>
 }else{
-    foreach(var review in reviews)
-    {
-        <Review/>
-    }
+    <MudGrid >
+        @foreach(var review in _reviews)
+        {
+            <MudItem xs="12" >
+                <Review CurrentReview="review"/>
+            </MudItem>
+        }
+    </MudGrid>
 }
 
 @code {
-    List<ReviewModel> reviews { get; set; }
+    [Inject]
+    private IHttpClientFactory _clientFactory { get; set; }
+    private List<ReviewModel>? _reviews;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
+        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>("api/ReviewModels");
+    }
 }

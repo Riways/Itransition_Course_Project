@@ -31,5 +31,6 @@ namespace totten_romatoes.Server.Data
         public DbSet<ReviewModel>? Reviews { get; set; }
         public DbSet<CommentModel>? Comments { get; set; }
         public DbSet<GradeModel>? Grades { get; set; }
+        public DbSet<ImageModel>? Images { get; set; }
     }
 }

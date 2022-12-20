@@ -10,6 +10,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddMudServices();
 
+builder.Services.AddHttpClient("totten_romatoes.AnonymousAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+
 builder.Services.AddHttpClient("totten_romatoes.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
