@@ -1,48 +1,62 @@
-﻿<MudPaper  Width="100%" Outlined="true"  >
+﻿<MudPaper Width="100%" Outlined="true" >
     <MudGrid Spacing="0">
-        <MudItem  xs="12"  id="reviewHeader">
-            <div Class="border-bottom pa-4">
-                <MudAvatar Class="d-inline-flex" Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
-                <MudText Class="d-inline-flex mx-2"  Typo="Typo.h6" >
+        <MudItem Class="pa-4" xs="12" id="reviewHeader">
+            <MudGrid>
+                <MudItem xs="12" md="10">
+                    <MudAvatar Class="d-inline-flex" Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
+                    <MudText Class="d-inline-flex mx-2" Typo="Typo.h6" >
                         @CurrentReview.Author.UserName  
-                </MudText >
-                <MudText Class="d-inline-flex" Typo="Typo.body2" >
-                        @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
-                </MudText>
-            </div>
+                    </MudText >
+                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
+                            @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                    </MudText>
+                </MudItem>
+                <MudItem Class="my-auto" xs="12" md="2">
+                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
+                        Category: <MudLink Href="/" Typo="Typo.body2"> @CurrentReview.ReviewCategory</MudLink>  
+                    </MudText>
+                </MudItem>
+            </MudGrid>
         </MudItem>
-        <MudItem Class="px-4 py-2" xs="12">
-            <MudChip Size="Size.Small">TAGS</MudChip>
+        <MudItem xs="12">
+            <MudDivider />
         </MudItem>
-        <MudItem Class="pa-4"  xs="12">
+        <MudItem Class="pa-4" xs="12">
             <MudText Typo="Typo.h4" >
-               @CurrentReview.SubjectOfReview
+                @CurrentReview.SubjectOfReview
             </MudText>
         </MudItem>
+        @if (CurrentReview.ReviewImage != null)
+        {
+                <MudItem Class="px-4 " xs="12">
+                    <MudImage Src="@CurrentReview.ReviewImage.ImageUrl" Width="100"/>
+                </MudItem>
+        }
         <MudItem Class="px-4" xs="12" id="reviewBody">
             @((MarkupString)CurrentReview.ReviewBody)
         </MudItem>
         <MudItem xs="12">
             ReadFull button(Only ob main page)
         </MudItem>
+        <MudItem Class="px-4 py-2" xs="12">
+            <MudChip Size="Size.Small">TAGS</MudChip>
+        </MudItem>
         <MudItem xs="12">
-            <div Class="d-flex border-top pa-4 align-content-center" >
-                <MudIcon   Icon="@Icons.Rounded.StarRate" Color="Color.Secondary" Size="Size.Large"></MudIcon>
-                <MudText Class="d-inline-flex pt-2" >
-                     @(_currenReviewRating == double.MinValue ? "4.5" : _currenReviewRating)
-                </MudText>
-                <MudText Class="d-inline-flex mx-2" >
-                    Views
-                </MudText>
-                
-                <MudIcon class="mt-1" Icon="@Icons.TwoTone.Comment"></MudIcon>
-            </div>
+            <MudDivider />
+        </MudItem>
+        <MudItem Class="pa-4 my-auto" xs="12">
+            <MudIcon Class="pb-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
+            <MudText Class="d-inline" Typo="Typo.body2">
+                @(_currenReviewRating == double.MinValue ? "4.5" : _currenReviewRating)
+            </MudText>
+            <MudIcon Class="ml-4" Icon="@Icons.Filled.Comment" Size="Size.Small" /> 
+            <MudLink Href="/" Typo="Typo.body2"> Comments</MudLink>  
         </MudItem>
     </MudGrid>
 </MudPaper>
 @code {
     [Parameter]
-    public ReviewModel CurrentReview{ get; set; }
+    public ReviewModel CurrentReview { get; set; }
     private double _currenReviewRating = double.MinValue;
 
     protected override async Task OnParametersSetAsync()

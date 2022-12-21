@@ -21,7 +21,7 @@
                                     <MudSelect @bind-Value="_review.ReviewCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                                         @foreach (Category category in Enum.GetValues(typeof(Category)))
                                         {
-                                                <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+                                                    <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </MudItem>
@@ -29,7 +29,7 @@
                                     <MudSelect T="int" @bind-Value="_review.AuthorGrade" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                                         @for (int i = 0; i <= 10; i++)
                                         {
-                                                <MudSelectItem T="int" Value="@i"/>
+                                                    <MudSelectItem T="int" Value="@i"/>
                                         }
                                     </MudSelect>
                                 </MudItem>
@@ -42,11 +42,11 @@
                                     <MudPaper  Outlined="true" Class="@DragClass">
                                         @if (reviewImage != null)
                                         {
-                                                <MudChip Color="Color.Dark" Text="@reviewImage.Name" />
+                                                    <MudChip Color="Color.Dark" Text="@reviewImage.Name" />
                                         }
                                         else
                                         {
-                                                <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
+                                                    <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
                                         }
                                     </MudPaper>
                                 </ButtonTemplate>
@@ -57,7 +57,7 @@
                          </MudItem>
 
                         <MudItem xs="12" >
-                            <MarkdownEditor Placeholder="Review body" @bind-Value="@_reviewBody" @bind-ValueHTML="@_review.ReviewBody"  >
+                            <MarkdownEditor Placeholder="Review body" @bind-Value="_reviewBody" @bind-ValueHTML="@_review.ReviewBody"  >
                                 <Toolbar>
                                     <MarkdownToolbarButton Name="bold" Action="MarkdownAction.Bold" Icon="fa fa-bold" Title="Bold" />
                                     <MarkdownToolbarButton Name="italic" Action="MarkdownAction.Italic" Icon="fa fa-italic" Title="Italic" />
@@ -75,31 +75,35 @@
                                 </Toolbar>
                             </MarkdownEditor>
                         </MudItem >
-                        <MudItem xs="12">
-                            @if(reviewImage != null){
-                                   @reviewImage.ContentType
-                            }else{
-                                    <p>upload image</p>
-                            }
+                        <MudItem xs="12" md="6">
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    @foreach (string tag in _chosenTags)
+                                    {
+                                        <MudChip OnClose="@(() => RemoveTag(tag))">@tag</MudChip>
+                                    }
+                                </MudItem>
+                                <MudItem Class="d-flex align-center justify-end" xs="12">
+                                    <MudAutocomplete T="string" Label="Choose tag" CoerceText="true" @bind-Value="@_tagFieldValue" SearchFunc="@Search1" AdornmentIcon="@Icons.Material.Filled.Search"/>
+                                    <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" DisableElevation="true" Size="Size.Large" Color="Color.Info" >add</MudButton>
+                                </MudItem>
+                            </MudGrid>
+                        </MudItem>
+                        <MudItem Class="d-flex justify-end align-end" xs="12" md="6">
+                            <MudButton   Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Size="Size.Large" Color="Color.Primary" >Publish</MudButton>
                         </MudItem>
                         <MudItem xs="12">
                             <ValidationSummary/>
-                        </MudItem>
-                        <MudItem xs="6" >
-                            TODO:ADDTAGSBUTTON
-                        </MudItem>
-                        <MudItem xs="6" Class="d-flex justify-end">
-                            <MudButton Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Color="Color.Primary" Size="Size.Large" Class="mt-3" >Publish</MudButton>
                         </MudItem>
                         @if (_isPublishActionFired)
                         {
                             if (_isPublishWasSuccesful)
                             {
-                                        <MudText Color="Color.Success">Your review published!</MudText>
+                                    <MudText Color="Color.Success">Your review published!</MudText>
                             }
                             else
                             {
-                                        <MudText Color="Color.Error">Error</MudText>
+                                    <MudText Color="Color.Error">Error</MudText>
                             }
                         }
                     </MudGrid>
@@ -120,6 +124,8 @@
     private ReviewModel _review = new ReviewModel();
     private IBrowserFile? reviewImage { get; set; }
     string? _reviewBody = "Review body";
+    private List<string> _chosenTags { get; set; } = new List<string> { "first", "second" };
+    private string _tagFieldValue { get; set; }
     private bool _isPublishActionFired = false;
     private bool _isPublishWasSuccesful = false;
     private bool _isImageUploadFileNotValid = false;
@@ -146,7 +152,7 @@
         if (reviewImage == null)
             return null;
         var buffer = new byte[reviewImage.Size];
-        await reviewImage.OpenReadStream().ReadAsync(buffer);
+        await reviewImage.OpenReadStream(Constants.MAX_IMAGE_SIZE).ReadAsync(buffer);
         ImageModel image = new ImageModel();
         image.ImageType = reviewImage.ContentType;
         image.ImageName = reviewImage.Name;
@@ -154,10 +160,22 @@
         return image;
     }
 
+    private void AddTag()
+    {
+        if (!_chosenTags.Contains(_tagFieldValue))
+            _chosenTags.Add(_tagFieldValue);
+        _tagFieldValue = String.Empty;
+    }
+    private void RemoveTag(string tagToRemove)
+    {
+        _chosenTags.Remove(tagToRemove);
+    }
+
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         IBrowserFile uploadedFile = e.File;
-        if(!uploadedFile.ContentType.Equals("image/png") || uploadedFile.Size > (2 * 1024 * 1024)){
+        if (!uploadedFile.ContentType.Equals("image/png") || uploadedFile.Size > (Constants.MAX_IMAGE_SIZE))
+        {
             _isImageUploadFileNotValid = true;
             DragClass = $"{DefaultDragClass} mud-border-error";
             return;
@@ -182,6 +200,35 @@
     private void ClearDragClass()
     {
         DragClass = DefaultDragClass;
+    }
+
+    private string[] states =
+    {
+        "Alabama", "Alaska", "American Samoa", "Arizona",
+        "Arkansas", "California", "Colorado", "Connecticut",
+        "Delaware", "District of Columbia", "Federated States of Micronesia",
+        "Florida", "Georgia", "Guam", "Hawaii", "Idaho",
+        "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+        "Louisiana", "Maine", "Marshall Islands", "Maryland",
+        "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+        "Missouri", "Montana", "Nebraska", "Nevada",
+        "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Northern Mariana Islands", "Ohio",
+        "Oklahoma", "Oregon", "Palau", "Pennsylvania", "Puerto Rico",
+        "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
+        "Texas", "Utah", "Vermont", "Virgin Island", "Virginia",
+        "Washington", "West Virginia", "Wisconsin", "Wyoming",
+    };
+
+    private async Task<IEnumerable<string>> Search1(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return states;
+        return states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
 }

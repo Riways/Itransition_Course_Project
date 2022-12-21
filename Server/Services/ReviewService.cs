@@ -31,7 +31,7 @@ namespace totten_romatoes.Server.Services
 
         public List<ReviewModel> GetAllReviews()
         {
-            return _dbContext.Reviews.Include(r => r.Author).ToList();
+            return _dbContext.Reviews.Include(r => r.Author).Include(r => r.ReviewImage).ToList();
         }
 
         public ReviewModel GetReviewById(long id)
