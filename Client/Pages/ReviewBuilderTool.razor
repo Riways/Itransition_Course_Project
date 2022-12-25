@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims;
-@using PSC.Blazor.Components.MarkdownEditor.Enums;
+@using totten_romatoes.Client.Pages.Components.Reviews.ReviewBuilder;
 
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Large">
     <MudGrid Spacing="4" Class="mt-16" Justify="Justify.Center">
@@ -13,97 +13,92 @@
                     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create new review</MudText>
                     <MudGrid>
                         <MudItem xs="12">
-                            <MudTextField T="string" @bind-Value="_review.SubjectOfReview" For="@(() => _review.SubjectOfReview)" Variant="Variant.Outlined" Label="Subject" />
+                            <MudTextField T="string" @bind-Value="_review.Subject.Name" For="@(() => _review.Subject.Name)" Immediate="true" Variant="Variant.Outlined" Label="Subject of review" />
                         </MudItem>
-                        <MudItem xs="12" md="6">
+                        <MudItem xs="12">
+                            <MudTextField T="string" @bind-Value="_review.Title" For="@(() => _review.Title)" Immediate="true" Variant="Variant.Outlined" Label="Title" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect @bind-Value="_review.ReviewCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                                @foreach (Category category in Enum.GetValues(typeof(Category)))
+                                {
+                                    <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem   xs="12" sm="6">
+                            <MudText Class="flex"  Align="Align.Center"  >Rate the subject: </MudText>
+                            <div Class="d-flex justify-center">
+                                <MudHidden  Breakpoint="Breakpoint.LgAndUp" Invert="true">
+                                    <MudRating    @bind-SelectedValue="_review.AuthorGrade" Size="Size.Large" MaxValue="10" />
+                                </MudHidden>
+                                <MudHidden Breakpoint="Breakpoint.MdAndDown" Invert="true">
+                                    <MudRating    @bind-SelectedValue="_review.AuthorGrade" Size="Size.Medium" MaxValue="10" />
+                                </MudHidden>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12">
                             <MudGrid>
-                                <MudItem xs="12">
-                                    <MudSelect @bind-Value="_review.ReviewCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                                        @foreach (Category category in Enum.GetValues(typeof(Category)))
+                                @if(_review.Tags != null)
+                                {
+                                    <MudItem xs="12">
+                                        @foreach (TagModel tag in _review.Tags)
                                         {
-                                                    <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+                                            <MudChip OnClose="@(() => RemoveTag(tag))">@tag.Name</MudChip>
                                         }
-                                    </MudSelect>
-                                </MudItem>
-                                <MudItem xs="12">
-                                    <MudSelect T="int" @bind-Value="_review.AuthorGrade" Label="Grade" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                                        @for (int i = 0; i <= 10; i++)
-                                        {
-                                                    <MudSelectItem T="int" Value="@i"/>
-                                        }
-                                    </MudSelect>
+                                    </MudItem>
+                                }
+                                <MudItem Class="d-flex align-center justify-end" xs="12">
+                                    <MudAutocomplete T="string" Label="Choose tag" For="@(() => _tagFieldValue.Name)" CoerceValue="true"  @bind-Value="@_tagFieldValue.Name" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search"/>
+                                    <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" Disabled="@(_tagFieldValue == null || _tagFieldValue.Name.Length == 0 || !IsTagValid())" DisableElevation="true" Size="Size.Large" Color="Color.Info" >add</MudButton>
                                 </MudItem>
                             </MudGrid>
                         </MudItem>
-                        <MudItem xs="12" md="6">
-                            <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="flex-1 " InputClass="absolute mud-width-full mud-height-full  overflow-hidden z-20" InputStyle="opacity:0"
-                                @ondragenter="@SetDragClass"  @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Error="@_isImageUploadFileNotValid" ErrorText="You can upload .png image with size less then 2 mb">
+                        <MudItem xs="12">
+                            <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="d-flex    mud-width-full " InputClass="d-flex absolute mud-height-full mud-width-full overflow-hidden z-20" InputStyle="opacity:0"
+                                @ondragenter="@SetDragClass"  @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Error="@_isImageUploadFileNotValid" ErrorText="@_imageErrorText">
                                 <ButtonTemplate Context="upload_file_context">
                                     <MudPaper  Outlined="true" Class="@DragClass">
-                                        @if (reviewImage != null)
+                                        @if (_reviewImage != null)
                                         {
-                                                    <MudChip Color="Color.Dark" Text="@reviewImage.Name" />
+                                            <MudChip Color="Color.Dark" Text="@_reviewImage.Name" />
                                         }
                                         else
                                         {
-                                                    <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
+                                            <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
                                         }
                                     </MudPaper>
                                 </ButtonTemplate>
                             </MudFileUpload>
-                            <MudToolBar DisableGutters="true" Class="gap-4">
-                                <MudButton Class="ml-auto " OnClick="Clear" Disabled="@(reviewImage == null)" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+                            <MudToolBar DisableGutters="true">
+                                <MudButton Class="ml-auto " OnClick="Clear" Disabled="@(_reviewImage == null)" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
                             </MudToolBar>
                          </MudItem>
-
                         <MudItem xs="12" >
-                            <MarkdownEditor Placeholder="Review body" @bind-Value="_reviewBody" @bind-ValueHTML="@_review.ReviewBody"  >
-                                <Toolbar>
-                                    <MarkdownToolbarButton Name="bold" Action="MarkdownAction.Bold" Icon="fa fa-bold" Title="Bold" />
-                                    <MarkdownToolbarButton Name="italic" Action="MarkdownAction.Italic" Icon="fa fa-italic" Title="Italic" />
-                                    <MarkdownToolbarButton Name="heading" Action="MarkdownAction.Heading" Icon="fa fa-header" Title="Heading" />
-                                    <MarkdownToolbarButton Name="strikethrough" Action="MarkdownAction.Strikethrough" Icon="fa fa-strikethrough" Title="Strikethrough" />
-                                    <MarkdownToolbarButton Separator="true" Name="code" Action="MarkdownAction.Code" Icon="fa fa-code" Title="CodeBlock" />
-                                    <MarkdownToolbarButton Name="quote" Action="MarkdownAction.Quote" Icon="fa fa-quote-left" Title="Quote" />
-                                    <MarkdownToolbarButton Name="unordered-list" Action="MarkdownAction.UnorderedList" Icon="fa fa-list-ul" Title="Generic List" />
-                                    <MarkdownToolbarButton Name="ordered-list" Action="MarkdownAction.OrderedList" Icon="fa fa-list-ol" Title="Numbered List" />
-                                    <MarkdownToolbarButton Name="link" Action="MarkdownAction.Link" Icon="fa fa-link" Title="Link" />
-                                    <MarkdownToolbarButton Name="horizontal-rule" Action="MarkdownAction.HorizontalRule" Icon="fa fa-minus" Title="Insert Horizontal Line" />
-                                    <MarkdownToolbarButton Separator="true" Name="preview" Action="MarkdownAction.Preview" Icon="fa fa-eye no-disable" Title="Preview" />
-                                    <MarkdownToolbarButton Name="side-by-side	" Action="MarkdownAction.SideBySide" Icon="fa fa-columns no-disable no-mobile" Title="Side by Side" />
-                                    <MarkdownToolbarButton Name="guide" Action="MarkdownAction.Guide" Icon="fa fa-question-circle" Title="Markdown Guide" />
-                                </Toolbar>
-                            </MarkdownEditor>
+                            <MarkDownEditor SetReviewBody="@SetReviewBody"/>
                         </MudItem >
-                        <MudItem xs="12" md="6">
-                            <MudGrid>
-                                <MudItem xs="12">
-                                    @foreach (string tag in _chosenTags)
-                                    {
-                                        <MudChip OnClose="@(() => RemoveTag(tag))">@tag</MudChip>
-                                    }
-                                </MudItem>
-                                <MudItem Class="d-flex align-center justify-end" xs="12">
-                                    <MudAutocomplete T="string" Label="Choose tag" CoerceText="true" @bind-Value="@_tagFieldValue" SearchFunc="@Search1" AdornmentIcon="@Icons.Material.Filled.Search"/>
-                                    <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" DisableElevation="true" Size="Size.Large" Color="Color.Info" >add</MudButton>
-                                </MudItem>
-                            </MudGrid>
-                        </MudItem>
-                        <MudItem Class="d-flex justify-end align-end" xs="12" md="6">
-                            <MudButton   Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Size="Size.Large" Color="Color.Primary" >Publish</MudButton>
-                        </MudItem>
                         <MudItem xs="12">
                             <ValidationSummary/>
+                        </MudItem>
+                        <MudItem Class="d-flex justify-end align-end" xs="12">
+                            @if (_isPublishingInProcess)
+                            {
+                                <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true"/>
+                            }
+                            else
+                            {
+                                <MudButton   Variant="Variant.Filled" ButtonType="ButtonType.Submit"  DisableElevation="true" Size="Size.Large" Color="Color.Primary" >Publish</MudButton>
+                            }
                         </MudItem>
                         @if (_isPublishActionFired)
                         {
                             if (_isPublishWasSuccesful)
                             {
-                                    <MudText Color="Color.Success">Your review published!</MudText>
+                                <MudText Color="Color.Success">Your review published!</MudText>
                             }
                             else
                             {
-                                    <MudText Color="Color.Error">Error</MudText>
+                                <MudText Color="Color.Error">Error</MudText>
                             }
                         }
                     </MudGrid>
@@ -121,22 +116,24 @@
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     private static string DefaultDragClass = "rounded-lg px-2 py-7 mud-height-full border-2 border-dashed z-10";
     private string DragClass = DefaultDragClass;
-    private ReviewModel _review = new ReviewModel();
-    private IBrowserFile? reviewImage { get; set; }
-    string? _reviewBody = "Review body";
-    private List<string> _chosenTags { get; set; } = new List<string> { "first", "second" };
-    private string _tagFieldValue { get; set; }
+    private ReviewModel _review = new ();
+    private TagModel? _tagFieldValue = new();
+    private IBrowserFile? _reviewImage { get; set; }
+    private bool _isPublishingInProcess = false;
     private bool _isPublishActionFired = false;
     private bool _isPublishWasSuccesful = false;
     private bool _isImageUploadFileNotValid = false;
+    private string _imageErrorText = $"You can upload {Constants.IMAGE_FORMAT} image with size less then {Constants.MAX_IMAGE_SIZE / 1000000} mb";
 
     public async Task PublishNewReview()
     {
+        _isPublishingInProcess = true;
         _review.AuthorId = await GetUserId();
         _review.ReviewImage = await GenerateImageModelIfImageUploaded();
         _review.DateOfCreationInUTC = DateTime.UtcNow;
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ReviewModel>("api/ReviewModels", _review);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ReviewModel>("api/reviews", _review);
         _isPublishWasSuccesful = response.IsSuccessStatusCode;
+        _isPublishingInProcess = false;
         _isPublishActionFired = true;
     }
 
@@ -149,44 +146,62 @@
 
     public async Task<ImageModel> GenerateImageModelIfImageUploaded()
     {
-        if (reviewImage == null)
+        if (_reviewImage == null)
             return null;
-        var buffer = new byte[reviewImage.Size];
-        await reviewImage.OpenReadStream(Constants.MAX_IMAGE_SIZE).ReadAsync(buffer);
+        var buffer = new byte[_reviewImage.Size];
+        await _reviewImage.OpenReadStream(Constants.MAX_IMAGE_SIZE).ReadAsync(buffer);
         ImageModel image = new ImageModel();
-        image.ImageType = reviewImage.ContentType;
-        image.ImageName = reviewImage.Name;
+        image.ImageType = _reviewImage.ContentType;
+        image.ImageName = _reviewImage.Name;
         image.ImageData = buffer;
         return image;
     }
 
     private void AddTag()
     {
-        if (!_chosenTags.Contains(_tagFieldValue))
-            _chosenTags.Add(_tagFieldValue);
-        _tagFieldValue = String.Empty;
+        if (_review.Tags == null)
+            _review.Tags = new();
+        if ( IsTagValid() && _tagFieldValue.Name.Length > 0 && !_review.Tags.Contains(_tagFieldValue))
+        {
+            _tagFieldValue.Name = _tagFieldValue.Name.Trim();
+            _review.Tags.Add(_tagFieldValue);
+        }
+        _tagFieldValue = new();
     }
-    private void RemoveTag(string tagToRemove)
+
+    private bool IsTagValid()
     {
-        _chosenTags.Remove(tagToRemove);
+        return _tagFieldValue.Name.Length >= Constants.MIN_TAG_LENGTH && _tagFieldValue.Name.Length <= Constants.MAX_TAG_LENGTH;
+    }
+
+    private void RemoveTag(TagModel tagToRemove)
+    {
+        if(_review.Tags != null)
+            _review.Tags.Remove(tagToRemove);
+    }
+
+    public void SetReviewBody(string reviewBody)
+    {
+        _review.ReviewBody = reviewBody;
     }
 
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         IBrowserFile uploadedFile = e.File;
-        if (!uploadedFile.ContentType.Equals("image/png") || uploadedFile.Size > (Constants.MAX_IMAGE_SIZE))
+        if (!uploadedFile.ContentType.Equals(Constants.IMAGE_FORMAT) || uploadedFile.Size > (Constants.MAX_IMAGE_SIZE))
         {
             _isImageUploadFileNotValid = true;
             DragClass = $"{DefaultDragClass} mud-border-error";
             return;
         }
+        _isImageUploadFileNotValid = false;
         ClearDragClass();
-        reviewImage = e.File;
+        _reviewImage = e.File;
     }
 
     private async Task Clear()
     {
-        reviewImage = null;
+        _reviewImage = null;
         _isImageUploadFileNotValid = false;
         ClearDragClass();
         await Task.Delay(100);

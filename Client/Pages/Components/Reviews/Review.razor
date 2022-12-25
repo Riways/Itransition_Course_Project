@@ -1,75 +1,169 @@
-﻿<MudPaper Width="100%" Outlined="true" >
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Security.Claims;
+
+<MudPaper Width="100%" Outlined="true" >
     <MudGrid Spacing="0">
-        <MudItem Class="pa-4" xs="12" id="reviewHeader">
+        <MudItem Class="px-6 py-4" xs="12" id="reviewHeader">
             <MudGrid>
-                <MudItem xs="12" md="10">
-                    <MudAvatar Class="d-inline-flex" Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
-                    <MudText Class="d-inline-flex mx-2" Typo="Typo.h6" >
+                <MudItem Class="d-flex align-content-center flex-wrap" xs="12" md="6">
+                    <MudAvatar   Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
+                    <MudText Class=" mx-2" Typo="Typo.h6" >
                         @CurrentReview.Author.UserName  
                     </MudText >
-                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
-                            @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                    <MudText  Class="d-flex align-content-center flex-wrap pb-1" Typo="Typo.body2" >
+                        @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
                     </MudText>
                 </MudItem>
-                <MudItem Class="my-auto" xs="12" md="2">
-                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
-                        Category: <MudLink Href="/" Typo="Typo.body2"> @CurrentReview.ReviewCategory</MudLink>  
+                <MudItem xs="12" md="6">
+                    <MudText  Class="d-flex flex-1 flex-wrap justify-end" Typo="Typo.h6">
+                        <MudLink Typo="Typo.h6" Class="pr-1" Href="/">@CurrentReview.Subject.Name</MudLink>
+                        (
+                        <MudIcon Class="pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
+                        @(_subjectRating == double.MinValue ? "--" : _subjectRating) )
                     </MudText>
+                    @if (_userGrade == 0)
+                    {
+                        <MudRating  SelectedValueChanged="UserRatedSubjectHandler" Class="d-flex justify-end"  />
+                    }
+                    else
+                    {
+                        <MudRating  SelectedValue="_userGrade" ReadOnly="true" Class="d-flex justify-end"  />
+                    }
                 </MudItem>
             </MudGrid>
         </MudItem>
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
-        <MudItem Class="pa-4" xs="12">
+        <MudItem Class="px-6 py-4" xs="12">
             <MudText Typo="Typo.h4" >
-                @CurrentReview.SubjectOfReview
+                @CurrentReview.Title
             </MudText>
         </MudItem>
         @if (CurrentReview.ReviewImage != null)
         {
-                <MudItem Class="px-4 " xs="12">
-                    <MudImage Src="@CurrentReview.ReviewImage.ImageUrl" Width="100"/>
-                </MudItem>
+            <MudItem Class="px-6 " xs="12">
+                <MudImage Src="@CurrentReview.ReviewImage.ImageUrl" Width="100"/>
+            </MudItem>
         }
-        <MudItem Class="px-4" xs="12" id="reviewBody">
+        @if (_isReviewWrapped)
+        {
+            <MudItem Class="px-6 pt-4" Style="height:7rem; overflow:hidden"  xs="12" id="reviewBody">
+            @(
+                (MarkupString)CurrentReview.ReviewBody
+                )
+            </MudItem>
+            <MudItem Class="mt-n4 pt-4 px-6" xs="12" >
+                <MudDivider Class="mb-4"></MudDivider>
+                <MudButton Variant="Variant.Outlined" Size="Size.Medium" OnClick="@(() => _isReviewWrapped=false)" Color="Color.Transparent">Read</MudButton>
+            </MudItem>
+        }
+        else
+        {
+            <MudItem Class="px-6 pt-4" xs="12" id="reviewBody">
             @((MarkupString)CurrentReview.ReviewBody)
-        </MudItem>
+                <MudRating Class="d-flex mt-2" ReadOnly="true" SelectedValue="@CurrentReview.AuthorGrade" Size="Size.Medium" MaxValue="10" />
+            </MudItem>
+        }
+        @if (CurrentReview.Tags != null)
+        {
+            <MudItem Class="px-6 py-4" xs="12">
+            @foreach (var tag in CurrentReview.Tags)
+            {
+                <MudChip Size="Size.Small">@tag.Name</MudChip>
+            }
+            </MudItem>
+        }
         <MudItem xs="12">
-            ReadFull button(Only ob main page)
-        </MudItem>
-        <MudItem Class="px-4 py-2" xs="12">
-            <MudChip Size="Size.Small">TAGS</MudChip>
+            <MudButton OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
         </MudItem>
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
-        <MudItem Class="pa-4 my-auto" xs="12">
-            <MudIcon Class="pb-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
-            <MudText Class="d-inline" Typo="Typo.body2">
-                @(_currenReviewRating == double.MinValue ? "4.5" : _currenReviewRating)
-            </MudText>
-            <MudIcon Class="ml-4" Icon="@Icons.Filled.Comment" Size="Size.Small" /> 
-            <MudLink Href="/" Typo="Typo.body2"> Comments</MudLink>  
+        <MudItem Class="px-6 py-4 " xs="12">
+            <MudGrid>
+                <MudItem Class="d-flex align-content-center flex-wrap" xs="6" sm="10">
+                    <MudIcon Icon="@Icons.Outlined.Comment" Size="Size.Medium" /> 
+                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> ( 0 )</MudLink>  
+                </MudItem>
+                <MudItem  xs="6" sm="2">
+                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
+                        Category: 
+                    </MudText>
+                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @CurrentReview.ReviewCategory</MudLink>  
+                </MudItem>
+            </MudGrid>
         </MudItem>
     </MudGrid>
 </MudPaper>
 @code {
     [Parameter]
     public ReviewModel CurrentReview { get; set; }
-    private double _currenReviewRating = double.MinValue;
+    [Parameter]
+    public AuthenticationStateProvider? AuthStateProvider { get; set; }
+    [Parameter]
+    public EventCallback<long> DeleteReviewFromList { get; set; }
+    [Inject]
+    private HttpClient? _httpClient { get; set; }
+    private string _userId;
+    private double _subjectRating = double.MinValue;
+    private bool _isReviewWrapped = true;
+    private int _userGrade { get; set; } = 0;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (CurrentReview.Grades != null && CurrentReview.Grades.Count > 0)
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
         {
-            int gradesSum = CurrentReview.Grades.Select(g => g.Value).Sum();
-            _currenReviewRating = (double)gradesSum / CurrentReview.Grades.Count;
+            _userId = user.FindFirstValue("sub");
+            var userGrade = CurrentReview.Subject.Grades.FirstOrDefault(g => g.AuthorId == _userId);
+            if (userGrade != null)
+                _userGrade = userGrade.Value;
         }
+        CalculateSubjectRating();
     }
 
-    public Color RandomColorPick()
+    public async Task UserRatedSubjectHandler(int value)
+    {
+        _userGrade = value;
+        GradeModel newGrade = new();
+        newGrade.Value = value;
+        newGrade.SubjectId = CurrentReview.SubjectId;
+        newGrade.AuthorId = _userId;
+        await _httpClient.PostAsJsonAsync<GradeModel>(Constants.SUBJECT_GRADE_URL, newGrade);
+        CurrentReview.Subject.Grades.Add(newGrade);
+        CalculateSubjectRating();
+    }
+
+    private async Task<string> GetUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirstValue("sub");
+    }
+
+    private async Task DeleteReview()
+    {
+        await _httpClient.DeleteAsync($"{Constants.REVIEW_URL}/{CurrentReview.Id}");
+        DeleteReviewFromList.InvokeAsync(CurrentReview.Id);
+    }
+
+    private Color RandomColorPick()
     {
         return (Color)Random.Shared.Next(0, 11);
     }
+
+    private void CalculateSubjectRating()
+    {
+        if (CurrentReview.Subject.Grades != null && CurrentReview.Subject.Grades.Count > 0)
+        {
+            int gradesSum = CurrentReview.Subject.Grades.Select(g => g.Value).Sum();
+
+            _subjectRating = Math.Round((double)gradesSum / CurrentReview.Subject.Grades.Count, 1);
+
+        }
+    }
+
 }

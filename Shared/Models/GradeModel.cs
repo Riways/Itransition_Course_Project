@@ -12,13 +12,13 @@ namespace totten_romatoes.Shared.Models
     {
         public long Id { get; set; }
         [Required]
-        public ApplicationUser Author { get; set; }
-        [Required]
-        [Range(0,5)]
+        [Range(1,5)]
         public int Value { get; set; }
         [Required]
-        public long ReviewId { get; set; }
+        public long SubjectId { get; set; }
+        public SubjectModel? Subject { get; set; }
         [Required]
-        public ReviewModel Review { get; set; }
+        public string AuthorId { get; set; }
+        public ApplicationUser? Author { get; set; }
     }
 }

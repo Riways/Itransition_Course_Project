@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
+using totten_romatoes.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,12 +31,16 @@ builder.Services.AddIdentityServer()
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
+builder.Services.AddTransient<IDropboxService, DropboxService>();
+builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IReviewService,ReviewService>();
-builder.Services.AddTransient<IDropboxService,DropboxService>();
-builder.Services.AddTransient<IUserService,UserService>();
-builder.Services.AddTransient<IImageService,ImageService>();
+builder.Services.AddTransient<ISubjectService,SubjectService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

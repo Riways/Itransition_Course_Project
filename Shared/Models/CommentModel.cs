@@ -9,7 +9,6 @@ namespace totten_romatoes.Shared.Models
         public string Text { get; set; }
         [Required]
         public string AuthorId { get; set; }
-        [Required]
         public ApplicationUser Author { get; set; }
     }
 }

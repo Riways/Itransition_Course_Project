@@ -6,10 +6,10 @@ namespace totten_romatoes.Shared.Models
     public class ReviewModel
     {
         public long Id { get; set; }
-        [Required(ErrorMessage = "Subject of review is required")]
-        [MaxLength(255, ErrorMessage = "Maximum subject length is 255")]
-        [MinLength(2, ErrorMessage = "Minimum subject length is 2")]
-        public string SubjectOfReview { get; set; }
+        [Required(ErrorMessage = "Title is required")]
+        [MaxLength(255, ErrorMessage = "Maximum tile length is 255")]
+        [MinLength(2, ErrorMessage = "Minimum title length is 2")]
+        public string Title { get; set; }
         [Required]
         public Category ReviewCategory { get; set; }
         [Required]
@@ -21,27 +21,21 @@ namespace totten_romatoes.Shared.Models
         public string ReviewBody { get; set; }
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }
-        public long? ImageId { get; set; }
+        public long SubjectId { get; set; }
+        [Required]
+        public SubjectModel Subject { get; set; }
+        public long? ReviewImageId { get; set; }
         public ImageModel? ReviewImage { get; set; }
         public string? AuthorId { get; set; }
         public ApplicationUser? Author { get; set; }
         public List<CommentModel>? Comments { get; set; }
+        [MaxLength(Constants.MAX_AMOUNT_OF_TAGS_IN_REVIEW, ErrorMessage = $"Max amount of tags is exceeded")]
         public List<TagModel>? Tags { get; set; }
-        public List<GradeModel>? Grades { get; set; }
-
-
-        public ReviewModel(string authorId,  string subjectOfReview, Category reviewCategory, int authorGrade, string reviewBody, DateTime dateOfCreationInUTC)
-        {
-            AuthorId = authorId;
-            SubjectOfReview = subjectOfReview;
-            ReviewCategory = reviewCategory;
-            AuthorGrade = authorGrade;
-            ReviewBody = reviewBody;
-            DateOfCreationInUTC = dateOfCreationInUTC;
-        }
+        public List<LikeModel>? Likes { get; set; }
 
         public ReviewModel()
         {
+            Subject = new SubjectModel();
         }
     }
 

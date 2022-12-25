@@ -1,27 +1,36 @@
 ﻿
-
-@if(_reviews == null || _reviews.Count == 0)
+@if(_reviews == null){
+    <MudGrid Class="d-flex align-content-center flex-grow-1 flex-wrap justify-center"  Style="height:80vh">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </MudGrid>
+}else
 {
-    <MudText Typo="Typo.h2"> No _reviews found</MudText>
-}else{
     <MudGrid >
-        @foreach(var review in _reviews)
+        @foreach (var review in _reviews)
         {
             <MudItem xs="12" >
-                <Review CurrentReview="review"/>
+                <Review CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
             </MudItem>
-        }
+        } 
     </MudGrid>
 }
 
 @code {
     [Inject]
     private IHttpClientFactory _clientFactory { get; set; }
+    [Inject]
+    private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     private List<ReviewModel>? _reviews;
 
     protected override async Task OnInitializedAsync()
     {
         HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>("api/ReviewModels");
+        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>("api/reviews");
+    }
+
+    public void DeleteReviewFromList(long id)
+    {
+        _reviews = _reviews.Where(r => r.Id != id).ToList();
+        StateHasChanged();
     }
 }

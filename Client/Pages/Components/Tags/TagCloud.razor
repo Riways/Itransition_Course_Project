@@ -1,5 +1,30 @@
-﻿<h3>TODO: TagCloud</h3>
+﻿@if(_currentTags.Count > 0)
+{
+    <MudPaper Class="d-flex justify-space-around flex-wrap flex-grow-1 pa-4"  Outlined="true" >
+        @foreach (var tag in _currentTags)
+        {
+            <MudChip>@tag</MudChip>
+        }
+    </MudPaper>
+}else
+{
+    <MudGrid Class="d-flex mt-16 flex-grow-1 flex-wrap justify-center" >
+        <MudProgressCircular   Color="Color.Primary" Size="Size.Medium" Indeterminate="true" />
+    </MudGrid>
+}
+
+
 
 @code {
+    [Inject]
+    private IHttpClientFactory _clientFactory { get; set; }
+    private List<string> _currentTags = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
+        _currentTags = await _anonymousHttpClient.GetFromJsonAsync<List<string>>($"api/tags/take/{Constants.AMOUNT_OF_TAGS_IN_CLOUD}");
+        base.OnInitialized();
+    }
 
 }

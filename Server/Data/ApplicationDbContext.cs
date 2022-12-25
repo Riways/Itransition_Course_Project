@@ -26,11 +26,17 @@ namespace totten_romatoes.Server.Data
                  .Entity<ReviewModel>()
                  .Property(e => e.AuthorId)
                  .IsRequired();
+            modelBuilder.Entity<TagModel>().HasAlternateKey(t => t.Name);
+            modelBuilder.Entity<SubjectModel>().HasAlternateKey(g => g.Name);
+            modelBuilder.Entity<GradeModel>().HasAlternateKey(g => new { g.SubjectId, g.AuthorId });
         }
 
         public DbSet<ReviewModel>? Reviews { get; set; }
         public DbSet<CommentModel>? Comments { get; set; }
         public DbSet<GradeModel>? Grades { get; set; }
         public DbSet<ImageModel>? Images { get; set; }
+        public DbSet<TagModel>? Tags { get; set; }
+        public DbSet<LikeModel>? Likes { get; set; }
+        public DbSet<SubjectModel>? Subjects { get; set; }
     }
 }

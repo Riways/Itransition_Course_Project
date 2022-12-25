@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using totten_romatoes.Server.Data;
@@ -11,9 +12,10 @@ using totten_romatoes.Server.Data;
 namespace totten_romatoes.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221225144418_LikeModelAndSubjectModelCreated")]
+    partial class LikeModelAndSubjectModelCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -471,7 +473,13 @@ namespace totten_romatoes.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("Review")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ReviewId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ReviewModelId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ToUserId")
@@ -482,7 +490,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("FromUserId");
 
-                    b.HasIndex("ReviewId");
+                    b.HasIndex("ReviewModelId");
 
                     b.HasIndex("ToUserId");
 
@@ -687,11 +695,9 @@ namespace totten_romatoes.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("totten_romatoes.Shared.Models.ReviewModel", "Review")
+                    b.HasOne("totten_romatoes.Shared.Models.ReviewModel", null)
                         .WithMany("Likes")
-                        .HasForeignKey("ReviewId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ReviewModelId");
 
                     b.HasOne("totten_romatoes.Shared.Models.ApplicationUser", "ToUser")
                         .WithMany()
@@ -700,8 +706,6 @@ namespace totten_romatoes.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("FromUser");
-
-                    b.Navigation("Review");
 
                     b.Navigation("ToUser");
                 });

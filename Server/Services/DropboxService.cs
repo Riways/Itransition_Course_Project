@@ -20,12 +20,12 @@ namespace totten_romatoes.Server.Services
 
         public DropboxService()
         {
-            _dropBoxClient = new DropboxClient(Constants.DROPBOX_ACCESS_TOKEN);
+            _dropBoxClient = new DropboxClient(ServerConstants.DROPBOX_ACCESS_TOKEN);
         }
 
         public async Task<string> UploadImageToDropbox(ImageModel imageToUpload)
         {
-            string pathToFileOnDropbox = $"{Constants.DROPBOX_PATH}{imageToUpload.ImageName}";
+            string pathToFileOnDropbox = $"{ServerConstants.DROPBOX_PATH}{imageToUpload.ImageName}";
             string imageUrl;
             using (var mem = new MemoryStream(imageToUpload.ImageData))
             {

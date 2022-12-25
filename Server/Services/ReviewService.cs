@@ -7,36 +7,37 @@ namespace totten_romatoes.Server.Services
 {
     public interface IReviewService
     {
-        public void AddReviewToDb(ReviewModel newReview);
+        public Task AddReviewToDb(ReviewModel newReview);
+        public void AddCommentToDb(CommentModel newComment);
+        public Task AddTagsToDb(List<TagModel> tags);
         public List<ReviewModel> GetAllReviews();
         public ReviewModel GetReviewById(long id);
-        public void AddCommentToDb(CommentModel newComment);
-        public void AddGradeToDb(GradeModel newGrade);
+        public List<TagModel> GetSpecificAmountOFTags(int amount);
+        public Task DeleteReviewDromDb(long id);
     }
 
     public class ReviewService : IReviewService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IDropboxService _dropboxService ;
 
-        public ReviewService(ApplicationDbContext dbContext)
+        public ReviewService(ApplicationDbContext dbContext, IDropboxService dropboxService)
         {
             _dbContext = dbContext;
+            _dropboxService = dropboxService;
         }
 
-        public void AddReviewToDb(ReviewModel newReview)
+        public async Task AddReviewToDb(ReviewModel newReview)
         {
-            _dbContext.Reviews.Add(newReview);
-            _dbContext.SaveChanges();
-        }
-
-        public List<ReviewModel> GetAllReviews()
-        {
-            return _dbContext.Reviews.Include(r => r.Author).Include(r => r.ReviewImage).ToList();
-        }
-
-        public ReviewModel GetReviewById(long id)
-        {
-            return _dbContext.Reviews.Single(r => r.Id == id);
+            if (newReview.ReviewImage != null)
+            {
+                string imageUrlOnDropbox = await _dropboxService.UploadImageToDropbox(newReview.ReviewImage);
+                newReview.ReviewImage.ImageUrl = imageUrlOnDropbox;
+            }
+            if(newReview.Tags != null)
+                await ReplaceTagsInListWithExistingInDatabase(newReview.Tags);
+            await _dbContext.Reviews.AddAsync(newReview);
+            await _dbContext.SaveChangesAsync();
         }
 
         public void AddCommentToDb(CommentModel newComment)
@@ -45,10 +46,52 @@ namespace totten_romatoes.Server.Services
             _dbContext.SaveChanges();
         }
 
-        public void AddGradeToDb(GradeModel newGrade)
+        public async Task AddTagsToDb(List<TagModel> tags)
         {
-            _dbContext.Grades.Add(newGrade);
-            _dbContext.SaveChanges();
+            await _dbContext.Tags.AddRangeAsync(tags);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public List<ReviewModel> GetAllReviews()
+        {
+            return _dbContext.Reviews.Include(r => r.Author)
+                .Include(r => r.ReviewImage)
+                .Include(r => r.Tags)
+                .Include(r => r.Subject)
+                    .ThenInclude(s => s.Grades)
+                .ToList();
+        }
+
+        public ReviewModel GetReviewById(long id)
+        {
+            return _dbContext.Reviews.Single(r => r.Id == id);
+        }
+
+        public List<TagModel> GetSpecificAmountOFTags(int amount)
+        {
+            return _dbContext.Tags.Take(amount).ToList();
+        }
+
+        private async Task ReplaceTagsInListWithExistingInDatabase(List<TagModel> tags)
+        {
+            for (int i = 0; i < tags.Count; i++)
+            {
+                var existingTag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == tags[i].Name);
+                if (existingTag != null)
+                {
+                    tags[i] = existingTag;
+                }
+            }
+        }
+
+        public async Task DeleteReviewDromDb(long id)
+        {
+            ReviewModel reviewToDelete = new();
+            reviewToDelete.Id = id;
+            _dbContext.Attach<ReviewModel>(reviewToDelete);
+            _dbContext.Reviews.Remove(reviewToDelete);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
+

@@ -14,9 +14,10 @@ namespace totten_romatoes.Shared.Models
         [Required]
         public string ImageType { get; set; }
         [Required]
-        public string ImageName { get; set; }
+        public string ImageName { get; set; } 
         public string? ImageUrl { get; set; }
         [NotMapped]
-        public byte[] ImageData { get; set; }
+        [MaxLength(Constants.MAX_IMAGE_SIZE)]
+        public byte[]? ImageData { get; set; }
     }
 }

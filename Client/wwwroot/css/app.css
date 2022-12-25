@@ -4,6 +4,10 @@
     overflow-wrap: break-word;
 }
 
+.mud-link {
+    overflow-wrap: break-word;
+}
+
 img {
     width: 100%;
 }

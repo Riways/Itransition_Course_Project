@@ -1,0 +1,31 @@
+﻿@using PSC.Blazor.Components.MarkdownEditor.Enums;
+
+<MarkdownEditor Placeholder="Review body" @bind-Value="_reviewBody" ValueHTMLChanged="@OnMarkdownValueHTMLChanged"   >
+    <Toolbar>
+        <MarkdownToolbarButton Name="bold" Action="MarkdownAction.Bold" Icon="fa fa-bold" Title="Bold" />
+        <MarkdownToolbarButton Name="italic" Action="MarkdownAction.Italic" Icon="fa fa-italic" Title="Italic" />
+        <MarkdownToolbarButton Name="heading" Action="MarkdownAction.Heading" Icon="fa fa-header" Title="Heading" />
+        <MarkdownToolbarButton Name="strikethrough" Action="MarkdownAction.Strikethrough" Icon="fa fa-strikethrough" Title="Strikethrough" />
+        <MarkdownToolbarButton Separator="true" Name="code" Action="MarkdownAction.Code" Icon="fa fa-code" Title="CodeBlock" />
+        <MarkdownToolbarButton Name="quote" Action="MarkdownAction.Quote" Icon="fa fa-quote-left" Title="Quote" />
+        <MarkdownToolbarButton Name="unordered-list" Action="MarkdownAction.UnorderedList" Icon="fa fa-list-ul" Title="Generic List" />
+        <MarkdownToolbarButton Name="ordered-list" Action="MarkdownAction.OrderedList" Icon="fa fa-list-ol" Title="Numbered List" />
+        <MarkdownToolbarButton Name="link" Action="MarkdownAction.Link" Icon="fa fa-link" Title="Link" />
+        <MarkdownToolbarButton Name="horizontal-rule" Action="MarkdownAction.HorizontalRule" Icon="fa fa-minus" Title="Insert Horizontal Line" />
+        <MarkdownToolbarButton Separator="true" Name="preview" Action="MarkdownAction.Preview" Icon="fa fa-eye no-disable" Title="Preview" />
+        <MarkdownToolbarButton Name="side-by-side	" Action="MarkdownAction.SideBySide" Icon="fa fa-columns no-disable no-mobile" Title="Side by Side" />
+        <MarkdownToolbarButton Name="guide" Action="MarkdownAction.Guide" Icon="fa fa-question-circle" Title="Markdown Guide" />
+    </Toolbar>
+</MarkdownEditor>
+
+@code {
+    [Parameter]
+    public EventCallback<string> SetReviewBody { get; set; }
+    private string? _reviewBody = "Review body";
+
+    async Task OnMarkdownValueHTMLChanged(string value)
+    {
+        await SetReviewBody.InvokeAsync(value);
+    }
+
+}
