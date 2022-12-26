@@ -6,9 +6,10 @@ using System.Text.Json;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
-using totten_romatoes.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "config", "secrets.json"));
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -29,7 +30,12 @@ builder.Services.AddIdentityServer()
     });
 
 builder.Services.AddAuthentication()
-    .AddIdentityServerJwt();
+    .AddIdentityServerJwt()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["google_client_id"];
+        options.ClientSecret = builder.Configuration["google_client_secret"];
+    });
 
 builder.Services.AddTransient<IDropboxService, DropboxService>();
 builder.Services.AddTransient<IImageService, ImageService>();

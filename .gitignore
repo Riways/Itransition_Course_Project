@@ -479,4 +479,4 @@ $RECYCLE.BIN/
 *.lnk
 
 /Server/appsettings.Development.json
-/Server/ServerConstants.cs
+/Server/config/*

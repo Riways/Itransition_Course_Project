@@ -8,10 +8,10 @@
             <MudGrid>
                 <MudItem Class="d-flex align-content-center flex-wrap" xs="12" md="6">
                     <MudAvatar   Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
-                    <MudText Class=" mx-2" Typo="Typo.h6" >
+                        <MudText Class="d-flex align-content-center flex-wrap mx-2" Typo="Typo.h6" >
                         @CurrentReview.Author.UserName  
                     </MudText >
-                    <MudText  Class="d-flex align-content-center flex-wrap pb-1" Typo="Typo.body2" >
+                    <MudText  Class="d-flex align-content-center flex-wrap pt-1" Typo="Typo.body2" >
                         @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
                     </MudText>
                 </MudItem>

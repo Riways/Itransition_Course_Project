@@ -19,9 +19,9 @@ namespace totten_romatoes.Server.Controllers
 
         [HttpPost]
         [Route("grade")]
-        public void Post([FromBody] GradeModel grade)
+        public async Task Post([FromBody] GradeModel grade)
         {
-            _subjectService.AddGradeToDb(grade);
+            await _subjectService.AddGradeToDb(grade);
         }
     }
 }

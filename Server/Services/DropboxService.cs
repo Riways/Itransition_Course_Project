@@ -16,11 +16,13 @@ namespace totten_romatoes.Server.Services
 
     public class DropboxService : IDropboxService
     {
-        private DropboxClient _dropBoxClient;
+        private readonly DropboxClient _dropBoxClient;
+        private readonly IConfiguration _appConfig;
 
-        public DropboxService()
+        public DropboxService(IConfiguration appConfig)
         {
-            _dropBoxClient = new DropboxClient(ServerConstants.DROPBOX_ACCESS_TOKEN);
+            _appConfig = appConfig;
+            _dropBoxClient = new DropboxClient(_appConfig["DropboxAccessToken"]);
         }
 
         public async Task<string> UploadImageToDropbox(ImageModel imageToUpload)
@@ -36,7 +38,7 @@ namespace totten_romatoes.Server.Services
                 SharedLinkMetadata linkData  = await _dropBoxClient.Sharing.CreateSharedLinkWithSettingsAsync(pathToFileOnDropbox, new SharedLinkSettings(allowDownload:true));
                 imageUrl = linkData.Url;
             }
-            imageUrl = imageUrl.Remove(imageUrl.Length - 1, 1) + "1";
+            imageUrl = imageUrl.Remove(imageUrl.Length - 4, 4) + "raw=1";
             return imageUrl;
         }
     }
