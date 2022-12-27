@@ -6,18 +6,22 @@ using System.Text.Json;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "config", "secrets.json"));
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration["DefaultConnection"];
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
+        options.SignIn.RequireConfirmedAccount = false; 
+        options.SignIn.RequireConfirmedEmail= false;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
@@ -29,12 +33,20 @@ builder.Services.AddIdentityServer()
         options.ApiResources.Single().UserClaims.Add("role");
     });
 
-builder.Services.AddAuthentication()
+builder.Services.AddAuthentication(options =>
+{
+    options.RequireAuthenticatedSignIn= false;
+})
     .AddIdentityServerJwt()
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["google_client_id"];
         options.ClientSecret = builder.Configuration["google_client_secret"];
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = builder.Configuration["microsoft_client_id"];
+        options.ClientSecret = builder.Configuration["microsoft_client_secret"];
     });
 
 builder.Services.AddTransient<IDropboxService, DropboxService>();

@@ -29,6 +29,7 @@ namespace totten_romatoes.Server.Data
             modelBuilder.Entity<TagModel>().HasAlternateKey(t => t.Name);
             modelBuilder.Entity<SubjectModel>().HasAlternateKey(g => g.Name);
             modelBuilder.Entity<GradeModel>().HasAlternateKey(g => new { g.SubjectId, g.AuthorId });
+            modelBuilder.Entity<ApplicationUser>().HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex").IsUnique();
         }
 
         public DbSet<ReviewModel>? Reviews { get; set; }

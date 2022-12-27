@@ -12,7 +12,7 @@ namespace totten_romatoes.Shared.Models
         public override string UserName { get; set; }
 
         [Required]
-        [MaxLength(255)]
+        [MaxLength(100)]
         [MinLength(5)]
         [EmailAddress]
         public override string Email { get; set; }
