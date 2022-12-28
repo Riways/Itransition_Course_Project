@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.10" />
+    <PackageReference Include="Npgsql" Version="6.0.7" />
   </ItemGroup>
 
   <ItemGroup>

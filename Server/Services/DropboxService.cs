@@ -22,7 +22,7 @@ namespace totten_romatoes.Server.Services
         public DropboxService(IConfiguration appConfig)
         {
             _appConfig = appConfig;
-            _dropBoxClient = new DropboxClient(_appConfig["DropboxAccessToken"]);
+            _dropBoxClient = new DropboxClient(_appConfig["dropboxAccessToken"]);
         }
 
         public async Task<string> UploadImageToDropbox(ImageModel imageToUpload)

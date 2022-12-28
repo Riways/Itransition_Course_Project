@@ -5,9 +5,9 @@
 <MudSnackbarProvider/>
 
 <MudLayout>
-    <MudAppBar Elevation="1">
+    <MudAppBar  Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer />
+        <MudSpacer/>
         <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark Mode"/>
         <LoginDisplay/>
     </MudAppBar>
@@ -23,6 +23,8 @@
 </MudLayout>
 
 @code {
+    [Inject]
+    private IHttpClientFactory _clientFactory { get; set; }
     bool _drawerOpen = false;
     private bool _isDarkMode;
 
@@ -32,10 +34,11 @@
     }
 
     private MudTheme _myTheme = new MudTheme()
+    {
+        Palette = new Palette()
         {
-            Palette = new Palette()
-            {
-                Background = Colors.Grey.Lighten5
-            }
-        };
+            Background = Colors.Grey.Lighten5
+        }
+    };
+
 }

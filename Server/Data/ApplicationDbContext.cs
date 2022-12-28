@@ -16,16 +16,21 @@ namespace totten_romatoes.Server.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder
-                 .Entity<ReviewModel>()
-                 .Property(e => e.ReviewCategory)
+            modelBuilder.Entity<ReviewModel>(reviewModel =>
+            {
+                reviewModel.Property(e => e.ReviewCategory)
                  .HasConversion(
                      v => v.ToString(),
                      v => (Category)Enum.Parse(typeof(Category), v));
-            modelBuilder
-                 .Entity<ReviewModel>()
-                 .Property(e => e.AuthorId)
+                reviewModel.Property(e => e.AuthorId)
                  .IsRequired();
+            });
+            modelBuilder.Entity<ReviewModel>().HasGeneratedTsVectorColumn(
+                    r => r.SearchVector,
+                    "english",  // Text search config
+                    r => new { r.ReviewBody, r.Title })
+                    .HasIndex(r => r.SearchVector)
+                    .HasMethod("GIN");
             modelBuilder.Entity<TagModel>().HasAlternateKey(t => t.Name);
             modelBuilder.Entity<SubjectModel>().HasAlternateKey(g => g.Name);
             modelBuilder.Entity<GradeModel>().HasAlternateKey(g => new { g.SubjectId, g.AuthorId });

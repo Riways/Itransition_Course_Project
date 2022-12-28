@@ -1,4 +1,5 @@
 ﻿<MudNavMenu>
+    <MudAutocomplete PopoverClass="fixed" Class="mb-6" T="ReviewModel" Variant="Variant.Filled" ValueChanged="@ReviewChosen"  Label="Search review" ToStringFunc="@(e=> e==null?null : $"{e.Title} : {e.Subject.Name}")"  CoerceValue="true" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search" ShowProgressIndicator="true"/>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
     <MudNavLink Href="/create-review" Match="NavLinkMatch.Prefix">Create review</MudNavLink>
     <MudNavGroup Title="Settings" Expanded="true">
@@ -7,4 +8,21 @@
     </MudNavGroup>
 </MudNavMenu>
 
+@code{
+        [Inject]
+        private IHttpClientFactory _clientFactory { get; set; }
 
+        public async Task<IEnumerable<ReviewModel>> Search1(string value)
+        {
+            if (value == null || value == string.Empty)
+                return null;
+            HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
+            var response = await _anonymousHttpClient.GetFromJsonAsync<IEnumerable<ReviewModel>>($"{Constants.REVIEW_SEARCH_URL}/{value}");
+            return response;
+        }
+
+        public async Task ReviewChosen(ReviewModel review)
+        {
+            Console.WriteLine("TODO:REDIRECT TO CHOSEN REVIEW");
+        }
+}

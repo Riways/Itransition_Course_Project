@@ -23,5 +23,13 @@ namespace totten_romatoes.Server.Controllers
             var tags = _reviewService.GetSpecificAmountOFTags(amount);
             return tags.Select(t => t.Name).ToList();
         }
+
+        [HttpGet]
+        [Route("search/{key}")]
+        public async Task<IEnumerable<string>> SearchTagsInDatabase(string key)
+        {
+            var tags = await _reviewService.GetListOfSimilarTagsFromDatabase(key);
+            return tags.Select(t => t.Name).ToList();
+        }
     }
 }

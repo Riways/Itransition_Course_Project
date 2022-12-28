@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Duende.IdentityServer.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
@@ -11,12 +12,29 @@ namespace totten_romatoes.Server.Controllers
     public class ReviewModelsController : ControllerBase
     {
         private readonly IReviewService _reviewService;
-        private readonly IImageService _imageService;
 
-        public ReviewModelsController(IReviewService reviewService, IImageService imageService)
+        public ReviewModelsController(IReviewService reviewService )
         {
             _reviewService = reviewService;
-            _imageService = imageService;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("search/{key}")]
+        public async Task<IEnumerable<ReviewModel>> FullTextSearch(string key)
+        {
+            if (key.IsNullOrEmpty())
+                return null;
+            var searchResult = await _reviewService.FullTextSearch(key);
+            return searchResult;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("add-fakes/{amount}")]
+        public async Task GenerateReviews(int amount)
+        {
+            if (amount < 0)
+                return;
+            await _reviewService.GenerateFakeReviews(amount);
         }
 
         [AllowAnonymous]

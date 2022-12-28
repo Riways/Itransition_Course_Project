@@ -480,3 +480,4 @@ $RECYCLE.BIN/
 
 /Server/appsettings.Development.json
 /Server/config/*
+/Server.Tests

@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NpgsqlTypes;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace totten_romatoes.Shared.Models
 {
@@ -32,6 +34,8 @@ namespace totten_romatoes.Shared.Models
         [MaxLength(Constants.MAX_AMOUNT_OF_TAGS_IN_REVIEW, ErrorMessage = $"Max amount of tags is exceeded")]
         public List<TagModel>? Tags { get; set; }
         public List<LikeModel>? Likes { get; set; }
+        [JsonIgnore]
+        public NpgsqlTsVector? SearchVector { get; set; }
 
         public ReviewModel()
         {

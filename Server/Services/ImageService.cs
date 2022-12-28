@@ -21,7 +21,7 @@ namespace totten_romatoes.Server.Services
         {
             if (imageModel.ImageType != Constants.IMAGE_FORMAT || imageModel.ImageData.Length > Constants.MAX_IMAGE_SIZE)
                 throw new Exception("Image format or size is not proper");
-            await _dbContext.Images.AddAsync(imageModel);
+            await _dbContext.Images!.AddAsync(imageModel);
             await _dbContext.SaveChangesAsync();
             return imageModel;
         }

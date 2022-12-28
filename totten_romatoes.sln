@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "totten_romatoes.Client", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "totten_romatoes.Shared", "Shared\totten_romatoes.Shared.csproj", "{834EC820-AC5C-48CE-9F7E-95F866C5FC34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Server.Tests\Server.Tests.csproj", "{064BEF39-8106-435E-A5FF-52864CA9941A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{834EC820-AC5C-48CE-9F7E-95F866C5FC34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{834EC820-AC5C-48CE-9F7E-95F866C5FC34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{834EC820-AC5C-48CE-9F7E-95F866C5FC34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{064BEF39-8106-435E-A5FF-52864CA9941A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{064BEF39-8106-435E-A5FF-52864CA9941A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{064BEF39-8106-435E-A5FF-52864CA9941A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{064BEF39-8106-435E-A5FF-52864CA9941A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

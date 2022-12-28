@@ -1,4 +1,5 @@
-﻿using totten_romatoes.Server.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using totten_romatoes.Server.Data;
 using totten_romatoes.Shared.Models;
 
 namespace totten_romatoes.Server.Services
@@ -18,8 +19,9 @@ namespace totten_romatoes.Server.Services
 
         public async Task AddGradeToDb(GradeModel grade)
         {
-            await _dbContext.Grades.AddAsync(grade);
+            await _dbContext.Grades!.AddAsync(grade);
             await _dbContext.SaveChangesAsync();
         }
+
     }
 }

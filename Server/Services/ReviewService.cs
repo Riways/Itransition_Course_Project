@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using totten_romatoes.Client.Pages.Components.Reviews;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Shared.Models;
+using totten_romatoes.Shared;
+using Bogus;
+using System.Net;
+using System.Security.Policy;
+using System.Net.Http;
 
 namespace totten_romatoes.Server.Services
 {
@@ -14,17 +18,22 @@ namespace totten_romatoes.Server.Services
         public ReviewModel GetReviewById(long id);
         public List<TagModel> GetSpecificAmountOFTags(int amount);
         public Task DeleteReviewDromDb(long id);
+        public Task<List<ReviewModel>> FullTextSearch(string key);
+        public Task GenerateFakeReviews(int amount);
+        public Task<List<TagModel>> GetListOfSimilarTagsFromDatabase(string key);
     }
 
     public class ReviewService : IReviewService
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IDropboxService _dropboxService ;
+        private readonly ISubjectService _subjectService ;
 
-        public ReviewService(ApplicationDbContext dbContext, IDropboxService dropboxService)
+        public ReviewService(ApplicationDbContext dbContext, IDropboxService dropboxService, ISubjectService subjectService)
         {
             _dbContext = dbContext;
             _dropboxService = dropboxService;
+            _subjectService = subjectService;
         }
 
         public async Task AddReviewToDb(ReviewModel newReview)
@@ -35,26 +44,27 @@ namespace totten_romatoes.Server.Services
                 newReview.ReviewImage.ImageUrl = imageUrlOnDropbox;
             }
             if(newReview.Tags != null)
-                await ReplaceTagsInListWithExistingInDatabase(newReview.Tags);
-            await _dbContext.Reviews.AddAsync(newReview);
+                ReplaceTagsInListWithExistingInDatabase(newReview.Tags);
+            await ReplaceSubjectWithExistingInDatabase(newReview);
+            await _dbContext.Reviews!.AddAsync(newReview);
             await _dbContext.SaveChangesAsync();
         }
 
         public void AddCommentToDb(CommentModel newComment)
         {
-            _dbContext.Comments.Add(newComment);
+            _dbContext.Comments!.Add(newComment);
             _dbContext.SaveChanges();
         }
 
         public async Task AddTagsToDb(List<TagModel> tags)
         {
-            await _dbContext.Tags.AddRangeAsync(tags);
+            await _dbContext.Tags!.AddRangeAsync(tags);
             await _dbContext.SaveChangesAsync();
         }
 
         public List<ReviewModel> GetAllReviews()
         {
-            return _dbContext.Reviews.Include(r => r.Author)
+            return _dbContext.Reviews!.Include(r => r.Author)
                 .Include(r => r.ReviewImage)
                 .Include(r => r.Tags)
                 .Include(r => r.Subject)
@@ -64,33 +74,91 @@ namespace totten_romatoes.Server.Services
 
         public ReviewModel GetReviewById(long id)
         {
-            return _dbContext.Reviews.Single(r => r.Id == id);
+            return _dbContext.Reviews!.Single(r => r.Id == id);
         }
 
         public List<TagModel> GetSpecificAmountOFTags(int amount)
         {
-            return _dbContext.Tags.Take(amount).ToList();
-        }
-
-        private async Task ReplaceTagsInListWithExistingInDatabase(List<TagModel> tags)
-        {
-            for (int i = 0; i < tags.Count; i++)
-            {
-                var existingTag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == tags[i].Name);
-                if (existingTag != null)
-                {
-                    tags[i] = existingTag;
-                }
-            }
+            return _dbContext.Tags!.Take(amount).ToList();
         }
 
         public async Task DeleteReviewDromDb(long id)
         {
-            ReviewModel reviewToDelete = new();
-            reviewToDelete.Id = id;
-            _dbContext.Attach<ReviewModel>(reviewToDelete);
-            _dbContext.Reviews.Remove(reviewToDelete);
-            await _dbContext.SaveChangesAsync();
+            var reviewToDelete = await _dbContext.Reviews!.FirstOrDefaultAsync(r => r.Id == id);
+            if(reviewToDelete != null)
+            {
+                _dbContext.Reviews!.Remove(reviewToDelete);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        private void ReplaceTagsInListWithExistingInDatabase(List<TagModel> tags)
+        {
+            var tagNames = tags.Select(t => t.Name).ToList();
+            var existingTags = _dbContext.Tags!.Where(t => tagNames.Contains(t.Name)).ToList();
+            tagNames = existingTags?.Select(t => t.Name).ToList();
+            tags.RemoveAll(t => tagNames!.Contains(t.Name));
+            tags.AddRange(existingTags!);
+        }
+
+        private async Task ReplaceSubjectWithExistingInDatabase(ReviewModel review)
+        {
+            var subjectFromDb = await _dbContext.Subjects!.FirstOrDefaultAsync(s => s.Name == review.Subject.Name);
+            if (subjectFromDb != null)
+                review.Subject = subjectFromDb;
+        }
+
+        public async Task<List<ReviewModel>> FullTextSearch(string key)
+        {
+            key = key.Replace(" ", " <-> ");
+            var reviewBodyAndTitleSearchResult = await _dbContext.Reviews!
+                .Where(r => r.SearchVector!.Matches(EF.Functions.ToTsQuery($"{key}:*")))
+                .Include(r => r.Subject)
+                .Take(Constants.AMOUNT_OF_REVIEWS_IN_SEARCH_RESULT)
+                .ToListAsync();
+            if(reviewBodyAndTitleSearchResult.Count < Constants.AMOUNT_OF_REVIEWS_IN_SEARCH_RESULT)
+            {
+            }
+            return reviewBodyAndTitleSearchResult;
+        }
+
+        public async Task GenerateFakeReviews(int amount)
+        {
+            List<ReviewModel> fakeReviews = new();
+            var commonFaker = new Faker();
+            for(int i = 0; i < amount; i++)
+            {
+                ReviewModel review = new Faker<ReviewModel>()
+                    .RuleFor(r => r.AuthorId, f => Constants.FAKER_USER_ID)
+                    .RuleFor(r => r.AuthorGrade, f => f.Random.Int(1, 10))
+                    .RuleFor(r => r.DateOfCreationInUTC, f => f.Date.Between(DateTime.UtcNow, DateTime.UtcNow.AddDays(7)))
+                    .RuleFor(r => r.Title, f => f.Lorem.Sentence(f.Random.Int(1, Constants.FAKER_MAX_WORDS_IN_TITLE)))
+                    .RuleFor(r => r.Subject, f => new SubjectModel { Name = f.Random.Word() })
+                    .RuleFor(r => r.ReviewCategory, f => f.PickRandom<Category>())
+                    .RuleFor(r => r.ReviewBody, f => f.Lorem.Sentences(f.Random.Int(Constants.FAKER_MIN_SENTENCES_IN_BODY, Constants.FAKER_MAX_SENTENCES_IN_BODY)))
+                    .RuleFor(r => r.ReviewImage, f => new ImageModel { ImageName = f.Random.Word(), ImageType = Constants.IMAGE_FORMAT })
+                    .RuleFor(r => r.Tags, f => {
+                        List<TagModel> tags = new List<TagModel>();
+                        for (int i = 0; i < f.Random.Int(Constants.FAKER_MIN_TAGS_AMOUNT, Constants.FAKER_MAX_TAGS_AMOUNT); i++)
+                        {
+                            TagModel newTag = new ();
+                            newTag.Name = f.Random.Words(f.Random.Int(Constants.FAKER_MIN_WORDS_IN_TAG_AMOUNT, Constants.FAKER_MAX_WORDS_IN_TAG_AMOUNT));
+                            tags.Add(newTag);
+                        }
+                        return tags;
+                    });
+                using (var client = new HttpClient())
+                {
+                    var content = await client.GetByteArrayAsync(commonFaker.Image.LoremFlickrUrl(Constants.FAKER_IMAGE_WIDTH, Constants.FAKER_IMAGE_HEIGHT, review.Subject.Name));
+                    review.ReviewImage!.ImageData = content;
+                }
+                await AddReviewToDb(review);
+            }
+        }
+
+        public async Task<List<TagModel>> GetListOfSimilarTagsFromDatabase(string key)
+        {
+            return await _dbContext.Tags!.Where(t => EF.Functions.ILike(t.Name, $"%{key}%")).Take(Constants.AMOUNT_OF_TAGS_IN_SEARCH_RESULT).ToListAsync();
         }
     }
 }
