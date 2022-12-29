@@ -3,19 +3,17 @@ using totten_romatoes.Server.Data;
 using totten_romatoes.Shared.Models;
 using totten_romatoes.Shared;
 using Bogus;
-using System.Net;
-using System.Security.Policy;
-using System.Net.Http;
+using Duende.IdentityServer.Extensions;
 
 namespace totten_romatoes.Server.Services
 {
     public interface IReviewService
     {
         public Task AddReviewToDb(ReviewModel newReview);
-        public void AddCommentToDb(CommentModel newComment);
+        public Task AddCommentToDb(CommentModel newComment);
         public Task AddTagsToDb(List<TagModel> tags);
-        public List<ReviewModel> GetAllReviews();
-        public ReviewModel GetReviewById(long id);
+        public Task<List<ReviewModel>> GetAllReviewsWithoutComments();
+        public Task<ReviewModel> GetReviewById(long id);
         public List<TagModel> GetSpecificAmountOFTags(int amount);
         public Task DeleteReviewDromDb(long id);
         public Task<List<ReviewModel>> FullTextSearch(string key);
@@ -50,10 +48,13 @@ namespace totten_romatoes.Server.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public void AddCommentToDb(CommentModel newComment)
+        public async Task AddCommentToDb(CommentModel newComment)
         {
-            _dbContext.Comments!.Add(newComment);
-            _dbContext.SaveChanges();
+            if (!newComment.CommentBody.IsNullOrEmpty())
+            {
+                await _dbContext.Comments!.AddAsync(newComment);
+                _dbContext.SaveChanges();
+            }
         }
 
         public async Task AddTagsToDb(List<TagModel> tags)
@@ -62,19 +63,38 @@ namespace totten_romatoes.Server.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public List<ReviewModel> GetAllReviews()
+        public async Task<List<ReviewModel>> GetAllReviewsWithoutComments()
         {
-            return _dbContext.Reviews!.Include(r => r.Author)
+            var reviews = await _dbContext.Reviews!
+                .Include(r => r.Author)
                 .Include(r => r.ReviewImage)
                 .Include(r => r.Tags)
                 .Include(r => r.Subject)
                     .ThenInclude(s => s.Grades)
-                .ToList();
+                .ToListAsync();
+            foreach(var review in reviews)
+            {
+                review.CommentsAmount = await CountCommentsInReview(review.Id);
+            }
+            return reviews;
         }
 
-        public ReviewModel GetReviewById(long id)
+        private async Task<int> CountCommentsInReview(long reviewId)
         {
-            return _dbContext.Reviews!.Single(r => r.Id == id);
+            return await _dbContext.Comments!.Where(c => c.ReviewId == reviewId).CountAsync();
+        }
+
+        public async Task<ReviewModel> GetReviewById(long id) {
+            var review = await _dbContext.Reviews!
+                .Include(r => r.Author)
+                .Include(r => r.ReviewImage)
+                .Include(r => r.Tags)
+                .Include(r => r.Subject)
+                    .ThenInclude(s => s.Grades)
+                .Include(r => r.Comments)
+                    .ThenInclude(c => c.Author)
+                .SingleOrDefaultAsync(r => r.Id == id);
+            return review;
         }
 
         public List<TagModel> GetSpecificAmountOFTags(int amount)
@@ -103,7 +123,7 @@ namespace totten_romatoes.Server.Services
 
         private async Task ReplaceSubjectWithExistingInDatabase(ReviewModel review)
         {
-            var subjectFromDb = await _dbContext.Subjects!.FirstOrDefaultAsync(s => s.Name == review.Subject.Name);
+            var subjectFromDb = await _dbContext.Subjects!.SingleOrDefaultAsync(s => s.Name == review.Subject.Name);
             if (subjectFromDb != null)
                 review.Subject = subjectFromDb;
         }
@@ -118,6 +138,15 @@ namespace totten_romatoes.Server.Services
                 .ToListAsync();
             if(reviewBodyAndTitleSearchResult.Count < Constants.AMOUNT_OF_REVIEWS_IN_SEARCH_RESULT)
             {
+                int reviewsToAdd = Constants.AMOUNT_OF_REVIEWS_IN_SEARCH_RESULT - reviewBodyAndTitleSearchResult.Count;
+                var commentSearchResult = await _dbContext.Comments!
+                    .Where(c => c.SearchVector!.Matches(EF.Functions.ToTsQuery($"{key}:*")))
+                    .Include(c => c.Review)
+                        .ThenInclude(r => r.Subject)
+                    .Select(r => r.Review)
+                    .Take(reviewsToAdd)
+                    .ToListAsync();
+                reviewBodyAndTitleSearchResult.AddRange(commentSearchResult);
             }
             return reviewBodyAndTitleSearchResult;
         }

@@ -22,14 +22,21 @@
                         <MudIcon Class="pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
                         @(_subjectRating == double.MinValue ? "--" : _subjectRating) )
                     </MudText>
-                    @if (_userGrade == 0)
-                    {
-                        <MudRating  SelectedValueChanged="UserRatedSubjectHandler" Class="d-flex justify-end"  />
-                    }
-                    else
-                    {
-                        <MudRating  SelectedValue="_userGrade" ReadOnly="true" Class="d-flex justify-end"  />
-                    }
+                    <AuthorizeView>
+                        <Authorized>
+                            @if (_userGrade == 0)
+                            {
+                                <MudRating  SelectedValueChanged="UserRatedSubjectHandler" Class="d-flex justify-end"  />
+                            }
+                            else
+                            {
+                                <MudRating  SelectedValue="_userGrade" ReadOnly="true" Class="d-flex justify-end"  />
+                            }
+                        </Authorized>
+                        <NotAuthorized>
+                            <MudRating Disabled="true" Class="d-flex justify-end" />
+                        </NotAuthorized>
+                    </AuthorizeView>
                 </MudItem>
             </MudGrid>
         </MudItem>
@@ -47,16 +54,14 @@
                 <MudImage Src="@CurrentReview.ReviewImage.ImageUrl" Width="100"/>
             </MudItem>
         }
-        @if (_isReviewWrapped)
+        @if (IsReviewWrapped)
         {
             <MudItem Class="px-6 pt-4" Style="height:7rem; overflow:hidden"  xs="12" id="reviewBody">
-            @(
-                (MarkupString)CurrentReview.ReviewBody
-                )
+            @((MarkupString)CurrentReview.ReviewBody)
             </MudItem>
             <MudItem Class="mt-n4 pt-4 px-6" xs="12" >
                 <MudDivider Class="mb-4"></MudDivider>
-                <MudButton Variant="Variant.Outlined" Size="Size.Medium" OnClick="@(() => _isReviewWrapped=false)" Color="Color.Transparent">Read</MudButton>
+                <MudButton Variant="Variant.Outlined" Size="Size.Medium"  Color="Color.Transparent">Read</MudButton>
             </MudItem>
         }
         else
@@ -85,7 +90,14 @@
             <MudGrid>
                 <MudItem Class="d-flex align-content-center flex-wrap" xs="6" sm="10">
                     <MudIcon Icon="@Icons.Outlined.Comment" Size="Size.Medium" /> 
-                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> ( 0 )</MudLink>  
+                    @if(CurrentReview.Comments == null)
+                    {
+                        <MudLink Class="pl-1" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.body2">(@CurrentReview.CommentsAmount)</MudLink> 
+                    }
+                    else
+                    {
+                        <MudLink Class="pl-1" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.body2">(@CurrentReview.Comments.Count)</MudLink> 
+                    }
                 </MudItem>
                 <MudItem  xs="6" sm="2">
                     <MudText Class="d-inline-flex" Typo="Typo.body2" >
@@ -104,11 +116,12 @@
     public AuthenticationStateProvider? AuthStateProvider { get; set; }
     [Parameter]
     public EventCallback<long> DeleteReviewFromList { get; set; }
+    [Parameter]
+    public bool IsReviewWrapped { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
     private string _userId;
     private double _subjectRating = double.MinValue;
-    private bool _isReviewWrapped = true;
     private int _userGrade { get; set; } = 0;
 
     protected override async Task OnParametersSetAsync()

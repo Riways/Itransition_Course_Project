@@ -9,7 +9,7 @@
         @foreach (var review in _reviews)
         {
             <MudItem xs="12" >
-                <Review CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
+                <Review IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
             </MudItem>
         } 
     </MudGrid>
@@ -25,7 +25,7 @@
     protected override async Task OnInitializedAsync()
     {
         HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>("api/reviews");
+        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>(Constants.REVIEW_URL);
     }
 
     public void DeleteReviewFromList(long id)

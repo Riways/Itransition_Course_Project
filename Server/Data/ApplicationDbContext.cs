@@ -27,8 +27,14 @@ namespace totten_romatoes.Server.Data
             });
             modelBuilder.Entity<ReviewModel>().HasGeneratedTsVectorColumn(
                     r => r.SearchVector,
-                    "english",  // Text search config
+                    "english", 
                     r => new { r.ReviewBody, r.Title })
+                    .HasIndex(r => r.SearchVector)
+                    .HasMethod("GIN");
+            modelBuilder.Entity<CommentModel>().HasGeneratedTsVectorColumn(
+                    r => r.SearchVector,
+                    "english",
+                    r => new { r.CommentBody })
                     .HasIndex(r => r.SearchVector)
                     .HasMethod("GIN");
             modelBuilder.Entity<TagModel>().HasAlternateKey(t => t.Name);

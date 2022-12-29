@@ -1,0 +1,86 @@
+﻿@using System.Security.Claims;
+<MudPaper Width="100%" Outlined="true" >
+    <MudGrid Spacing="0">
+        <MudItem  xs="12">
+            <EditForm Model="@_newComment" Context="comment">
+                <DataAnnotationsValidator/>
+                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="Add comment" @bind-Value="_newComment.CommentBody" For="@(() => _newComment.CommentBody)"/>
+                <AuthorizeView>
+                    <Authorized >
+                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >Add comment</MudButton>
+                    </Authorized>
+                    <NotAuthorized >
+                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Disabled="true" Color="Color.Primary" >Add comment</MudButton>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </EditForm>
+        </MudItem>
+        @if (CurrentReview.Comments == null || CurrentReview.Comments.Count == 0)
+        {
+            <MudItem xs="12">
+                <MudText Align="Align.Center">
+                    No Comments here yet.
+                </MudText>
+            </MudItem>
+        }
+        else
+        {
+            <MudItem Class="px-6 pb-4" xs="12">
+                <MudDivider/>
+            </MudItem>
+            @foreach (var comment in CurrentReview.Comments)
+            {
+                <MudItem Class="d-flex px-6 py-0" xs="12">
+                    <MudAvatar Size="Size.Small"   Variant="Variant.Outlined" Color="@RandomColorPick()">@(comment.Author.UserName.First())</MudAvatar>
+                    <MudText Class="d-flex align-content-center flex-wrap px-2" Typo="Typo.subtitle2" >
+                        @comment.Author.UserName  
+                    </MudText >
+                    <MudText  Class="d-flex align-content-center flex-wrap" Typo="Typo.body2" >
+                        @(comment.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                    </MudText>
+                </MudItem>
+                <MudItem Class="px-6" xs="12">
+                    <MudText Class="py-4" Typo="Typo.body1">
+                        @comment.CommentBody
+                    </MudText>
+                    <MudDivider Class="mb-4"/>
+                </MudItem>
+            }
+        }
+    </MudGrid>
+</MudPaper>
+
+
+@code {
+    [Parameter]
+    public ReviewModel CurrentReview { get; set; }
+    [Parameter]
+    public AuthenticationStateProvider? AuthStateProvider { get; set; }
+    [Inject]
+    private HttpClient? _httpClient { get; set; }
+    private CommentModel _newComment = new ();
+    private string _userId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            _userId = user.FindFirstValue("sub");
+        }
+    }
+
+    public async Task AddComment()
+    {
+        _newComment.AuthorId = _userId;
+        _newComment.ReviewId = CurrentReview.Id;
+        _newComment.DateOfCreationInUTC = DateTime.UtcNow;
+        await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEW_ADD_COMMENT, _newComment);
+    }
+
+    private Color RandomColorPick()
+    {
+        return (Color)Random.Shared.Next(0, 11);
+    }
+}

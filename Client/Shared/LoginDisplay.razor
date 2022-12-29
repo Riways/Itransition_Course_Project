@@ -7,7 +7,7 @@
 <AuthorizeView>
     <Authorized>
         <MudLink Color="Color.Warning" Href="authentication/profile">Hello, @context.User.Identity?.Name!</MudLink>
-        <MudButton Color="Color.Warning" Variant="Variant.Text">Log out</MudButton>
+        <MudButton Color="Color.Warning" OnClick="@BeginSignOut" Variant="Variant.Text">Log out</MudButton>
     </Authorized>
     <NotAuthorized>
         <MudLink Class="mx-2" Color="Color.Warning" Href="authentication/register">Register</MudLink>

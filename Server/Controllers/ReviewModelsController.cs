@@ -39,15 +39,16 @@ namespace totten_romatoes.Server.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IEnumerable<ReviewModel> GetReviews()
+        public async Task<IEnumerable<ReviewModel>> GetReviews()
         {
-            return _reviewService.GetAllReviews();
+            return await _reviewService.GetAllReviewsWithoutComments();
         }
-        
+
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<ReviewModel>> GetReviewModel(long id)
         {
-            var reviewModel = _reviewService.GetReviewById(id);
+            var reviewModel = await _reviewService.GetReviewById(id);
             if (reviewModel == null)
             {
                 return NotFound();
@@ -60,6 +61,12 @@ namespace totten_romatoes.Server.Controllers
         {
             await _reviewService.AddReviewToDb(reviewModel);
             return CreatedAtAction("GetReviewModel", new { id = reviewModel.Id }, reviewModel);
+        }
+        [HttpPost]
+        [Route("add-comment")]
+        public async Task PostComment(CommentModel commentModel)
+        {
+            await _reviewService.AddCommentToDb(commentModel);
         }
 
         [HttpDelete("{id}")]

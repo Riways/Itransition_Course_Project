@@ -20,6 +20,7 @@ namespace totten_romatoes.Shared
         public const string REVIEW_URL = "api/reviews";
         public const string REVIEW_SEARCH_URL = $"{REVIEW_URL}/search";
         public const string REVIEW_ADD_FAKE_URL = $"{REVIEW_URL}/add-fakes";
+        public const string REVIEW_ADD_COMMENT = $"{REVIEW_URL}/add-comment";
         public const string TAG_URL = "api/tags";
         public const string TAG_SEARCH_URL = $"{TAG_URL}/search";
 
@@ -35,7 +36,7 @@ namespace totten_romatoes.Shared
         public const int FAKER_MAX_TAGS_AMOUNT = 5;
         public const int FAKER_MIN_WORDS_IN_TAG_AMOUNT = 1;
         public const int FAKER_MAX_WORDS_IN_TAG_AMOUNT = 2;
-        public const int FAKER_IMAGE_HEIGHT = 1080;
-        public const int FAKER_IMAGE_WIDTH = 1920;
+        public const int FAKER_IMAGE_HEIGHT = 720;
+        public const int FAKER_IMAGE_WIDTH = 1280;
     }
 }
