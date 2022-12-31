@@ -2,7 +2,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims;
-@using totten_romatoes.Client.Pages.Components.Reviews.ReviewBuilder;
+@using totten_romatoes.Client.Shared.Components.ReviewBuilder;
+@using totten_romatoes.Client.Shared.Components.Localization;
 
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Large">
     <MudGrid Spacing="4" Class="mt-16" Justify="Justify.Center">
@@ -10,24 +11,24 @@
             <MudPaper Class="pa-10" Elevation="3">
                 <EditForm Model="@_review" OnValidSubmit="@PublishNewReview">
                     <DataAnnotationsValidator/>
-                    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create new review</MudText>
+                    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">@_loc["Create new review"]</MudText>
                     <MudGrid>
                         <MudItem xs="12">
-                            <MudTextField T="string" @bind-Value="_review.Subject.Name" For="@(() => _review.Subject.Name)" Immediate="true" Variant="Variant.Outlined" Label="Subject of review" />
+                            <MudTextField T="string" @bind-Value="_review.Subject.Name" For="@(() => _review.Subject.Name)" Immediate="true" Variant="Variant.Outlined" Label="@_loc["Subject of review"]" />
                         </MudItem>
                         <MudItem xs="12">
-                            <MudTextField T="string" @bind-Value="_review.Title" For="@(() => _review.Title)" Immediate="true" Variant="Variant.Outlined" Label="Title" />
+                            <MudTextField T="string" @bind-Value="_review.Title" For="@(() => _review.Title)" Immediate="true" Variant="Variant.Outlined" Label="@_loc["Title"]" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudSelect @bind-Value="_review.ReviewCategory" Label="Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                            <MudSelect @bind-Value="_review.ReviewCategory" Label="@_loc["Category"]" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                                 @foreach (Category category in Enum.GetValues(typeof(Category)))
                                 {
-                                    <MudSelectItem Value="@category">@category.ToString()</MudSelectItem>
+                                    <MudSelectItem Value="@category">@_sharedLoc[category.ToString()]</MudSelectItem>
                                 }
                             </MudSelect>
                         </MudItem>
                         <MudItem   xs="12" sm="6">
-                            <MudText Class="flex"  Align="Align.Center"  >Rate the subject: </MudText>
+                            <MudText Class="flex"  Align="Align.Center" >@_loc["Rate the subject:"]</MudText>
                             <div Class="d-flex justify-center">
                                 <MudHidden  Breakpoint="Breakpoint.LgAndUp" Invert="true">
                                     <MudRating    @bind-SelectedValue="_review.AuthorGrade" Size="Size.Large" MaxValue="10" />
@@ -49,13 +50,13 @@
                                     </MudItem>
                                 }
                                 <MudItem Class="d-flex align-center justify-end" xs="12">
-                                    <MudAutocomplete T="string" Label="Choose tag" For="@(() => _tagFieldValue.Name)" CoerceValue="true"  @bind-Value="@_tagFieldValue.Name" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search"/>
-                                    <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" Disabled="@(_tagFieldValue == null || _tagFieldValue.Name.Length == 0 || !IsTagValid())" DisableElevation="true" Size="Size.Large" Color="Color.Info" >add</MudButton>
+                                    <MudAutocomplete T="string" Label="@_loc["Choose tag"]" For="@(() => _tagFieldValue.Name)" CoerceValue="true"  @bind-Value="@_tagFieldValue.Name" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search"/>
+                                    <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" Disabled="@(_tagFieldValue == null || _tagFieldValue.Name.Length == 0 || !IsTagValid())" DisableElevation="true" Size="Size.Large" Color="Color.Info" >@_loc["add"]</MudButton>
                                 </MudItem>
                             </MudGrid>
                         </MudItem>
                         <MudItem xs="12">
-                            <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="d-flex    mud-width-full " InputClass="d-flex absolute mud-height-full mud-width-full overflow-hidden z-20" InputStyle="opacity:0"
+                            <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="d-flex mud-width-full " InputClass="d-flex absolute mud-height-full mud-width-full overflow-hidden z-20" InputStyle="opacity:0"
                                 @ondragenter="@SetDragClass"  @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Error="@_isImageUploadFileNotValid" ErrorText="@_imageErrorText">
                                 <ButtonTemplate Context="upload_file_context">
                                     <MudPaper  Outlined="true" Class="@DragClass">
@@ -65,13 +66,13 @@
                                         }
                                         else
                                         {
-                                            <MudText Typo="Typo.h6">Drag here image (optional)</MudText>
+                                            <MudText Typo="Typo.h6">@_loc["Drag here image (optional)"]</MudText>
                                         }
                                     </MudPaper>
                                 </ButtonTemplate>
                             </MudFileUpload>
                             <MudToolBar DisableGutters="true">
-                                <MudButton Class="ml-auto " OnClick="Clear" Disabled="@(_reviewImage == null)" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+                                <MudButton Class="ml-auto " OnClick="Clear" Disabled="@(_reviewImage == null)" Color="Color.Error" Variant="Variant.Filled">@_loc["Clear"]</MudButton>
                             </MudToolBar>
                          </MudItem>
                         <MudItem xs="12" >
@@ -87,18 +88,18 @@
                             }
                             else
                             {
-                                <MudButton   Variant="Variant.Filled" ButtonType="ButtonType.Submit"  DisableElevation="true" Size="Size.Large" Color="Color.Primary" >Publish</MudButton>
+                                        <MudButton   Variant="Variant.Filled" ButtonType="ButtonType.Submit"  DisableElevation="true" Size="Size.Large" Color="Color.Primary" >@_loc["Publish"]</MudButton>
                             }
                         </MudItem>
                         @if (_isPublishActionFired)
                         {
                             if (_isPublishWasSuccesful)
                             {
-                                <MudText Color="Color.Success">Your review published!</MudText>
+                                                <MudText Color="Color.Success">@_loc["Your review published!"]</MudText>
                             }
                             else
                             {
-                                <MudText Color="Color.Error">Error</MudText>
+                                                <MudText Color="Color.Error">@_loc["Error"]</MudText>
                             }
                         }
                         <MudButton OnClick="CreateFakes">CREATE 3 FAKES</MudButton>
@@ -115,6 +116,10 @@
     private HttpClient? _httpClient { get; set; }
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    [Inject]
+    private IStringLocalizer<ReviewBuilderTool> _loc { get; set; }
+    [Inject]
+    private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
     private static string DefaultDragClass = "rounded-lg px-2 py-7 mud-height-full border-2 border-dashed z-10";
     private string DragClass = DefaultDragClass;
     private ReviewModel _review = new ();

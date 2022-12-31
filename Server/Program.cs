@@ -7,8 +7,16 @@ using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("ru-RU"),
+            };
 
 builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "config", "secrets.json"));
 
@@ -61,6 +69,8 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 });
 builder.Services.AddRazorPages();
 
+builder.Services.AddLocalization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,6 +85,15 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 
 app.UseHttpsRedirection();
 

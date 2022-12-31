@@ -1,25 +1,25 @@
 ﻿@using System.Security.Claims;
-<MudPaper Width="100%" Outlined="true" >
+<MudPaper Class="border-t-0 mt-n4 pt-4" Width="100%" Outlined="true" >
     <MudGrid Spacing="0">
         <MudItem  xs="12">
             <EditForm Model="@_newComment" Context="comment">
                 <DataAnnotationsValidator/>
-                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="Add comment" @bind-Value="_newComment.CommentBody" For="@(() => _newComment.CommentBody)"/>
+                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="@_loc["Сomment"]" @bind-Value="_newComment.CommentBody" Immediate="true" For="@(() => _newComment.CommentBody)"/>
                 <AuthorizeView>
                     <Authorized >
-                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >Add comment</MudButton>
+                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >@_loc["Add comment"]</MudButton>
                     </Authorized>
                     <NotAuthorized >
-                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Disabled="true" Color="Color.Primary" >Add comment</MudButton>
+                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Disabled="true" Color="Color.Primary" >@_loc["Add comment"]</MudButton>
                     </NotAuthorized>
                 </AuthorizeView>
             </EditForm>
         </MudItem>
         @if (CurrentReview.Comments == null || CurrentReview.Comments.Count == 0)
         {
-            <MudItem xs="12">
+            <MudItem Class="py-8" xs="12">
                 <MudText Align="Align.Center">
-                    No Comments here yet.
+                    @_loc["No сomments here yet, be first!"]
                 </MudText>
             </MudItem>
         }
@@ -36,7 +36,7 @@
                         @comment.Author.UserName  
                     </MudText >
                     <MudText  Class="d-flex align-content-center flex-wrap" Typo="Typo.body2" >
-                        @(comment.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                        @comment.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
                     </MudText>
                 </MudItem>
                 <MudItem Class="px-6" xs="12">
@@ -58,6 +58,8 @@
     public AuthenticationStateProvider? AuthStateProvider { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
+    [Inject]
+    private IStringLocalizer<Comments> _loc { get; set; }
     private CommentModel _newComment = new ();
     private string _userId;
 

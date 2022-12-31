@@ -4,22 +4,23 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Pages\Components\NavMenu\**" />
-    <Content Remove="Pages\Components\NavMenu\**" />
-    <EmbeddedResource Remove="Pages\Components\NavMenu\**" />
-    <None Remove="Pages\Components\NavMenu\**" />
+    <Compile Remove="Shared\Components\NavMenu\**" />
+    <Content Remove="Shared\Components\NavMenu\**" />
+    <EmbeddedResource Remove="Shared\Components\NavMenu\**" />
+    <None Remove="Shared\Components\NavMenu\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Components\Header.razor" />
+    <Content Remove="Shared\Components\Header.razor" />
     <Content Remove="Pages\FetchData.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Pages\Components\Reviews\Review.razor.css" />
+    <None Remove="Shared\Components\Reviews\Review.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.10" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.10" />
     <PackageReference Include="MudBlazor" Version="6.1.5" />
     <PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.10" />
   </ItemGroup>

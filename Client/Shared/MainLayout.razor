@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@using totten_romatoes.Client.Shared.Components.Authentication;
+@using totten_romatoes.Client.Shared.Components.Localization;
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_myTheme"/>
 <MudDialogProvider/>
@@ -7,13 +9,14 @@
 <MudLayout>
     <MudAppBar  Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <CultureSelector />
         <MudSpacer/>
-        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark Mode"/>
+        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="@(_loc["Dark mode"])"/>
         <LoginDisplay/>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h5" Class="mt-1">Application</MudText>
+            <MudText Align="Align.Center" Typo="Typo.h5" Class="mt-1">@Constants.APP_NAME</MudText>
         </MudDrawerHeader> 
         <NavMenu/>
     </MudDrawer>
@@ -24,7 +27,7 @@
 
 @code {
     [Inject]
-    private IHttpClientFactory _clientFactory { get; set; }
+    private IStringLocalizer<MainLayout> _loc { get; set; }
     bool _drawerOpen = false;
     private bool _isDarkMode;
 

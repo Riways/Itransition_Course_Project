@@ -1,12 +1,13 @@
 ﻿@page "/"
-@using totten_romatoes.Client.Pages.Components.Reviews
-@using totten_romatoes.Client.Pages.Components.Tags
-@using totten_romatoes.Client.Pages.Components
+@using totten_romatoes.Client.Shared.Components.Reviews
+@using totten_romatoes.Client.Shared.Components.Tags
+@using totten_romatoes.Client.Shared.Components
+@using System.Globalization
 
-<PageTitle>Index</PageTitle>
+<PageTitle>@_loc["Home"]</PageTitle>
 
 <MudContainer Class="mt-1" MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Reviews</MudText>
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@_loc["Reviews"]</MudText>
     <MudGrid Spacing="6" Class="mt-1" Justify="Justify.Center">
         <MudItem xs="12" lg="9">
             <Reviews/>
@@ -19,5 +20,10 @@
 
     </MudGrid>
 </MudContainer>
+
+@code{
+    [Inject]
+    private IStringLocalizer<Index> _loc { get; set; }
+}
 
 

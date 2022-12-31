@@ -1,10 +1,11 @@
 ﻿@page "/review/{id:long}"
-@using totten_romatoes.Client.Pages.Components.Reviews
-@using totten_romatoes.Client.Pages.Components.Comments
-@using totten_romatoes.Client.Pages.Components.Tags
+@using totten_romatoes.Client.Shared.Components.Reviews
+@using totten_romatoes.Client.Shared.Components.Comments
+@using totten_romatoes.Client.Shared.Components.Tags
+
+<PageTitle>@_loc["Review"]</PageTitle>
 
 <MudContainer Class="mt-1" MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Reviews</MudText>
     <MudGrid Spacing="6" Class="mt-1" Justify="Justify.Center">
         <MudItem xs="12" lg="9">
             @if(_currentReview == null)
@@ -35,13 +36,15 @@
     private IHttpClientFactory? _clientFactory { get; set; }
     [Inject]
     private AuthenticationStateProvider? _authStateProvider { get; set; }
+    [Inject]
+    private IStringLocalizer<ReviewAndComments> _loc { get; set; }
+
     private ReviewModel? _currentReview { get; set; }
 
     protected async override Task OnParametersSetAsync()
     {
         HttpClient _anonymousHttpClient = _clientFactory!.CreateClient("totten_romatoes.AnonymousAPI");
         _currentReview = await _anonymousHttpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEW_URL}/{Id}");
-        Console.WriteLine(_currentReview.Title);
         await base.OnParametersSetAsync();
     }
 

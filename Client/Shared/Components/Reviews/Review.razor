@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims;
+@using totten_romatoes.Client.Shared.Components.Localization
 
-<MudPaper Width="100%" Outlined="true" >
+<MudPaper   Width="100%" Outlined="true" >
     <MudGrid Spacing="0">
         <MudItem Class="px-6 py-4" xs="12" id="reviewHeader">
             <MudGrid>
@@ -12,7 +13,7 @@
                         @CurrentReview.Author.UserName  
                     </MudText >
                     <MudText  Class="d-flex align-content-center flex-wrap pt-1" Typo="Typo.body2" >
-                        @(CurrentReview.DateOfCreationInUTC.ToString("d/MM/yy HH:m"))
+                            @CurrentReview.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
                     </MudText>
                 </MudItem>
                 <MudItem xs="12" md="6">
@@ -61,14 +62,14 @@
             </MudItem>
             <MudItem Class="mt-n4 pt-4 px-6" xs="12" >
                 <MudDivider Class="mb-4"></MudDivider>
-                <MudButton Variant="Variant.Outlined" Size="Size.Medium"  Color="Color.Transparent">Read</MudButton>
+                <MudButton Variant="Variant.Outlined" OnClick="ReadFullReview" Size="Size.Medium"  Color="Color.Transparent">@_loc["Read"]</MudButton>
             </MudItem>
         }
         else
         {
             <MudItem Class="px-6 pt-4" xs="12" id="reviewBody">
             @((MarkupString)CurrentReview.ReviewBody)
-                <MudRating Class="d-flex mt-2" ReadOnly="true" SelectedValue="@CurrentReview.AuthorGrade" Size="Size.Medium" MaxValue="10" />
+                <MudRating Class="d-flex flex-grow-1 justify-end mt-2" ReadOnly="true" SelectedValue="@CurrentReview.AuthorGrade" Size="Size.Medium" MaxValue="10" />
             </MudItem>
         }
         @if (CurrentReview.Tags != null)
@@ -80,15 +81,15 @@
             }
             </MudItem>
         }
-        <MudItem xs="12">
-            <MudButton OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
+        <MudItem Class="px-6" xs="12">
+            <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
         </MudItem>
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
         <MudItem Class="px-6 py-4 " xs="12">
             <MudGrid>
-                <MudItem Class="d-flex align-content-center flex-wrap" xs="6" sm="10">
+                <MudItem Class="d-flex align-content-center flex-wrap" xs="6" sm="9">
                     <MudIcon Icon="@Icons.Outlined.Comment" Size="Size.Medium" /> 
                     @if(CurrentReview.Comments == null)
                     {
@@ -99,11 +100,11 @@
                         <MudLink Class="pl-1" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.body2">(@CurrentReview.Comments.Count)</MudLink> 
                     }
                 </MudItem>
-                <MudItem  xs="6" sm="2">
-                    <MudText Class="d-inline-flex" Typo="Typo.body2" >
-                        Category: 
+                <MudItem Class="d-flex flex-grow-1"  xs="6" sm="3">
+                    <MudText Class="d-flex flex-1 justify-end" Typo="Typo.body2" >
+                        @_loc["Category:"] 
                     </MudText>
-                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @CurrentReview.ReviewCategory</MudLink>  
+                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @_sharedLoc[CurrentReview.ReviewCategory.ToString()]</MudLink>  
                 </MudItem>
             </MudGrid>
         </MudItem>
@@ -120,6 +121,12 @@
     public bool IsReviewWrapped { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
+    [Inject]
+    private IStringLocalizer<Review> _loc { get; set; }
+    [Inject]
+    private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
+    [Inject]
+    private NavigationManager _nav { get; set; }
     private string _userId;
     private double _subjectRating = double.MinValue;
     private int _userGrade { get; set; } = 0;
@@ -178,5 +185,10 @@
 
         }
     }
+
+    private void ReadFullReview()
+    {
+        _nav.NavigateTo($"review/{CurrentReview.Id}");
+    } 
 
 }

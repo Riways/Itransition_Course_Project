@@ -4,6 +4,8 @@ namespace totten_romatoes.Shared
 {
     public static class Constants
     {
+        public const string APP_NAME = "Romatoes";
+
         //image
         public const int MAX_IMAGE_SIZE = 2 * 1024 * 1024;
         public const string IMAGE_FORMAT = "image/jpeg";
@@ -15,7 +17,7 @@ namespace totten_romatoes.Shared
         public const int AMOUNT_OF_TAGS_IN_CLOUD = 20;
         public const int AMOUNT_OF_TAGS_IN_SEARCH_RESULT = 20;
 
-        //urls
+        //api urls
         public const string SUBJECT_GRADE_URL = "api/subjects/grade";
         public const string REVIEW_URL = "api/reviews";
         public const string REVIEW_SEARCH_URL = $"{REVIEW_URL}/search";
@@ -32,6 +34,10 @@ namespace totten_romatoes.Shared
         public const int FAKER_MAX_WORDS_IN_TITLE = 3;
         public const int FAKER_MIN_SENTENCES_IN_BODY = 30;
         public const int FAKER_MAX_SENTENCES_IN_BODY = 100;
+        public const int FAKER_MIN_COMMENTS_AMOUNT = 10;
+        public const int FAKER_MAX_COMMENTS_AMOUNT = 100;
+        public const int FAKER_MIN_SENTENCES_IN_COMMENT_AMOUNT = 1;
+        public const int FAKER_MAX_SENTENCES_IN_COMMENT_AMOUNT = 4;
         public const int FAKER_MIN_TAGS_AMOUNT = 0;
         public const int FAKER_MAX_TAGS_AMOUNT = 5;
         public const int FAKER_MIN_WORDS_IN_TAG_AMOUNT = 1;

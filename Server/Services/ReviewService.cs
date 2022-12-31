@@ -130,6 +130,7 @@ namespace totten_romatoes.Server.Services
 
         public async Task<List<ReviewModel>> FullTextSearch(string key)
         {
+            key = key.Trim();
             key = key.Replace(" ", " <-> ");
             var reviewBodyAndTitleSearchResult = await _dbContext.Reviews!
                 .Where(r => r.SearchVector!.Matches(EF.Functions.ToTsQuery($"{key}:*")))
@@ -160,12 +161,25 @@ namespace totten_romatoes.Server.Services
                 ReviewModel review = new Faker<ReviewModel>()
                     .RuleFor(r => r.AuthorId, f => Constants.FAKER_USER_ID)
                     .RuleFor(r => r.AuthorGrade, f => f.Random.Int(1, 10))
-                    .RuleFor(r => r.DateOfCreationInUTC, f => f.Date.Between(DateTime.UtcNow, DateTime.UtcNow.AddDays(7)))
+                    .RuleFor(r => r.DateOfCreationInUTC, f => f.Date.Between(DateTime.UtcNow.AddDays(-14), DateTime.UtcNow.AddDays(-7)))
                     .RuleFor(r => r.Title, f => f.Lorem.Sentence(f.Random.Int(1, Constants.FAKER_MAX_WORDS_IN_TITLE)))
                     .RuleFor(r => r.Subject, f => new SubjectModel { Name = f.Random.Word() })
                     .RuleFor(r => r.ReviewCategory, f => f.PickRandom<Category>())
                     .RuleFor(r => r.ReviewBody, f => f.Lorem.Sentences(f.Random.Int(Constants.FAKER_MIN_SENTENCES_IN_BODY, Constants.FAKER_MAX_SENTENCES_IN_BODY)))
                     .RuleFor(r => r.ReviewImage, f => new ImageModel { ImageName = f.Random.Word(), ImageType = Constants.IMAGE_FORMAT })
+                    .RuleFor(r => r.Comments, f =>
+                    {
+                    List<CommentModel> comments = new();
+                    for (int i = 0; i < f.Random.Int(Constants.FAKER_MIN_COMMENTS_AMOUNT, Constants.FAKER_MAX_COMMENTS_AMOUNT); i++)
+                    {
+                        CommentModel newComment = new();
+                        newComment.AuthorId = Constants.FAKER_USER_ID;
+                        newComment.DateOfCreationInUTC = f.Date.Between(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow);
+                            newComment.CommentBody = f.Lorem.Sentences(f.Random.Int(Constants.FAKER_MIN_SENTENCES_IN_COMMENT_AMOUNT, Constants.FAKER_MAX_SENTENCES_IN_COMMENT_AMOUNT));
+                            comments.Add(newComment);
+                        }
+                        return comments;
+                    })
                     .RuleFor(r => r.Tags, f => {
                         List<TagModel> tags = new List<TagModel>();
                         for (int i = 0; i < f.Random.Int(Constants.FAKER_MIN_TAGS_AMOUNT, Constants.FAKER_MAX_TAGS_AMOUNT); i++)
