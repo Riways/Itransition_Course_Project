@@ -6,6 +6,12 @@ namespace totten_romatoes.Shared
     {
         public const string APP_NAME = "Romatoes";
 
+        //pagination
+        public const int REVIEWS_ON_PAGE = 10;
+
+        //dropbox
+        public const string DROPBOX_PATH = "/romatoes/";
+
         //image
         public const int MAX_IMAGE_SIZE = 2 * 1024 * 1024;
         public const string IMAGE_FORMAT = "image/jpeg";
@@ -21,10 +27,13 @@ namespace totten_romatoes.Shared
         public const string SUBJECT_GRADE_URL = "api/subjects/grade";
         public const string REVIEW_URL = "api/reviews";
         public const string REVIEW_SEARCH_URL = $"{REVIEW_URL}/search";
+        public const string REVIEW_AMOUNT = $"{REVIEW_URL}/amount";
         public const string REVIEW_ADD_FAKE_URL = $"{REVIEW_URL}/add-fakes";
         public const string REVIEW_ADD_COMMENT = $"{REVIEW_URL}/add-comment";
+        public const string REVIEW_LIKE = $"{REVIEW_URL}/like";
         public const string TAG_URL = "api/tags";
         public const string TAG_SEARCH_URL = $"{TAG_URL}/search";
+        public const string TAG_GET_DEFAULT_AMOUNT = $"{TAG_URL}/take";
 
         //search
         public const int AMOUNT_OF_REVIEWS_IN_SEARCH_RESULT = 10;

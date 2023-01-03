@@ -1,11 +1,8 @@
 ﻿using Dropbox.Api;
 using Dropbox.Api.Files;
 using Dropbox.Api.Sharing;
-using Dropbox.Api.TeamLog;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 using totten_romatoes.Shared.Models;
-using static Dropbox.Api.Files.SearchMatchType;
+using totten_romatoes.Shared;
 
 namespace totten_romatoes.Server.Services
 {
@@ -27,7 +24,7 @@ namespace totten_romatoes.Server.Services
 
         public async Task<string> UploadImageToDropbox(ImageModel imageToUpload)
         {
-            string pathToFileOnDropbox = $"{ServerConstants.DROPBOX_PATH}{imageToUpload.ImageName}";
+            string pathToFileOnDropbox = $"{Constants.DROPBOX_PATH}{imageToUpload.ImageName}";
             string imageUrl;
             using (var mem = new MemoryStream(imageToUpload.ImageData))
             {

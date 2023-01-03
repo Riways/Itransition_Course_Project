@@ -27,7 +27,7 @@ namespace totten_romatoes.Server.Data
             });
             modelBuilder.Entity<ReviewModel>().HasGeneratedTsVectorColumn(
                     r => r.SearchVector,
-                    "english", 
+                    "english",
                     r => new { r.ReviewBody, r.Title })
                     .HasIndex(r => r.SearchVector)
                     .HasMethod("GIN");
@@ -40,6 +40,7 @@ namespace totten_romatoes.Server.Data
             modelBuilder.Entity<TagModel>().HasAlternateKey(t => t.Name);
             modelBuilder.Entity<SubjectModel>().HasAlternateKey(g => g.Name);
             modelBuilder.Entity<GradeModel>().HasAlternateKey(g => new { g.SubjectId, g.AuthorId });
+            modelBuilder.Entity<LikeModel>().HasAlternateKey(l => new { l.FromUserId, l.ReviewId });
             modelBuilder.Entity<ApplicationUser>().HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex").IsUnique();
         }
 

@@ -120,6 +120,9 @@
   <data name="Create review" xml:space="preserve">
     <value>Создать обзор</value>
   </data>
+  <data name="Dark mode" xml:space="preserve">
+    <value>Тёмный режим</value>
+  </data>
   <data name="Home" xml:space="preserve">
     <value>Главная</value>
   </data>

@@ -1,35 +1,24 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using System.Text.Json;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
-using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var supportedCultures = new[]
-            {
-                new CultureInfo("en-US"),
-                new CultureInfo("ru-RU"),
-            };
-
 builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "config", "secrets.json"));
 
-// Add services to the container.
 var connectionString = builder.Configuration["DefaultConnection"];
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
-        options.SignIn.RequireConfirmedAccount = false; 
-        options.SignIn.RequireConfirmedEmail= false;
-    })
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
@@ -43,7 +32,7 @@ builder.Services.AddIdentityServer()
 
 builder.Services.AddAuthentication(options =>
 {
-    options.RequireAuthenticatedSignIn= false;
+    options.RequireAuthenticatedSignIn = false;
 })
     .AddIdentityServerJwt()
     .AddGoogle(options =>
@@ -59,8 +48,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddTransient<IDropboxService, DropboxService>();
 builder.Services.AddTransient<IImageService, ImageService>();
-builder.Services.AddTransient<IReviewService,ReviewService>();
-builder.Services.AddTransient<ISubjectService,SubjectService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<ISubjectService, SubjectService>();
 builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
@@ -73,7 +62,6 @@ builder.Services.AddLocalization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -82,18 +70,8 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("en-US"),
-    SupportedCultures = supportedCultures,
-    SupportedUICultures = supportedCultures
-});
-
 
 app.UseHttpsRedirection();
 

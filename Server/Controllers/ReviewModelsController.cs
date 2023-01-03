@@ -29,19 +29,17 @@ namespace totten_romatoes.Server.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("add-fakes/{amount}")]
-        public async Task GenerateReviews(int amount)
+        [HttpGet("amount")]
+        public async Task<int> GetAmountOfReviews()
         {
-            if (amount < 0)
-                return;
-            await _reviewService.GenerateFakeReviews(amount);
+            return await _reviewService.GetAmountOfReviews();
         }
 
         [AllowAnonymous]
-        [HttpGet]
-        public async Task<IEnumerable<ReviewModel>> GetReviews()
+        [HttpGet("page")]
+        public async Task<IEnumerable<ReviewModel>> GetReviews([FromQuery] int number, [FromQuery] int sortType)
         {
-            return await _reviewService.GetAllReviewsWithoutComments();
+            return await _reviewService.GetChunkOfSortedReviews(number, (SortBy) sortType);
         }
 
         [AllowAnonymous]
@@ -56,17 +54,37 @@ namespace totten_romatoes.Server.Controllers
             return Ok(reviewModel);
         }
 
+        [HttpGet("add-fakes/{amount}")]
+        public async Task GenerateReviews(int amount)
+        {
+            if (amount < 0)
+                return;
+            await _reviewService.GenerateFakeReviews(amount);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ReviewModel>> PostReviewModel(ReviewModel reviewModel)
         {
             await _reviewService.AddReviewToDb(reviewModel);
             return CreatedAtAction("GetReviewModel", new { id = reviewModel.Id }, reviewModel);
         }
-        [HttpPost]
-        [Route("add-comment")]
+
+        [HttpPost("add-comment")]
         public async Task PostComment(CommentModel commentModel)
         {
             await _reviewService.AddCommentToDb(commentModel);
+        }
+        
+        [HttpPost("like")]
+        public void PostLike(LikeModel likeModel)
+        {
+             _reviewService.AddLikeToDb(likeModel);
+        }
+
+        [HttpDelete("like/{id}")]
+        public void DeleteLike(long id)
+        {
+            _reviewService.DeleteLikeDromDb(id);
         }
 
         [HttpDelete("{id}")]

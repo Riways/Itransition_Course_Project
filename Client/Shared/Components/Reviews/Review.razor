@@ -7,13 +7,18 @@
     <MudGrid Spacing="0">
         <MudItem Class="px-6 py-4" xs="12" id="reviewHeader">
             <MudGrid>
-                <MudItem Class="d-flex align-content-center flex-wrap" xs="12" md="6">
+                <MudItem Class="d-flex align-center flex-wrap" xs="12" md="6">
                     <MudAvatar   Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
-                        <MudText Class="d-flex align-content-center flex-wrap mx-2" Typo="Typo.h6" >
-                        @CurrentReview.Author.UserName  
+                        <MudText Class="d-flex align-content-center flex-wrap ml-2 mr-1" Typo="Typo.h6" >
+                        @CurrentReview.Author!.UserName   
                     </MudText >
-                    <MudText  Class="d-flex align-content-center flex-wrap pt-1" Typo="Typo.body2" >
-                            @CurrentReview.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
+                    <h5 class="my-auto">[</h5>
+                    <MudText  Class="d-flex align-content-center flex-wrap px-1 " Color="Color.Success" Typo="Typo.h6" >
+                                 @CurrentReview.Author.Rating 
+                    </MudText>
+                    <h5 class="my-auto">]</h5>
+                    <MudText  Class="d-flex align-content-center flex-wrap pt-1 ml-3" Typo="Typo.body2" >
+                              @CurrentReview.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
                     </MudText>
                 </MudItem>
                 <MudItem xs="12" md="6">
@@ -51,7 +56,7 @@
         </MudItem>
         @if (CurrentReview.ReviewImage != null)
         {
-            <MudItem Class="px-6 " xs="12">
+            <MudItem Class="px-6" xs="12">
                 <MudImage Src="@CurrentReview.ReviewImage.ImageUrl" Width="100"/>
             </MudItem>
         }
@@ -81,26 +86,34 @@
             }
             </MudItem>
         }
-        <MudItem Class="px-6" xs="12">
+        <MudItem Class="px-6 pb-4" xs="12">
             <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
+            <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Warning">MODIFY</MudButton>
         </MudItem>
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
-        <MudItem Class="px-6 py-4 " xs="12">
+        <MudItem Class="pl-3 pr-6" xs="12">
             <MudGrid>
-                <MudItem Class="d-flex align-content-center flex-wrap" xs="6" sm="9">
-                    <MudIcon Icon="@Icons.Outlined.Comment" Size="Size.Medium" /> 
+                <MudItem Class="d-flex" xs="6" sm="9">
+                    @if (CurrentReview.Likes != null && CurrentReview.Likes.Any(l => l.FromUserId == _userId))
+                    {
+                        <MudIconButton Icon="@Icons.Material.Outlined.Favorite" Disabled="_likeButtonDisabled" OnClick="UserDislikedReview" Size="Size.Medium" Color="Color.Secondary"></MudIconButton>
+                    }else{
+                        <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Disabled="_likeButtonDisabled" OnClick="UserLikedReview" Size="Size.Medium" Color="Color.Default"></MudIconButton>
+                    }
+                    <MudText Class="my-auto">@CurrentReview.Likes.Count</MudText>
+                    <MudIcon Class="ml-6 my-auto" ViewBox="0 -1 24 24" Icon="@Icons.Rounded.ChatBubbleOutline" Size="Size.Medium" /> 
                     @if(CurrentReview.Comments == null)
                     {
-                        <MudLink Class="pl-1" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.body2">(@CurrentReview.CommentsAmount)</MudLink> 
+                        <MudLink Class="d-flex align-content-center pl-1 flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.CommentsAmount )</MudLink> 
                     }
                     else
                     {
-                        <MudLink Class="pl-1" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.body2">(@CurrentReview.Comments.Count)</MudLink> 
+                        <MudLink Class="d-flex align-content-center pl-1  flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.Comments.Count )</MudLink> 
                     }
                 </MudItem>
-                <MudItem Class="d-flex flex-grow-1"  xs="6" sm="3">
+                <MudItem Class="d-flex flex-grow-1 align-center "  xs="6" sm="3">
                     <MudText Class="d-flex flex-1 justify-end" Typo="Typo.body2" >
                         @_loc["Category:"] 
                     </MudText>
@@ -118,6 +131,8 @@
     [Parameter]
     public EventCallback<long> DeleteReviewFromList { get; set; }
     [Parameter]
+    public EventCallback<ApplicationUser> UpdateReviewAuthorRating { get; set; }
+    [Parameter]
     public bool IsReviewWrapped { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
@@ -130,6 +145,7 @@
     private string _userId;
     private double _subjectRating = double.MinValue;
     private int _userGrade { get; set; } = 0;
+    private bool _likeButtonDisabled = false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -141,6 +157,10 @@
             var userGrade = CurrentReview.Subject.Grades.FirstOrDefault(g => g.AuthorId == _userId);
             if (userGrade != null)
                 _userGrade = userGrade.Value;
+        }
+        else
+        {
+            _likeButtonDisabled = true;
         }
         CalculateSubjectRating();
     }
@@ -180,15 +200,56 @@
         if (CurrentReview.Subject.Grades != null && CurrentReview.Subject.Grades.Count > 0)
         {
             int gradesSum = CurrentReview.Subject.Grades.Select(g => g.Value).Sum();
-
             _subjectRating = Math.Round((double)gradesSum / CurrentReview.Subject.Grades.Count, 1);
-
         }
     }
 
     private void ReadFullReview()
     {
         _nav.NavigateTo($"review/{CurrentReview.Id}");
-    } 
+    }
+
+    private async Task UserLikedReview()
+    {
+        if (_likeButtonDisabled)
+            return;
+        _likeButtonDisabled = true;
+        if(_httpClient != null)
+        {
+            if (CurrentReview.Likes == null)
+                CurrentReview.Likes = new();
+            LikeModel newLike = new();
+            newLike.FromUserId = _userId;
+            newLike.ToUserId = CurrentReview.AuthorId!;
+            newLike.ReviewId = CurrentReview.Id;
+            await _httpClient.PostAsJsonAsync<LikeModel>(Constants.REVIEW_LIKE, newLike);
+            CurrentReview.Likes.Add(newLike);
+            CurrentReview.Author.Rating++;
+            UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
+        }
+        await Task.Delay(100);
+        _likeButtonDisabled = false;
+        StateHasChanged();
+    }
+    private async Task UserDislikedReview()
+    {
+        if (_likeButtonDisabled)
+            return;
+        _likeButtonDisabled = true;
+        if(_httpClient != null && CurrentReview.Likes != null)
+        {
+            var likeToRemove = CurrentReview.Likes.SingleOrDefault(l => l.FromUserId == _userId);
+            if(likeToRemove != null)
+            {
+                await _httpClient.DeleteAsync($"{Constants.REVIEW_LIKE}/{likeToRemove.Id}");
+            }
+            CurrentReview.Likes.Remove(likeToRemove);
+            CurrentReview.Author.Rating--;
+            UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
+        }
+        await Task.Delay(100);
+        _likeButtonDisabled = false;
+        StateHasChanged();
+    }
 
 }

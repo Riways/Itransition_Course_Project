@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace totten_romatoes.Shared.Models
 {
@@ -16,5 +17,8 @@ namespace totten_romatoes.Shared.Models
         [MinLength(5)]
         [EmailAddress]
         public override string Email { get; set; }
+
+        [NotMapped]
+        public long Rating { get; set; }
     }
 }

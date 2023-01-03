@@ -17,10 +17,10 @@ namespace totten_romatoes.Server.Controllers
         }
         
         [HttpGet]
-        [Route("take/{amount}")]
-        public IEnumerable<string> GetSpecificAmountOftags(int amount)
+        [Route("take")]
+        public IEnumerable<string> GetSpecificAmountOftags()
         {
-            var tags = _reviewService.GetSpecificAmountOFTags(amount);
+            var tags = _reviewService.GetDefaultAmountOfTags();
             return tags.Select(t => t.Name).ToList();
         }
 

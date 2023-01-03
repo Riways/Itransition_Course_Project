@@ -1,10 +1,12 @@
 ﻿@using System.Security.Claims;
+@using Microsoft.AspNetCore.Components.Authorization
+
 <MudPaper Class="border-t-0 mt-n4 pt-4" Width="100%" Outlined="true" >
     <MudGrid Spacing="0">
         <MudItem  xs="12">
             <EditForm Model="@_newComment" Context="comment">
                 <DataAnnotationsValidator/>
-                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="@_loc["Сomment"]" @bind-Value="_newComment.CommentBody" Immediate="true" For="@(() => _newComment.CommentBody)"/>
+                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="@_loc["Сomment"]" @bind-Value="_newComment.CommentBody"   For="@(() => _newComment.CommentBody)"/>
                 <AuthorizeView>
                     <Authorized >
                         <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >@_loc["Add comment"]</MudButton>
@@ -53,32 +55,51 @@
 
 @code {
     [Parameter]
-    public ReviewModel CurrentReview { get; set; }
+    public ReviewModel? CurrentReview { get; set; }
     [Parameter]
     public AuthenticationStateProvider? AuthStateProvider { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
     [Inject]
-    private IStringLocalizer<Comments> _loc { get; set; }
+    private IStringLocalizer<Comments>? _loc { get; set; }
     private CommentModel _newComment = new ();
-    private string _userId;
+    private string? _userId;
+    private string? _userName;
 
     protected override async Task OnParametersSetAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity.IsAuthenticated)
+        if(AuthStateProvider != null)
         {
-            _userId = user.FindFirstValue("sub");
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                _userId = user.FindFirstValue("sub");
+                _userName = user.FindFirstValue("name");
+            }
         }
     }
 
     public async Task AddComment()
     {
-        _newComment.AuthorId = _userId;
-        _newComment.ReviewId = CurrentReview.Id;
-        _newComment.DateOfCreationInUTC = DateTime.UtcNow;
-        await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEW_ADD_COMMENT, _newComment);
+        if (_userId != null && _userName != null && _httpClient != null)
+        {
+            _newComment.AuthorId = _userId;
+            _newComment.ReviewId = CurrentReview!.Id;
+            _newComment.DateOfCreationInUTC = DateTime.UtcNow;
+            await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEW_ADD_COMMENT, _newComment);
+            _newComment.Author = new ApplicationUser { UserName = _userName};
+            CommentModel commentToList = _newComment;
+            if(CurrentReview.Comments != null)
+            {
+                CurrentReview.Comments.Add(commentToList);
+            }
+            else
+            {
+                CurrentReview.Comments = new List<CommentModel>() { commentToList };
+            }
+        }
+        _newComment = new ();
     }
 
     private Color RandomColorPick()

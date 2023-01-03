@@ -1,36 +1,89 @@
-﻿
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
 @if(_reviews == null){
     <MudGrid Class="d-flex align-content-center flex-grow-1 flex-wrap justify-center"  Style="height:80vh">
         <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     </MudGrid>
 }else
 {
+    <MudSelect T="SortBy" ValueChanged="SortTypeChanged" Placeholder="Sort by" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+        @foreach (SortBy sort in Enum.GetValues(typeof(SortBy)))
+        {
+            <MudSelectItem Value="@sort">@sort</MudSelectItem>
+        }
+    </MudSelect>
     <MudGrid >
         @foreach (var review in _reviews)
         {
             <MudItem xs="12" >
-                <Review IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
+                <Review UpdateReviewAuthorRating="UpdateReviewAuthorRating" IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
             </MudItem>
-        } 
+        }
+        <MudPagination Class="d-flex flex-1 justify-center" SelectedChanged="PageChanged" Size="Size.Large" Color="Color.Primary" Count="@_pagesSummary" />
     </MudGrid>
 }
 
 @code {
     [Inject]
-    private IHttpClientFactory _clientFactory { get; set; }
+    private IHttpClientFactory? _clientFactory { get; set; }
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    private SortBy _sortType = SortBy.Newest;
+    private HttpClient? _anonymousHttpClient;
     private List<ReviewModel>? _reviews;
+    private int _selectedPage = 1;
+    private int _pagesSummary = 1;
+
 
     protected override async Task OnInitializedAsync()
     {
-        HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-        _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>(Constants.REVIEW_URL);
+        if(_clientFactory != null)
+        {
+            _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEW_AMOUNT);
+            int div = reviewAmount / Constants.REVIEWS_ON_PAGE;
+            _pagesSummary = reviewAmount % Constants.REVIEWS_ON_PAGE == 0 ? div : div + 1;
+        }
     }
 
     public void DeleteReviewFromList(long id)
     {
-        _reviews = _reviews.Where(r => r.Id != id).ToList();
-        StateHasChanged();
+        if(_reviews != null)
+        {
+            _reviews = _reviews.Where(r => r.Id != id).ToList();
+            StateHasChanged();
+        }
+    }
+
+    public async Task PageChanged(int page)
+    {
+        if(_anonymousHttpClient != null)
+        {
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={page - 1}&sortType={(int)_sortType}");
+            _selectedPage = page;
+            StateHasChanged();
+        }
+    }
+
+    public async Task SortTypeChanged(SortBy selectedType)
+    {
+        _sortType = selectedType;
+        if (_anonymousHttpClient != null)
+        {
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            StateHasChanged();
+        }
+    }
+
+    private void UpdateReviewAuthorRating(ApplicationUser user)
+    {
+        foreach(var review in _reviews)
+        {
+            if(review.Author.Id == user.Id)
+            {
+                review.Author.Rating = user.Rating;
+            }
+        }
     }
 }
