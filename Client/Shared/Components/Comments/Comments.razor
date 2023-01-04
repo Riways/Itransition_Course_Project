@@ -87,7 +87,7 @@
             _newComment.AuthorId = _userId;
             _newComment.ReviewId = CurrentReview!.Id;
             _newComment.DateOfCreationInUTC = DateTime.UtcNow;
-            await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEW_ADD_COMMENT, _newComment);
+            await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEWS_ADD_COMMENT_URL, _newComment);
             _newComment.Author = new ApplicationUser { UserName = _userName};
             CommentModel commentToList = _newComment;
             if(CurrentReview.Comments != null)

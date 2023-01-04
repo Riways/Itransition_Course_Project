@@ -25,12 +25,13 @@ namespace totten_romatoes.Shared.Models
         public string? ReviewBody { get; set; }
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }
-        public long SubjectId { get; set; }
         [Required]
+        public long SubjectId { get; set; }
         public SubjectModel Subject { get; set; } = new();
         public long? ReviewImageId { get; set; }
         public ImageModel? ReviewImage { get; set; }
-        public string? AuthorId { get; set; }
+        [Required]
+        public string AuthorId { get; set; }
         public ApplicationUser? Author { get; set; }
         public List<CommentModel>? Comments { get; set; }
         [NotMapped]

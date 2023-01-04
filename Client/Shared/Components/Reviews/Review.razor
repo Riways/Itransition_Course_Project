@@ -23,9 +23,9 @@
                 </MudItem>
                 <MudItem xs="12" md="6">
                     <MudText  Class="d-flex flex-1 flex-wrap justify-end" Typo="Typo.h6">
-                        <MudLink Typo="Typo.h6" Class="pr-1" Href="/">@CurrentReview.Subject.Name</MudLink>
+                        <MudLink Typo="Typo.h6" Class=" d-flex flex-wrap justify-end"  Href="/">@CurrentReview.Subject.Name</MudLink>
                         (
-                        <MudIcon Class="pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
+                        <MudIcon Class="d-flex pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
                         @(_subjectRating == double.MinValue ? "--" : _subjectRating) )
                     </MudText>
                     <AuthorizeView>
@@ -86,10 +86,13 @@
             }
             </MudItem>
         }
-        <MudItem Class="px-6 pb-4" xs="12">
-            <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
-            <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Warning">MODIFY</MudButton>
-        </MudItem>
+        @if(_userId != null && _userId.Equals(CurrentReview.Author.Id))
+        {
+            <MudItem Class="px-6 pb-4" xs="12">
+                <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
+                <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Info">MODIFY</MudButton>
+            </MudItem>
+        }
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
@@ -142,14 +145,22 @@
     private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
     [Inject]
     private NavigationManager _nav { get; set; }
+    private AuthenticationState authState;
     private string _userId;
     private double _subjectRating = double.MinValue;
-    private int _userGrade { get; set; } = 0;
+    private int _userGrade = 0;
     private bool _likeButtonDisabled = false;
 
-    protected override async Task OnParametersSetAsync()
+    protected async override Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        await base.OnInitializedAsync();
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if(authState == null)
+            authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity.IsAuthenticated)
         {
@@ -163,6 +174,7 @@
             _likeButtonDisabled = true;
         }
         CalculateSubjectRating();
+        await base.OnParametersSetAsync();
     }
 
     public async Task UserRatedSubjectHandler(int value)
@@ -186,8 +198,10 @@
 
     private async Task DeleteReview()
     {
-        await _httpClient.DeleteAsync($"{Constants.REVIEW_URL}/{CurrentReview.Id}");
-        DeleteReviewFromList.InvokeAsync(CurrentReview.Id);
+        if(_httpClient != null){
+            await _httpClient.DeleteAsync($"{Constants.REVIEWS_URL}/{CurrentReview.Id}");
+            await DeleteReviewFromList.InvokeAsync(CurrentReview.Id);
+        }
     }
 
     private Color RandomColorPick()
@@ -201,6 +215,10 @@
         {
             int gradesSum = CurrentReview.Subject.Grades.Select(g => g.Value).Sum();
             _subjectRating = Math.Round((double)gradesSum / CurrentReview.Subject.Grades.Count, 1);
+        }
+        else
+        {
+            _subjectRating = double.MinValue;
         }
     }
 
@@ -222,10 +240,10 @@
             newLike.FromUserId = _userId;
             newLike.ToUserId = CurrentReview.AuthorId!;
             newLike.ReviewId = CurrentReview.Id;
-            await _httpClient.PostAsJsonAsync<LikeModel>(Constants.REVIEW_LIKE, newLike);
+            await _httpClient.PostAsJsonAsync<LikeModel>(Constants.REVIEWS_LIKE_URL, newLike);
             CurrentReview.Likes.Add(newLike);
             CurrentReview.Author.Rating++;
-            UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
+            await UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author!);
         }
         await Task.Delay(100);
         _likeButtonDisabled = false;
@@ -241,11 +259,11 @@
             var likeToRemove = CurrentReview.Likes.SingleOrDefault(l => l.FromUserId == _userId);
             if(likeToRemove != null)
             {
-                await _httpClient.DeleteAsync($"{Constants.REVIEW_LIKE}/{likeToRemove.Id}");
+                await _httpClient.DeleteAsync($"{Constants.REVIEWS_LIKE_URL}/{likeToRemove.Id}");
             }
             CurrentReview.Likes.Remove(likeToRemove);
             CurrentReview.Author.Rating--;
-            UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
+            await UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
         }
         await Task.Delay(100);
         _likeButtonDisabled = false;

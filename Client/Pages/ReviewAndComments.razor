@@ -45,7 +45,7 @@
     protected async override Task OnParametersSetAsync()
     {
         HttpClient _anonymousHttpClient = _clientFactory!.CreateClient("totten_romatoes.AnonymousAPI");
-        _currentReview = await _anonymousHttpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEW_URL}/{Id}");
+        _currentReview = await _anonymousHttpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEWS_URL}/{Id}");
         await base.OnParametersSetAsync();
     }
 

@@ -1,29 +1,138 @@
 ﻿@page "/user-page"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@_loc["Yours reviews"]</MudText>
-    <MudGrid Spacing="6" Class="mt-1" Justify="Justify.Center">
-        <MudItem xs="12" lg="9">
-            <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-                <HeaderContent>
-                    <MudTh>Nr</MudTh>
-                    <MudTh>Sign</MudTh>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Position</MudTh>
-                    <MudTh>Molar mass</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Nr">@context.Number</MudTd>
-                    <MudTd DataLabel="Sign">@context.Sign</MudTd>
-                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="Position" HideSmall="_hidePosition">@context.Position</MudTd>
-                    <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
-                </RowTemplate>
-            </MudTable>
-        </MudItem>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Yours reviews</MudText>
+    <MudGrid Spacing="6"  Class="mt-1" Justify="Justify.Center">
+        @if(_reviews.Count == 0)
+        {
+            <MudItem Class="py-8" xs="12">
+                <MudText Align="Align.Center">
+                @_loc["You didn't publish reviews yet."]
+                </MudText>
+            </MudItem>
+        
+        }else{
+            <MudItem xs="12">
+                <MudSelect T="SortBy" ValueChanged="SortReviews" Placeholder="Sort by" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    @foreach (SortBy sort in Enum.GetValues(typeof(SortBy)))
+                    {
+                        <MudSelectItem Value="@sort">@sort</MudSelectItem>
+                    }
+                </MudSelect>
+                        <MudTable MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh" Striped="true" Items="_reviews" T="ReviewModel" >
+                    <HeaderContent >
+                        <MudTh>
+                            <MudText Typo="Typo.h6"> Title</MudText>
+                        </MudTh>
+                        <MudHidden Breakpoint="Breakpoint.MdAndDown">
+                            <MudTh>
+                                <MudText Typo="Typo.h6"> Subject</MudText>
+                            </MudTh>
+                            <MudTh>
+                                <MudText Typo="Typo.h6"> Rating</MudText>
+                            </MudTh>
+                            <MudTh>
+                                <MudText Typo="Typo.h6"> Date</MudText>
+                            </MudTh>
+                        </MudHidden>
+                        <MudTh>
+                            <MudText Typo="Typo.h6"> Modify</MudText>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd Style="word-break: break-word" DataLabel="Tile">
+                            <MudLink Href="@($"/review/{@context.Id}")" Typo="Typo.subtitle1">
+                                @context.Title
+                            </MudLink>
+                        </MudTd>
+                        <MudHidden Breakpoint="Breakpoint.MdAndDown">
+                            <MudTd Style="word-break: break-word" DataLabel="Subject">
+                                @context.Subject.Name
+                            </MudTd>
+                            <MudTd  DataLabel="Rating">@context.Likes.Count</MudTd>
+                            <MudTd DataLabel="Date">@context.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")</MudTd>
+                        </MudHidden>
+                        <MudTd DataLabel="Modify">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="@(() => ModifyReview(context.Id))">
+                                Modify
+                            </MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+                @if(_selectedItems.Count > 0)
+                {
+                    <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Warning">Delete</MudButton>
+                }
+                else
+                {
+                    <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">Delete</MudButton>
+                }
+            </MudItem>        
+        }
     </MudGrid>
 </MudContainer>
 
 @code {
+    [Inject]
+    private HttpClient? _httpClient { get; set; }
+    [Inject]
+    private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    [Inject]
+    private IStringLocalizer<UserPage>? _loc { get; set; }
+    private List<ReviewModel> _reviews = new();
+    private HashSet<ReviewModel> _selectedItems = new();
+    private string _userId;
+    private bool _deleteButtonDisabled=false;
 
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        _userId = user.FindFirstValue("sub");
+        _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_CHUNK_URL}?userId={_userId}");
+        SortReviews(SortBy.Newest);
+        await base.OnInitializedAsync();
+    }
+
+    private void SortReviews(SortBy sortType)
+    {
+        switch (sortType)
+        {
+            case SortBy.Popular:
+                {
+                    _reviews = _reviews.OrderByDescending(r => r.Likes.Count).ToList();
+
+                    break;
+                }
+            default:
+                {
+                    _reviews = _reviews.OrderByDescending(r => r.DateOfCreationInUTC).ToList();
+                    break;
+                }
+        }
+    }
+
+    private void ModifyReview(long reviewId)
+    {
+        Console.WriteLine($"TODO:MODIFY REVIEW FUNCTIONAL");
+    }
+
+    private async Task DeleteSelectedItems()
+    {
+        if (_selectedItems.Count == 0)
+            return;
+        _deleteButtonDisabled = true;
+        List<long> selectedIds = _selectedItems.Select(r => r.Id).ToList();
+        string query = $"{Constants.REVIEWS_URL}?";
+        foreach (var id in selectedIds)
+        {
+            query = $"{query}ids={id}&";
+        }
+        query = query.Remove(query.Length - 1);
+        await _httpClient.DeleteAsync(query);
+        _reviews = _reviews.Where(r => !selectedIds.Contains(r.Id)).ToList();
+        _deleteButtonDisabled = false;
+    }
 }

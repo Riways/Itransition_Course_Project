@@ -122,7 +122,7 @@
     private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
     private static string DefaultDragClass = "rounded-lg px-2 py-7 mud-height-full border-2 border-dashed z-10";
     private string DragClass = DefaultDragClass;
-    private ReviewModel _review = new ();
+    private ReviewModel _review;
     private TagModel? _tagFieldValue = new();
     private IBrowserFile? _reviewImage { get; set; }
     private bool _isPublishingInProcess = false;
@@ -131,16 +131,29 @@
     private bool _isImageUploadFileNotValid = false;
     private string _imageErrorText = $"You can upload {Constants.IMAGE_FORMAT} image with size less then {Constants.MAX_IMAGE_SIZE / 1000000} mb";
 
+    protected async override Task OnInitializedAsync()
+    {
+        await InitEmptyReview();
+        await base.OnInitializedAsync();
+    }
+
     public async Task PublishNewReview()
     {
         _isPublishingInProcess = true;
-        _review.AuthorId = await GetUserId();
         _review.ReviewImage = await GenerateImageModelIfImageUploaded();
         _review.DateOfCreationInUTC = DateTime.UtcNow;
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ReviewModel>(Constants.REVIEW_URL, _review);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ReviewModel>(Constants.REVIEWS_URL, _review);
         _isPublishWasSuccesful = response.IsSuccessStatusCode;
         _isPublishingInProcess = false;
+        if(_isPublishWasSuccesful)
+            await InitEmptyReview();
         _isPublishActionFired = true;
+    }
+
+    private async Task InitEmptyReview()
+    {
+        _review = new();
+        _review.AuthorId = await GetUserId();
     }
 
     private async Task<string> GetUserId()
@@ -231,7 +244,7 @@
 
     public async Task CreateFakes( )
     {
-        await _httpClient!.GetAsync($"{Constants.REVIEW_ADD_FAKE_URL}/3");
+        await _httpClient!.GetAsync($"{Constants.REVIEWS_ADD_FAKE_URL}/3");
     }
 
 }

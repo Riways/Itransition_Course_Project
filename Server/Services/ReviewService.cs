@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using Duende.IdentityServer.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Shared;
@@ -14,11 +15,13 @@ namespace totten_romatoes.Server.Services
         public Task AddCommentToDb(CommentModel newComment);
         public Task AddTagsToDb(List<TagModel> tags);
         public void AddLikeToDb(LikeModel like);
+        public Task<List<ReviewModel>> GetLightweightListOfReviews(string userId);
         public Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType);
         public Task<ReviewModel> GetReviewById(long id);
         public Task<int> GetAmountOfReviews();
         public List<TagModel> GetDefaultAmountOfTags();
         public Task DeleteReviewDromDb(long id);
+        public Task DeleteMuiltipleReviews(IEnumerable<long> ids);
         public void DeleteLikeDromDb(long id);
         public Task<List<ReviewModel>> FullTextSearch(string key);
         public Task GenerateFakeReviews(int amount);
@@ -67,16 +70,26 @@ namespace totten_romatoes.Server.Services
 
         public void AddLikeToDb(LikeModel like)
         {
-            if (!_dbContext.Likes.Any(l => l.FromUserId == like.FromUserId && l.ReviewId == like.ReviewId))
+            if (!_dbContext.Likes!.Any(l => l.FromUserId == like.FromUserId && l.ReviewId == like.ReviewId))
             {
                 _dbContext.Likes!.Add(like);
                 _dbContext.SaveChanges();
+            }
         }
-    }
+
+        public async Task<List<ReviewModel>> GetLightweightListOfReviews(string userId)
+        {
+            var reviews = await _dbContext.Reviews!
+                .Include(r => r.Subject)
+                .Include(r => r.Likes)
+                .Where(r => r.AuthorId!.Equals(userId))
+                .ToListAsync();
+            return reviews;
+        }
 
         public async Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType)
         {
-            int reviewsToSkip = Constants.REVIEWS_ON_PAGE * page;
+            int reviewsToSkip = Constants.REVIEWS_ON_HOME_PAGE * page;
             var reviews = await _dbContext.Reviews!
                 .Include(r => r.Author)
                 .Include(r => r.ReviewImage)
@@ -87,9 +100,9 @@ namespace totten_romatoes.Server.Services
                 .Include(r => r.Comments)
                 .OrderByDescending(ChooseSortType(sortType))
                 .Skip(reviewsToSkip)
-                .Take(Constants.REVIEWS_ON_PAGE)
+                .Take(Constants.REVIEWS_ON_HOME_PAGE)
                 .ToListAsync();
-            List<ApplicationUser> usersWithCountedRating = new (); 
+            List<ApplicationUser> usersWithCountedRating = new();
             foreach (var review in reviews)
             {
                 if (!review.Comments.IsNullOrEmpty())
@@ -130,7 +143,7 @@ namespace totten_romatoes.Server.Services
                 .Include(r => r.Likes)
                 .Include(r => r.Subject)
                     .ThenInclude(s => s.Grades)
-                .Include(r => r.Comments)
+                .Include(r => r.Comments!)
                     .ThenInclude(c => c.Author)
                 .SingleOrDefaultAsync(r => r.Id == id);
             if (review != null && !review.Comments.IsNullOrEmpty())
@@ -153,10 +166,14 @@ namespace totten_romatoes.Server.Services
 
         public List<TagModel> GetDefaultAmountOfTags()
         {
-            return _dbContext.Tags!
+            List<TagModel> tags = _dbContext.Tags!
                 .Include(t => t.Reviews)
-                .OrderBy(t => t.Reviews.Count)
+                .OrderByDescending(t => t.Reviews!.Count)
                 .Take(Constants.AMOUNT_OF_TAGS_IN_CLOUD).ToList();
+            foreach(var tag in tags) {
+                tag.Reviews = null; 
+            }
+            return tags;
         }
 
         public async Task DeleteReviewDromDb(long id)
@@ -165,6 +182,16 @@ namespace totten_romatoes.Server.Services
             if (reviewToDelete != null)
             {
                 _dbContext.Reviews!.Remove(reviewToDelete);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteMuiltipleReviews(IEnumerable<long> ids)
+        {
+            IEnumerable<ReviewModel> reviewsToDelete = await _dbContext.Reviews!.Where(r => ids.Contains(r.Id)).ToListAsync();
+            if (reviewsToDelete != null)
+            {
+                _dbContext.Reviews!.RemoveRange(reviewsToDelete);
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -263,7 +290,6 @@ namespace totten_romatoes.Server.Services
                             }
                             return tags;
                         });
-
                     var content = await client.GetByteArrayAsync(commonFaker.Image.LoremFlickrUrl(Constants.FAKER_IMAGE_WIDTH, Constants.FAKER_IMAGE_HEIGHT, review.Subject.Name));
                     review.ReviewImage!.ImageData = content;
                     await AddReviewToDb(review);

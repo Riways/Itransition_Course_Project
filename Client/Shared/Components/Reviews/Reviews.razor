@@ -40,10 +40,10 @@
         if(_clientFactory != null)
         {
             _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={_selectedPage - 1}&sortType={(int)_sortType}");
-            int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEW_AMOUNT);
-            int div = reviewAmount / Constants.REVIEWS_ON_PAGE;
-            _pagesSummary = reviewAmount % Constants.REVIEWS_ON_PAGE == 0 ? div : div + 1;
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
+            int div = reviewAmount / Constants.REVIEWS_ON_HOME_PAGE;
+            _pagesSummary = reviewAmount % Constants.REVIEWS_ON_HOME_PAGE == 0 ? div : div + 1;
         }
     }
 
@@ -60,7 +60,7 @@
     {
         if(_anonymousHttpClient != null)
         {
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={page - 1}&sortType={(int)_sortType}");
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={page - 1}&sortType={(int)_sortType}");
             _selectedPage = page;
             StateHasChanged();
         }
@@ -71,7 +71,7 @@
         _sortType = selectedType;
         if (_anonymousHttpClient != null)
         {
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEW_URL}/page?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
             StateHasChanged();
         }
     }
