@@ -112,5 +112,12 @@ namespace totten_romatoes.Server.Controllers
             await _reviewService.DeleteMuiltipleReviews(ids);
             return NoContent();
         }
+
+        [HttpPut]
+        public async Task<ActionResult<ReviewModel>> UpdateReviewModel(ReviewModel reviewModel)
+        {
+            await _reviewService.UpdateReview(reviewModel);
+            return CreatedAtAction("GetReviewModel", new { id = reviewModel.Id }, reviewModel);
+        }
     }
 }

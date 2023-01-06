@@ -22,7 +22,7 @@ namespace totten_romatoes.Shared.Models
         [Required(ErrorMessage = "Review body is required")]
         [MaxLength(5000, ErrorMessage = "Review body is too long")]
         [MinLength(1, ErrorMessage = "Review body is too short")]
-        public string? ReviewBody { get; set; }
+        public string? ReviewBody { get; set; } = string.Empty;
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }
         [Required]

@@ -15,30 +15,24 @@
         
         }else{
             <MudItem xs="12">
-                <MudSelect T="SortBy" ValueChanged="SortReviews" Placeholder="Sort by" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                    @foreach (SortBy sort in Enum.GetValues(typeof(SortBy)))
-                    {
-                        <MudSelectItem Value="@sort">@sort</MudSelectItem>
-                    }
-                </MudSelect>
-                        <MudTable MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh" Striped="true" Items="_reviews" T="ReviewModel" >
+                <MudTable MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh" Striped="true" Items="_reviews" T="ReviewModel" >
                     <HeaderContent >
                         <MudTh>
-                            <MudText Typo="Typo.h6"> Title</MudText>
+                            <MudTableSortLabel Class="fs-6 fw-bold" InitialDirection="SortDirection.Ascending" SortBy="new Func<ReviewModel, object>(r=>r.Title)">Title</MudTableSortLabel>
                         </MudTh>
                         <MudHidden Breakpoint="Breakpoint.MdAndDown">
                             <MudTh>
-                                <MudText Typo="Typo.h6"> Subject</MudText>
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Subject.Name)">Subject</MudTableSortLabel>
                             </MudTh>
                             <MudTh>
-                                <MudText Typo="Typo.h6"> Rating</MudText>
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Likes.Count)">Rating</MudTableSortLabel>
                             </MudTh>
-                            <MudTh>
-                                <MudText Typo="Typo.h6"> Date</MudText>
+                            <MudTh >
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.DateOfCreationInUTC)">Date</MudTableSortLabel>
                             </MudTh>
                         </MudHidden>
-                        <MudTh>
-                            <MudText Typo="Typo.h6"> Modify</MudText>
+                        <MudTh Class="fs-6 fw-bold">
+                            Modify
                         </MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -63,7 +57,7 @@
                 </MudTable>
                 @if(_selectedItems.Count > 0)
                 {
-                    <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Warning">Delete</MudButton>
+                    <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">Delete</MudButton>
                 }
                 else
                 {
@@ -77,6 +71,8 @@
 @code {
     [Inject]
     private HttpClient? _httpClient { get; set; }
+    [Inject]
+    private NavigationManager _nav { get; set; }
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
@@ -92,31 +88,12 @@
         var user = authState.User;
         _userId = user.FindFirstValue("sub");
         _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_CHUNK_URL}?userId={_userId}");
-        SortReviews(SortBy.Newest);
         await base.OnInitializedAsync();
-    }
-
-    private void SortReviews(SortBy sortType)
-    {
-        switch (sortType)
-        {
-            case SortBy.Popular:
-                {
-                    _reviews = _reviews.OrderByDescending(r => r.Likes.Count).ToList();
-
-                    break;
-                }
-            default:
-                {
-                    _reviews = _reviews.OrderByDescending(r => r.DateOfCreationInUTC).ToList();
-                    break;
-                }
-        }
     }
 
     private void ModifyReview(long reviewId)
     {
-        Console.WriteLine($"TODO:MODIFY REVIEW FUNCTIONAL");
+        _nav.NavigateTo($"create-review/{reviewId}");
     }
 
     private async Task DeleteSelectedItems()

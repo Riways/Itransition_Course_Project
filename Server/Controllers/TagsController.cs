@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using totten_romatoes.Server.Services;
+using totten_romatoes.Shared.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,10 +27,10 @@ namespace totten_romatoes.Server.Controllers
 
         [HttpGet]
         [Route("search/{key}")]
-        public async Task<IEnumerable<string>> SearchTagsInDatabase(string key)
+        public async Task<IEnumerable<TagModel>> SearchTagsInDatabase(string key)
         {
             var tags = await _reviewService.GetListOfSimilarTagsFromDatabase(key);
-            return tags.Select(t => t.Name).ToList();
+            return tags.ToList();
         }
     }
 }

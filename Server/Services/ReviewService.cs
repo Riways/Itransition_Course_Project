@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using Duende.IdentityServer.Extensions;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Shared;
@@ -23,6 +22,7 @@ namespace totten_romatoes.Server.Services
         public Task DeleteReviewDromDb(long id);
         public Task DeleteMuiltipleReviews(IEnumerable<long> ids);
         public void DeleteLikeDromDb(long id);
+        public Task UpdateReview(ReviewModel review);
         public Task<List<ReviewModel>> FullTextSearch(string key);
         public Task GenerateFakeReviews(int amount);
         public Task<List<TagModel>> GetListOfSimilarTagsFromDatabase(string key);
@@ -47,7 +47,9 @@ namespace totten_romatoes.Server.Services
                 newReview.ReviewImage.ImageUrl = imageUrlOnDropbox;
             }
             if (newReview.Tags != null)
-                ReplaceTagsInListWithExistingInDatabase(newReview.Tags);
+            {
+                _dbContext.Tags!.AttachRange(newReview.Tags.Where(t => t.Id != 0));
+            }
             await ReplaceSubjectWithExistingInDatabase(newReview);
             await _dbContext.Reviews!.AddAsync(newReview);
             await _dbContext.SaveChangesAsync();
@@ -137,6 +139,7 @@ namespace totten_romatoes.Server.Services
         public async Task<ReviewModel> GetReviewById(long id)
         {
             var review = await _dbContext.Reviews!
+                .AsNoTracking()
                 .Include(r => r.Author)
                 .Include(r => r.ReviewImage)
                 .Include(r => r.Tags)
@@ -170,8 +173,9 @@ namespace totten_romatoes.Server.Services
                 .Include(t => t.Reviews)
                 .OrderByDescending(t => t.Reviews!.Count)
                 .Take(Constants.AMOUNT_OF_TAGS_IN_CLOUD).ToList();
-            foreach(var tag in tags) {
-                tag.Reviews = null; 
+            foreach (var tag in tags)
+            {
+                tag.Reviews = null;
             }
             return tags;
         }
@@ -206,20 +210,59 @@ namespace totten_romatoes.Server.Services
             }
         }
 
-        private void ReplaceTagsInListWithExistingInDatabase(List<TagModel> tags)
+        public async Task UpdateReview(ReviewModel review)
         {
-            var tagNames = tags.Select(t => t.Name).ToList();
-            var existingTags = _dbContext.Tags!.Where(t => tagNames.Contains(t.Name)).ToList();
-            tagNames = existingTags?.Select(t => t.Name).ToList();
-            tags.RemoveAll(t => tagNames!.Contains(t.Name));
-            tags.AddRange(existingTags!);
+            var subjectFromDb = await _dbContext.Subjects!.Include(s => s.Reviews).SingleOrDefaultAsync(s => s.Name == review.Subject.Name);
+            var existingReview = await _dbContext.Reviews!
+                .Include(r => r.Tags)
+                .SingleOrDefaultAsync(r => r.Id == review.Id);
+            if (existingReview != null)
+            {
+                //subj
+                if (subjectFromDb == null || subjectFromDb.Id != existingReview.SubjectId)
+                {
+                    SubjectModel subjToSave;
+                    if (subjectFromDb == null)
+                    {
+                        subjToSave = review.Subject;
+                        subjToSave.Id = 0;
+                        subjToSave.Name = review.Subject.Name;
+                        subjToSave.Reviews = new List<ReviewModel> { existingReview };
+                        _dbContext!.Entry(subjToSave).State = EntityState.Added;
+                    }
+                    else
+                    {
+                        subjToSave = subjectFromDb;
+                    }
+                    existingReview.SubjectId = subjToSave.Id;
+                    existingReview.Subject = subjToSave;
+                }
+                //tag
+                List<long> oldTagsIds = existingReview.Tags!.Select(t => t.Id).ToList();
+                List<long> newTagsIds = review.Tags!.Select(t => t.Id).ToList();
+                existingReview.Tags.RemoveAll(t => !newTagsIds.Contains(t.Id));
+                review.Tags.RemoveAll(t => oldTagsIds.Contains(t.Id));
+                _dbContext.Tags!.AttachRange(review.Tags.Where(t => t.Id != 0 && !oldTagsIds.Contains(t.Id)));
+                //other
+                existingReview.Tags.AddRange(review.Tags);
+                existingReview.Title = review.Title;
+                existingReview.AuthorGrade = review.AuthorGrade;
+                existingReview.ReviewBody = review.ReviewBody;
+                existingReview.ReviewCategory = review.ReviewCategory;
+                existingReview.DateOfCreationInUTC = review.DateOfCreationInUTC;
+            }
+            _dbContext!.Entry(existingReview).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
         }
 
         private async Task ReplaceSubjectWithExistingInDatabase(ReviewModel review)
         {
             var subjectFromDb = await _dbContext.Subjects!.SingleOrDefaultAsync(s => s.Name == review.Subject.Name);
             if (subjectFromDb != null)
+            {
                 review.Subject = subjectFromDb;
+                review.SubjectId = subjectFromDb.Id;
+            }
         }
 
         public async Task<List<ReviewModel>> FullTextSearch(string key)
@@ -299,7 +342,7 @@ namespace totten_romatoes.Server.Services
 
         public async Task<List<TagModel>> GetListOfSimilarTagsFromDatabase(string key)
         {
-            return await _dbContext.Tags!.Where(t => EF.Functions.ILike(t.Name, $"%{key}%")).Take(Constants.AMOUNT_OF_TAGS_IN_SEARCH_RESULT).ToListAsync();
+            return await _dbContext.Tags!.AsNoTracking().Where(t => EF.Functions.ILike(t.Name, $"%{key}%")).Take(Constants.AMOUNT_OF_TAGS_IN_SEARCH_RESULT).ToListAsync();
         }
     }
 }

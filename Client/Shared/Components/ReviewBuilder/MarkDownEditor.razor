@@ -1,6 +1,6 @@
 ﻿@using PSC.Blazor.Components.MarkdownEditor.Enums;
 
-<MarkdownEditor Placeholder="Review body" @bind-Value="_reviewBody" ValueHTMLChanged="@OnMarkdownValueHTMLChanged"   >
+<MarkdownEditor Placeholder="Review body" Value="@_reviewBody" ValueChanged="OnMarkdownValueChanged"   >
     <Toolbar>
         <MarkdownToolbarButton Name="bold" Action="MarkdownAction.Bold" Icon="fa fa-bold" Title="Bold" />
         <MarkdownToolbarButton Name="italic" Action="MarkdownAction.Italic" Icon="fa fa-italic" Title="Italic" />
@@ -21,10 +21,28 @@
 @code {
     [Parameter]
     public EventCallback<string> SetReviewBody { get; set; }
-    private string? _reviewBody = "Review body";
+    [Parameter]
+    public long? Id { get; set; }
+    [Parameter]
+    public string? ReviewBodyToUpdate { get; set; }
+    private string _reviewBody;
 
-    async Task OnMarkdownValueHTMLChanged(string value)
+    protected async override Task OnParametersSetAsync()
     {
+        if (Id==0 )
+        {
+            _reviewBody = " ";
+        }
+        else
+        {
+            _reviewBody = ReviewBodyToUpdate;
+        }
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task OnMarkdownValueChanged(string value)
+    {
+        _reviewBody = value;
         await SetReviewBody.InvokeAsync(value);
     }
 

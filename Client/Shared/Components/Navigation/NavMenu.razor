@@ -4,11 +4,11 @@
     <MudNavLink Href="/" Match="NavLinkMatch.All">@_loc["Home"]</MudNavLink>
     <AuthorizeView>
         <Authorized>
-            <MudNavLink Href="/create-review" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
+            <MudNavLink Href="/create-review/0" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
             <MudNavLink Href="/user-page" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
         </Authorized>
         <NotAuthorized>
-            <MudNavLink Href="/create-review" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
+            <MudNavLink Href="/create-review/0" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
             <MudNavLink Href="/user-page" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
         </NotAuthorized>
     </AuthorizeView>

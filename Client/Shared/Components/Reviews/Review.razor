@@ -63,7 +63,7 @@
         @if (IsReviewWrapped)
         {
             <MudItem Class="px-6 pt-4" Style="height:7rem; overflow:hidden"  xs="12" id="reviewBody">
-            @((MarkupString)CurrentReview.ReviewBody)
+            @((MarkupString)_htmlReviewBody)
             </MudItem>
             <MudItem Class="mt-n4 pt-4 px-6" xs="12" >
                 <MudDivider Class="mb-4"></MudDivider>
@@ -73,7 +73,7 @@
         else
         {
             <MudItem Class="px-6 pt-4" xs="12" id="reviewBody">
-            @((MarkupString)CurrentReview.ReviewBody)
+            @((MarkupString)_htmlReviewBody)
                 <MudRating Class="d-flex flex-grow-1 justify-end mt-2" ReadOnly="true" SelectedValue="@CurrentReview.AuthorGrade" Size="Size.Medium" MaxValue="10" />
             </MudItem>
         }
@@ -90,7 +90,7 @@
         {
             <MudItem Class="px-6 pb-4" xs="12">
                 <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
-                <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Info">MODIFY</MudButton>
+                <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="ModifyReview" Color="Color.Info">MODIFY</MudButton>
             </MudItem>
         }
         <MudItem xs="12">
@@ -105,7 +105,7 @@
                     }else{
                         <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Disabled="_likeButtonDisabled" OnClick="UserLikedReview" Size="Size.Medium" Color="Color.Default"></MudIconButton>
                     }
-                    <MudText Class="my-auto">@CurrentReview.Likes.Count</MudText>
+                    <MudText Class="my-auto">@CurrentReview.Likes!.Count</MudText>
                     <MudIcon Class="ml-6 my-auto" ViewBox="0 -1 24 24" Icon="@Icons.Rounded.ChatBubbleOutline" Size="Size.Medium" /> 
                     @if(CurrentReview.Comments == null)
                     {
@@ -118,9 +118,9 @@
                 </MudItem>
                 <MudItem Class="d-flex flex-grow-1 align-center "  xs="6" sm="3">
                     <MudText Class="d-flex flex-1 justify-end" Typo="Typo.body2" >
-                        @_loc["Category:"] 
+                        @_loc!["Category:"] 
                     </MudText>
-                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @_sharedLoc[CurrentReview.ReviewCategory.ToString()]</MudLink>  
+                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @_sharedLoc![CurrentReview.ReviewCategory.ToString()]</MudLink>  
                 </MudItem>
             </MudGrid>
         </MudItem>
@@ -128,7 +128,7 @@
 </MudPaper>
 @code {
     [Parameter]
-    public ReviewModel CurrentReview { get; set; }
+    public ReviewModel CurrentReview { get; set; } 
     [Parameter]
     public AuthenticationStateProvider? AuthStateProvider { get; set; }
     [Parameter]
@@ -140,34 +140,38 @@
     [Inject]
     private HttpClient? _httpClient { get; set; }
     [Inject]
-    private IStringLocalizer<Review> _loc { get; set; }
+    private IStringLocalizer<Review>? _loc { get; set; }
     [Inject]
-    private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
+    private IStringLocalizer<SharedLocalization>? _sharedLoc { get; set; }
     [Inject]
-    private NavigationManager _nav { get; set; }
-    private AuthenticationState authState;
-    private string _userId;
+    private NavigationManager? _nav { get; set; }
+    private AuthenticationState? authState;
+    private string? _htmlReviewBody;
+    private string? _userId;
     private double _subjectRating = double.MinValue;
     private int _userGrade = 0;
     private bool _likeButtonDisabled = false;
 
     protected async override Task OnInitializedAsync()
     {
-        authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        authState = await AuthStateProvider!.GetAuthenticationStateAsync();
         await base.OnInitializedAsync();
     }
 
     protected async override Task OnParametersSetAsync()
     {
+        _htmlReviewBody = Markdig.Markdown.ToHtml(CurrentReview.ReviewBody!);
         if(authState == null)
-            authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            authState = await AuthStateProvider!.GetAuthenticationStateAsync();
         var user = authState.User;
-        if (user.Identity.IsAuthenticated)
+        if (user.Identity!.IsAuthenticated)
         {
             _userId = user.FindFirstValue("sub");
-            var userGrade = CurrentReview.Subject.Grades.FirstOrDefault(g => g.AuthorId == _userId);
+            var userGrade = CurrentReview.Subject.Grades!.FirstOrDefault(g => g.AuthorId == _userId);
             if (userGrade != null)
                 _userGrade = userGrade.Value;
+            else
+                _userGrade = 0;
         }
         else
         {
@@ -184,14 +188,14 @@
         newGrade.Value = value;
         newGrade.SubjectId = CurrentReview.SubjectId;
         newGrade.AuthorId = _userId;
-        await _httpClient.PostAsJsonAsync<GradeModel>(Constants.SUBJECT_GRADE_URL, newGrade);
-        CurrentReview.Subject.Grades.Add(newGrade);
+        await _httpClient!.PostAsJsonAsync<GradeModel>(Constants.SUBJECT_GRADE_URL, newGrade);
+        CurrentReview.Subject.Grades!.Add(newGrade);
         CalculateSubjectRating();
     }
 
     private async Task<string> GetUserId()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authState = await AuthStateProvider!.GetAuthenticationStateAsync();
         var user = authState.User;
         return user.FindFirstValue("sub");
     }
@@ -202,6 +206,11 @@
             await _httpClient.DeleteAsync($"{Constants.REVIEWS_URL}/{CurrentReview.Id}");
             await DeleteReviewFromList.InvokeAsync(CurrentReview.Id);
         }
+    }
+
+    private async Task ModifyReview()
+    {
+        _nav.NavigateTo($"create-review/{CurrentReview.Id}");
     }
 
     private Color RandomColorPick()
@@ -242,7 +251,7 @@
             newLike.ReviewId = CurrentReview.Id;
             await _httpClient.PostAsJsonAsync<LikeModel>(Constants.REVIEWS_LIKE_URL, newLike);
             CurrentReview.Likes.Add(newLike);
-            CurrentReview.Author.Rating++;
+            CurrentReview.Author!.Rating++;
             await UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author!);
         }
         await Task.Delay(100);
@@ -261,8 +270,8 @@
             {
                 await _httpClient.DeleteAsync($"{Constants.REVIEWS_LIKE_URL}/{likeToRemove.Id}");
             }
-            CurrentReview.Likes.Remove(likeToRemove);
-            CurrentReview.Author.Rating--;
+            CurrentReview.Likes.Remove(likeToRemove!);
+            CurrentReview.Author!.Rating--;
             await UpdateReviewAuthorRating.InvokeAsync(CurrentReview.Author);
         }
         await Task.Delay(100);
