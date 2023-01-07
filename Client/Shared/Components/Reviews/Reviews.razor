@@ -19,7 +19,7 @@
                 <Review UpdateReviewAuthorRating="UpdateReviewAuthorRating" IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
             </MudItem>
         }
-        <MudPagination Class="d-flex flex-1 justify-center" SelectedChanged="PageChanged" Size="Size.Large" Color="Color.Primary" Count="@_pagesSummary" />
+        <MudPagination Selected="@_selectedPage" BoundaryCount="2" MiddleCount="3" Class="d-flex flex-1 justify-center" SelectedChanged="PageChanged" Size="Size.Large" Color="Color.Primary" Count="@_pagesSummary" />
     </MudGrid>
 }
 
@@ -28,12 +28,13 @@
     private IHttpClientFactory? _clientFactory { get; set; }
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    [Inject]
+    private IJSRuntime _JSRuntime { get; set; }
     private SortBy _sortType = SortBy.Newest;
     private HttpClient? _anonymousHttpClient;
     private List<ReviewModel>? _reviews;
     private int _selectedPage = 1;
     private int _pagesSummary = 1;
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,33 +48,33 @@
         }
     }
 
-    public void DeleteReviewFromList(long id)
+    public async Task DeleteReviewFromList(long id)
     {
         if(_reviews != null)
         {
-            _reviews = _reviews.Where(r => r.Id != id).ToList();
+            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
+            int div = reviewAmount / Constants.REVIEWS_ON_HOME_PAGE;
+            _pagesSummary = reviewAmount % Constants.REVIEWS_ON_HOME_PAGE == 0 ? div : div + 1;
             StateHasChanged();
         }
     }
 
     public async Task PageChanged(int page)
     {
+        _selectedPage = page;
         if(_anonymousHttpClient != null)
         {
             _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={page - 1}&sortType={(int)_sortType}");
-            _selectedPage = page;
-            StateHasChanged();
+            await Task.Delay(300);
+            await _JSRuntime.InvokeVoidAsync("scrollToTop");
         }
     }
 
     public async Task SortTypeChanged(SortBy selectedType)
     {
         _sortType = selectedType;
-        if (_anonymousHttpClient != null)
-        {
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
-            StateHasChanged();
-        }
+        PageChanged(1);
     }
 
     private void UpdateReviewAuthorRating(ApplicationUser user)

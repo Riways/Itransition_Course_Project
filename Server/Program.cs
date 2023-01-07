@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
@@ -11,7 +14,9 @@ builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "co
 
 var connectionString = builder.Configuration["DefaultConnection"];
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+{
+    options.UseNpgsql(connectionString);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -19,6 +24,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.SignIn.RequireConfirmedAccount = false;
     options.SignIn.RequireConfirmedEmail = false;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
@@ -46,11 +52,19 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["microsoft_client_secret"];
     });
 
+builder.Services.AddAuthorization(opts => {
+
+    opts.AddPolicy("AdminOnly", policy => {
+        policy.RequireClaim(ClaimTypes.Role, "Admin");
+    });
+});
+
 builder.Services.AddTransient<IDropboxService, DropboxService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ISubjectService, SubjectService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<InitializeDatabase>();
 
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 {
@@ -61,6 +75,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
 
 var app = builder.Build();
+
+app.Services.CreateScope().ServiceProvider.GetService<InitializeDatabase>()!.Run();
 
 if (app.Environment.IsDevelopment())
 {
@@ -83,10 +99,11 @@ app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthentication();
 app.UseAuthorization();
-
-
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
+
 app.Run();
+
+

@@ -1,0 +1,116 @@
+﻿@page "/admin-page"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Users</MudText>
+    <MudGrid Spacing="6"  Class="mt-1" Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudTable ServerData="@(new Func<TableState, Task<TableData<ApplicationUser>>>(ServerReload))" MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh"
+                 Striped="true" Items="_users" RowsPerPage="@Constants.USERS_ON_ADMIN_PAGE" TotalItems="_usersSummary" CurrentPage="_selectedPage" T="ApplicationUser">
+                <HeaderContent >
+                    <MudTh Class="fs-6 fw-bold">
+                        Name
+                    </MudTh>
+                    <MudHidden Breakpoint="Breakpoint.MdAndDown">
+                        <MudTh Class="fs-6 fw-bold">
+                            ID
+                        </MudTh>
+                    </MudHidden>
+                    <MudTh Class="fs-6 fw-bold">
+                       Email
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd Style="word-break: break-word" DataLabel="Name">
+                        <MudLink Href="@($"/user-page/{@context.Id}")" Typo="Typo.subtitle1">
+                            @context.UserName
+                        </MudLink>
+                    </MudTd>
+                    <MudHidden Breakpoint="Breakpoint.MdAndDown">
+                        <MudTd Style="word-break: break-word" DataLabel="Id">
+                        @context.Id
+                        </MudTd>
+                    </MudHidden>
+                    <MudTd Style="word-break: break-word" DataLabel="Email">
+                        @context.Email
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager  HorizontalAlignment="HorizontalAlignment.Left" HidePageNumber="false" HideRowsPerPage="true" HidePagination="false" />
+                </PagerContent>
+            </MudTable>
+            @if (_selectedItems.Count > 0)
+            {
+                <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">Delete</MudButton>
+            }
+            else
+            {
+                <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">Delete</MudButton>
+            }
+        </MudItem>
+        <MudItem  xs="5" md="9">
+        </MudItem>
+        <MudItem Class="d-flex" xs="7" md="3">
+             <MudTextField  @bind-Value="FakesAmount"  FullWidth="false" Label="Amount" Variant="Variant.Outlined"></MudTextField>
+             <MudButton Class="my-auto ml-3" Size="Size.Medium" Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateFakes">CREATE FAKES</MudButton>
+         </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Inject]
+    private HttpClient? _httpClient { get; set; }
+    [Inject]
+    private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
+    [Inject]
+    private IStringLocalizer<AdminPage>? _loc { get; set; }
+    private List<ApplicationUser> _users = new();
+    private HashSet<ApplicationUser> _selectedItems = new();
+    private bool _deleteButtonDisabled = false;
+    private int FakesAmount = 0;
+    private int _usersSummary = 1;
+    private int _selectedPage = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (_httpClient != null)
+        {
+            _usersSummary = await _httpClient.GetFromJsonAsync<int>(Constants.USERS_AMOUNT_URL);
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private async Task DeleteSelectedItems()
+    {
+        if (_selectedItems.Count == 0)
+            return;
+        _deleteButtonDisabled = true;
+        List<string> selectedIds = _selectedItems.Select(r => r.Id).ToList();
+        string query = $"{Constants.USERS_URL}?";
+        foreach (var id in selectedIds)
+        {
+            query = $"{query}ids={id}&";
+        }
+        query = query.Remove(query.Length - 1);
+        if (_httpClient != null)
+        {
+            await _httpClient.DeleteAsync(query);
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+        }
+        _deleteButtonDisabled = false;
+    }
+
+    private async Task<TableData<ApplicationUser>> ServerReload(TableState tableState)
+    {
+        _selectedPage = tableState.Page;
+        _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+        return new TableData<ApplicationUser>() { TotalItems = _usersSummary, Items = _users };
+    }
+
+    public async Task CreateFakes()
+    {
+        await _httpClient!.GetAsync($"{Constants.REVIEWS_ADD_FAKE_URL}/{FakesAmount}");
+    }
+}

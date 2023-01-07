@@ -106,7 +106,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("Use");
 
-                    b.ToTable("Keys");
+                    b.ToTable("Keys", (string)null);
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
@@ -312,7 +312,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("ReviewModelTagModel");
+                    b.ToTable("ReviewModelTagModel", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ApplicationUser", b =>
@@ -421,7 +421,7 @@ namespace totten_romatoes.Server.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.GradeModel", b =>
@@ -448,7 +448,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Grades");
+                    b.ToTable("Grades", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ImageModel", b =>
@@ -472,7 +472,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.LikeModel", b =>
@@ -502,7 +502,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("ToUserId");
 
-                    b.ToTable("Likes");
+                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.ReviewModel", b =>
@@ -561,7 +561,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.SubjectModel", b =>
@@ -581,7 +581,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasAlternateKey("Name");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("totten_romatoes.Shared.Models.TagModel", b =>
@@ -601,7 +601,7 @@ namespace totten_romatoes.Server.Migrations
 
                     b.HasAlternateKey("Name");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

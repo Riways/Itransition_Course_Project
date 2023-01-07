@@ -38,8 +38,21 @@ namespace totten_romatoes.Server.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("lightweight-chunk")]
-        public async Task<ActionResult<IEnumerable<ReviewModel>>> GetLightweightChunkOfReviews([FromQuery] string userId)
+        [HttpGet("comment-amount/{id}")]
+        public async Task<int> GetAmountOfCommentsInReview(long id)
+        {
+            return await _reviewService.GetAmountOfCommentsInReview(id);
+        }
+        [AllowAnonymous]
+        [HttpGet("comment/{id}")]
+        public async Task<List<CommentModel>> GetCommentsOfReview(long id)
+        {
+            return await _reviewService.GetCommentsFromReview(id);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("lightweight-list")]
+        public async Task<ActionResult<IEnumerable<ReviewModel>>> GetLightweightListOfReviews([FromQuery] string userId)
         {
             return Ok(await _reviewService.GetLightweightListOfReviews(userId));
         }
@@ -65,6 +78,7 @@ namespace totten_romatoes.Server.Controllers
             return Ok(reviewModel);
         }
 
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("add-fakes/{amount}")]
         public async Task<ActionResult> GenerateReviews(int amount)
         {
@@ -102,7 +116,7 @@ namespace totten_romatoes.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReviewModel(int id)
         {
-            await _reviewService.DeleteReviewDromDb(id);
+            await _reviewService.DeleteReviewFromDb(id);
             return NoContent();
         }
 

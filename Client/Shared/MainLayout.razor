@@ -19,7 +19,7 @@
         </MudDrawerHeader> 
         <NavMenu/>
         <CultureSelector />
-        <MudSwitch Class="d-flex flex-1 justify-center align-end " @bind-Checked="_isDarkMode" Color="Color.Primary"  T="bool" Label="@(_loc["Dark mode"])"/>
+        <MudSwitch Class="d-flex flex-1 justify-center align-end pb-4 " @bind-Checked="_isDarkMode" Color="Color.Primary"  T="bool" Label="@(_loc["Dark mode"])"/>
     </MudDrawer>
     <MudMainContent>
         @Body

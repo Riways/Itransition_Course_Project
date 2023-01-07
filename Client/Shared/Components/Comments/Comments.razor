@@ -6,10 +6,10 @@
         <MudItem  xs="12">
             <EditForm Model="@_newComment" Context="comment">
                 <DataAnnotationsValidator/>
-                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="@_loc["Сomment"]" @bind-Value="_newComment.CommentBody"   For="@(() => _newComment.CommentBody)"/>
+                <MudTextField Class="px-6 mt-4"  Lines="5" Variant="Variant.Outlined" Label="@_loc!["Сomment"]" @bind-Value="_newComment.CommentBody"  Immediate="true" For="@(() => _newComment.CommentBody)"/>
                 <AuthorizeView>
                     <Authorized >
-                        <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >@_loc["Add comment"]</MudButton>
+                        <MudButton Class="d-flex ml-auto mr-6 my-4" Disabled="@(!IsCommentValid())" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddComment"  >@_loc["Add comment"]</MudButton>
                     </Authorized>
                     <NotAuthorized >
                         <MudButton Class="d-flex ml-auto mr-6 my-4" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Disabled="true" Color="Color.Primary" >@_loc["Add comment"]</MudButton>
@@ -17,11 +17,11 @@
                 </AuthorizeView>
             </EditForm>
         </MudItem>
-        @if (CurrentReview.Comments == null || CurrentReview.Comments.Count == 0)
+        @if (CurrentReview!.Comments == null || CurrentReview.Comments.Count == 0)
         {
             <MudItem Class="py-8" xs="12">
                 <MudText Align="Align.Center">
-                    @_loc["No сomments here yet, be first!"]
+                    @_loc!["No сomments here yet, be first!"]
                 </MudText>
             </MudItem>
         }
@@ -33,9 +33,9 @@
             @foreach (var comment in CurrentReview.Comments)
             {
                 <MudItem Class="d-flex px-6 py-0" xs="12">
-                    <MudAvatar Size="Size.Small"   Variant="Variant.Outlined" Color="@RandomColorPick()">@(comment.Author.UserName.First())</MudAvatar>
+                    <MudAvatar Size="Size.Small"   Variant="Variant.Outlined" Color="@RandomColorPick()">@(comment.Author!.UserName.First())</MudAvatar>
                     <MudText Class="d-flex align-content-center flex-wrap px-2" Typo="Typo.subtitle2" >
-                        @comment.Author.UserName  
+                        @comment.Author!.UserName  
                     </MudText >
                     <MudText  Class="d-flex align-content-center flex-wrap" Typo="Typo.body2" >
                         @comment.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
@@ -82,24 +82,29 @@
 
     public async Task AddComment()
     {
-        if (_userId != null && _userName != null && _httpClient != null)
+        if (_userId != null && _userName != null && _httpClient != null && IsCommentValid())
         {
             _newComment.AuthorId = _userId;
             _newComment.ReviewId = CurrentReview!.Id;
             _newComment.DateOfCreationInUTC = DateTime.UtcNow;
             await _httpClient.PostAsJsonAsync<CommentModel>(Constants.REVIEWS_ADD_COMMENT_URL, _newComment);
             _newComment.Author = new ApplicationUser { UserName = _userName};
-            CommentModel commentToList = _newComment;
             if(CurrentReview.Comments != null)
             {
-                CurrentReview.Comments.Add(commentToList);
+                CurrentReview.Comments.Add(_newComment);
             }
             else
             {
-                CurrentReview.Comments = new List<CommentModel>() { commentToList };
+                CurrentReview.Comments = new List<CommentModel>() { _newComment };
             }
+            StateHasChanged();
         }
         _newComment = new ();
+    }
+
+    public bool IsCommentValid()
+    {
+        return _newComment.CommentBody.Length >= Constants.MIN_COMMENT_LENGTH && _newComment.CommentBody.Length <= Constants.MAX_COMMENT_LENGTH;
     }
 
     private Color RandomColorPick()

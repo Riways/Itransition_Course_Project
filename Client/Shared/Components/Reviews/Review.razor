@@ -14,11 +14,11 @@
                     </MudText >
                     <h5 class="my-auto">[</h5>
                     <MudText  Class="d-flex align-content-center flex-wrap px-1 " Color="Color.Success" Typo="Typo.h6" >
-                                 @CurrentReview.Author.Rating 
+                        @CurrentReview.Author.Rating 
                     </MudText>
                     <h5 class="my-auto">]</h5>
                     <MudText  Class="d-flex align-content-center flex-wrap pt-1 ml-3" Typo="Typo.body2" >
-                              @CurrentReview.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
+                        @CurrentReview.DateOfCreationInUTC.ToLocalTime().ToString("dd MMM yyy HH':'mm")
                     </MudText>
                 </MudItem>
                 <MudItem xs="12" md="6">
@@ -86,13 +86,17 @@
             }
             </MudItem>
         }
-        @if(_userId != null && _userId.Equals(CurrentReview.Author.Id))
-        {
-            <MudItem Class="px-6 pb-4" xs="12">
-                <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
-                <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="ModifyReview" Color="Color.Info">MODIFY</MudButton>
-            </MudItem>
-        }
+        <AuthorizeView>
+            <Authorized >
+                @if((_userId != null && _userId.Equals(CurrentReview.Author.Id))  || context.User.IsInRole("Admin"))
+                {
+                    <MudItem Class="px-6 pb-4" xs="12">
+                        <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error">DELETE</MudButton>
+                        <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="ModifyReview" Color="Color.Info">MODIFY</MudButton>
+                    </MudItem>
+                }
+            </Authorized>
+        </AuthorizeView>
         <MudItem xs="12">
             <MudDivider />
         </MudItem>
@@ -106,14 +110,17 @@
                         <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Disabled="_likeButtonDisabled" OnClick="UserLikedReview" Size="Size.Medium" Color="Color.Default"></MudIconButton>
                     }
                     <MudText Class="my-auto">@CurrentReview.Likes!.Count</MudText>
-                    <MudIcon Class="ml-6 my-auto" ViewBox="0 -1 24 24" Icon="@Icons.Rounded.ChatBubbleOutline" Size="Size.Medium" /> 
-                    @if(CurrentReview.Comments == null)
+                    @if (IsReviewWrapped)
                     {
-                        <MudLink Class="d-flex align-content-center pl-1 flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.CommentsAmount )</MudLink> 
-                    }
-                    else
-                    {
-                        <MudLink Class="d-flex align-content-center pl-1  flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.Comments.Count )</MudLink> 
+                        <MudIcon Class="ml-6 my-auto" ViewBox="0 -1 24 24" Icon="@Icons.Rounded.ChatBubbleOutline" Size="Size.Medium" />
+                        @if (CurrentReview.Comments == null)
+                        {
+                            <MudLink Class="d-flex align-content-center pl-1 flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.CommentsAmount )</MudLink> 
+                        }
+                        else
+                        {
+                            <MudLink Class="d-flex align-content-center pl-1  flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.Comments.Count )</MudLink> 
+                        }
                     }
                 </MudItem>
                 <MudItem Class="d-flex flex-grow-1 align-center "  xs="6" sm="3">

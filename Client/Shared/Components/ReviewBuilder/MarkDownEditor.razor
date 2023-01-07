@@ -22,14 +22,14 @@
     [Parameter]
     public EventCallback<string> SetReviewBody { get; set; }
     [Parameter]
-    public long? Id { get; set; }
+    public string? Id { get; set; }
     [Parameter]
     public string? ReviewBodyToUpdate { get; set; }
     private string _reviewBody;
 
     protected async override Task OnParametersSetAsync()
     {
-        if (Id==0 )
+        if (Id.Equals("0") )
         {
             _reviewBody = " ";
         }

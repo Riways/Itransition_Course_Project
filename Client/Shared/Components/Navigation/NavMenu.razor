@@ -3,17 +3,25 @@
     <MudAutocomplete @bind-Text="@_searchString"  Class="mb-6" T="ReviewModel" Variant="Variant.Filled" ValueChanged="@ReviewChosen"  Label="@_loc["Search review"]" ToStringFunc="@(e=> e==null?null : $"{e.Title} : {e.Subject.Name}")"  CoerceValue="true" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search" ShowProgressIndicator="true"/>
     <MudNavLink Href="/" Match="NavLinkMatch.All">@_loc["Home"]</MudNavLink>
     <AuthorizeView>
-        <Authorized>
+        <Authorized >
             <MudNavLink Href="/create-review/0" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
-            <MudNavLink Href="/user-page" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
+            <MudNavLink Href="/user-page/manage" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
+            @if (context.User.IsInRole("Admin"))
+            {
+                <MudNavLink Href="/admin-page" Match="NavLinkMatch.Prefix">@_loc["Admin panel"]</MudNavLink>
+            }
+            else
+            {
+                <MudNavLink Href="/admin-page" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Admin panel"]</MudNavLink>
+            }
         </Authorized>
         <NotAuthorized>
-            <MudNavLink Href="/create-review/0" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
-            <MudNavLink Href="/user-page" Disabled="true" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
+            <MudNavLink Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Create review"]</MudNavLink>
+            <MudNavLink Disabled="true" Match="NavLinkMatch.Prefix">@_loc["My profile"]</MudNavLink>  
+            <MudNavLink Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Admin panel"]</MudNavLink>  
         </NotAuthorized>
     </AuthorizeView>
       
-
 </MudNavMenu>
 
 @code {
@@ -32,7 +40,7 @@
     public async Task<IEnumerable<ReviewModel>> Search1(string value)
     {
         if (value == null || value == string.Empty)
-            return null;
+            return new List<ReviewModel>();
         HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
         var response = await _anonymousHttpClient.GetFromJsonAsync<IEnumerable<ReviewModel>>($"{Constants.REVIEWS_SEARCH_URL}/{value}");
         return response;
@@ -46,7 +54,6 @@
 
     public async Task SetDarkMode(bool mode)
     {
-        Console.WriteLine(mode);
         _isDarkMode = !_isDarkMode;
         await DarkModeSetter.InvokeAsync(_isDarkMode);
     }

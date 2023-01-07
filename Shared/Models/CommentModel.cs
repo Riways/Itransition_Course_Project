@@ -8,8 +8,8 @@ namespace totten_romatoes.Shared.Models
     {
         public long Id { get; set; }
         [Required]
-        [MinLength(6)]
-        [MaxLength(255)]
+        [MinLength(Constants.MIN_COMMENT_LENGTH, ErrorMessage = "Comment too short")]
+        [MaxLength(Constants.MAX_COMMENT_LENGTH, ErrorMessage = "Comment too long")]
         public string CommentBody { get; set; } = string.Empty;
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }

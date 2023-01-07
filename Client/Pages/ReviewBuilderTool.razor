@@ -1,4 +1,4 @@
-﻿@page "/create-review/{id:long}"
+﻿@page "/create-review/{id}"
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Security.Claims;
@@ -50,12 +50,12 @@
                                     </MudItem>
                                 }
                                 <MudItem Class="d-flex align-center justify-end" xs="12">
-                                    <MudAutocomplete T="TagModel"  ToStringFunc="@(e=> e==null?null : e.Name)" Label="@_loc["Choose tag"]" For="@(() => _tagFieldValue)" CoerceValue="true"  @bind-Value="@_tagFieldValue" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search"/>
+                                    <MudAutocomplete T="TagModel" Converter="_tagConverter" ToStringFunc="@(e=> e==null?null : e.Name)" Label="@_loc["Choose tag"]" For="@(() => _tagFieldValue)" CoerceValue="true"  @bind-Value="@_tagFieldValue" SearchFunc="@Search1" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Search"/>
                                     <MudButton Class="mx-2 mt-3" Variant="Variant.Filled" OnClick="@AddTag" Disabled="@(_tagFieldValue == null || _tagFieldValue.Name.Length == 0 || !IsTagValid())" DisableElevation="true" Size="Size.Large" Color="Color.Info" >@_loc["add"]</MudButton>
                                 </MudItem>
                             </MudGrid>
                         </MudItem>
-                        @if(Id == 0){
+                        @if(Id.Equals("0")){
                             <MudItem xs="12">
                                 <MudFileUpload  T="IBrowserFile"  OnFilesChanged="OnInputFileChanged" Hidden="false"  Class="d-flex mud-width-full " InputClass="d-flex absolute mud-height-full mud-width-full overflow-hidden z-20" InputStyle="opacity:0"
                                     @ondragenter="@SetDragClass"  @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Error="@_isImageUploadFileNotValid" ErrorText="@_imageErrorText">
@@ -90,7 +90,7 @@
                             }
                             else
                             {
-                                @if(Id == 0){
+                                @if(Id.Equals("0")){
                                     <MudButton Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Size="Size.Large" Color="Color.Primary" >@_loc["Publish"]</MudButton>
                                 }else{
                                     <MudButton Variant="Variant.Filled" ButtonType="ButtonType.Submit" DisableElevation="true" Size="Size.Large" Color="Color.Tertiary" >@_loc["Update"]</MudButton>
@@ -108,7 +108,6 @@
                                 <MudText Color="Color.Error">@_loc["Error"]</MudText>
                             }
                         }
-                        <MudButton OnClick="CreateFakes">CREATE 3 FAKES</MudButton>
                     </MudGrid>
                 </EditForm>
             </MudPaper>
@@ -119,7 +118,7 @@
 
 @code {
     [Parameter]
-    public long? Id { get; set; }
+    public string? Id { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
     [Inject]
@@ -128,6 +127,8 @@
     private IStringLocalizer<ReviewBuilderTool> _loc { get; set; }
     [Inject]
     private IStringLocalizer<SharedLocalization> _sharedLoc { get; set; }
+    [Inject]
+    private NavigationManager? _nav { get; set; }
     private static string DefaultDragClass = "rounded-lg px-2 py-7 mud-height-full border-2 border-dashed z-10";
     private string DragClass = DefaultDragClass;
     private ReviewModel _review = new();
@@ -137,16 +138,39 @@
     private bool _isPublishActionFired = false;
     private bool _isPublishWasSuccesful = false;
     private bool _isImageUploadFileNotValid = false;
+    private string _userId = string.Empty;
     private string _imageErrorText = $"You can upload {Constants.IMAGE_FORMAT} image with size less then {Constants.MAX_IMAGE_SIZE / 1000000} mb";
+    private MudBlazor.Converter<TagModel, string> _tagConverter = new Converter<TagModel>
+        {
+            SetFunc = value => value.Name,
+            GetFunc = text => new TagModel { Name = text }
+        };
 
     protected async override Task OnParametersSetAsync()
     {
-        if(Id != 0)
+        if(!Id.Equals("0"))
         {
-            _review = await _httpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEWS_URL}/{Id}");
+            if (Id.StartsWith("asUser="))
+            {
+                _userId = Id.Substring("asUser=".Length);
+                Id = "0";
+                await InitEmptyReview();
+            }
+            else
+            {
+                var authState = await _authenticationStateProvider!.GetAuthenticationStateAsync();
+                var user = authState.User;
+                _userId = user.FindFirstValue("sub");
+                _review = await _httpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEWS_URL}/{Id}");
+                if (_userId != _review!.AuthorId && !user.IsInRole("Admin"))
+                {
+                    _nav.NavigateTo("/");
+                }
+            }
         }
         else
         {
+            _userId = await GetUserId();
             await InitEmptyReview();
         }
         await base.OnInitializedAsync();
@@ -154,7 +178,7 @@
 
     public async Task PublishOrUpdateReview()
     {
-        if(Id == 0){
+        if(Id.Equals("0")){
             await PublishNewReview();
         }
         else
@@ -170,8 +194,6 @@
         HttpResponseMessage response = await _httpClient!.PutAsJsonAsync<ReviewModel>(Constants.REVIEWS_URL, _review);
         _isPublishWasSuccesful = response.IsSuccessStatusCode;
         _isPublishingInProcess = false;
-        if (_isPublishWasSuccesful)
-            await InitEmptyReview();
         _isPublishActionFired = true;
     }
 
@@ -192,7 +214,7 @@
     private async Task InitEmptyReview()
     {
         _review = new();
-        _review.AuthorId = await GetUserId();
+        _review.AuthorId = _userId;
     }
 
     private async Task<string> GetUserId()
@@ -282,10 +304,4 @@
         var response = await _httpClient!.GetFromJsonAsync<IEnumerable<TagModel>>($"{Constants.TAG_SEARCH_URL}/{value}");
         return response;
     }
-
-    public async Task CreateFakes( )
-    {
-        await _httpClient!.GetAsync($"{Constants.REVIEWS_ADD_FAKE_URL}/3");
-    }
-
 }

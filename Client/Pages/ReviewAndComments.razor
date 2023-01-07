@@ -39,14 +39,29 @@
     private AuthenticationStateProvider? _authStateProvider { get; set; }
     [Inject]
     private IStringLocalizer<ReviewAndComments> _loc { get; set; }
-
+    private HttpClient _anonymousHttpClient;
     private ReviewModel? _currentReview { get; set; }
 
     protected async override Task OnParametersSetAsync()
     {
-        HttpClient _anonymousHttpClient = _clientFactory!.CreateClient("totten_romatoes.AnonymousAPI");
+        _anonymousHttpClient = _clientFactory!.CreateClient("totten_romatoes.AnonymousAPI");
         _currentReview = await _anonymousHttpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEWS_URL}/{Id}");
         await base.OnParametersSetAsync();
+        CheckForNewComments();
+    }
+
+    private async void CheckForNewComments()
+    {
+        while (_currentReview != null && _anonymousHttpClient != null)
+        {
+            var commentsAmount = await _anonymousHttpClient.GetFromJsonAsync<int>($"{Constants.REVIEWS_GET_COMMENT_AMOUNT_URL}/{_currentReview.Id}");
+            if ((_currentReview.Comments == null && commentsAmount > 0) || (_currentReview.Comments != null && commentsAmount != _currentReview.Comments.Count()))
+            {
+                _currentReview.Comments = await _anonymousHttpClient.GetFromJsonAsync<List<CommentModel>>($"{Constants.REVIEWS_GET_COMMENT_URL}/{_currentReview.Id}");
+                StateHasChanged();
+            }
+            await Task.Delay(Constants.REFRESH_COMMENTS_DELAY_IN_MILLIS);
+        }
     }
 
 }

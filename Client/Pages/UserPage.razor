@@ -1,4 +1,4 @@
-﻿@page "/user-page"
+﻿@page "/user-page/{id}"
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims;
 
@@ -15,7 +15,12 @@
         
         }else{
             <MudItem xs="12">
-                <MudTable MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh" Striped="true" Items="_reviews" T="ReviewModel" >
+                <MudTable MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh"
+                Striped="true" Items="_reviews" T="ReviewModel" Filter="new Func<ReviewModel,bool>(FilterFunc)">
+                    <ToolBarContent>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString" Placeholder="Filter" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
                     <HeaderContent >
                         <MudTh>
                             <MudTableSortLabel Class="fs-6 fw-bold" InitialDirection="SortDirection.Ascending" SortBy="new Func<ReviewModel, object>(r=>r.Title)">Title</MudTableSortLabel>
@@ -65,10 +70,15 @@
                 }
             </MudItem>        
         }
+        <MudItem xs="12">
+            <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="CreateReview" Color="Color.Info">CREATE REVIEW</MudButton>
+        </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
+    [Parameter]
+    public string? Id { get; set; }
     [Inject]
     private HttpClient? _httpClient { get; set; }
     [Inject]
@@ -80,14 +90,29 @@
     private List<ReviewModel> _reviews = new();
     private HashSet<ReviewModel> _selectedItems = new();
     private string _userId;
+    private string searchString = "";
     private bool _deleteButtonDisabled=false;
 
     protected async override Task OnInitializedAsync()
     {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await _authenticationStateProvider!.GetAuthenticationStateAsync();
         var user = authState.User;
-        _userId = user.FindFirstValue("sub");
-        _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_CHUNK_URL}?userId={_userId}");
+        if(Id == "manage")
+        {
+            _userId = user.FindFirstValue("sub");
+            if (_httpClient != null)
+                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}");
+        }
+        else
+        {
+            if (!user.IsInRole("Admin"))
+            {
+                _nav.NavigateTo("/");
+            }
+            _userId = Id;
+            if (_httpClient != null)
+                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}");
+        }
         await base.OnInitializedAsync();
     }
 
@@ -108,8 +133,27 @@
             query = $"{query}ids={id}&";
         }
         query = query.Remove(query.Length - 1);
-        await _httpClient.DeleteAsync(query);
+        if(_httpClient != null)
+            await _httpClient.DeleteAsync(query);
         _reviews = _reviews.Where(r => !selectedIds.Contains(r.Id)).ToList();
         _deleteButtonDisabled = false;
+    }
+
+    private bool FilterFunc(ReviewModel review)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (review.Title!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (review.Subject.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (review.DateOfCreationInUTC.ToString().Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private void CreateReview()
+    {
+        _nav.NavigateTo($"create-review/asUser={_userId}");
     }
 }

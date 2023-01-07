@@ -18,8 +18,10 @@ namespace totten_romatoes.Server.Services
         public Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType);
         public Task<ReviewModel> GetReviewById(long id);
         public Task<int> GetAmountOfReviews();
+        public Task<int> GetAmountOfCommentsInReview(long id);
+        public Task<List<CommentModel>> GetCommentsFromReview(long id);
         public List<TagModel> GetDefaultAmountOfTags();
-        public Task DeleteReviewDromDb(long id);
+        public Task DeleteReviewFromDb(long id);
         public Task DeleteMuiltipleReviews(IEnumerable<long> ids);
         public void DeleteLikeDromDb(long id);
         public Task UpdateReview(ReviewModel review);
@@ -167,6 +169,16 @@ namespace totten_romatoes.Server.Services
             return await _dbContext.Reviews!.CountAsync();
         }
 
+        public async Task<int> GetAmountOfCommentsInReview(long id)
+        {
+            return await _dbContext.Comments!.Where(c => c.ReviewId == id).CountAsync();
+        }
+
+        public async Task<List<CommentModel>> GetCommentsFromReview(long id)
+        {
+            return await _dbContext.Comments!.Include(c => c.Author).Where(c => c.ReviewId == id).ToListAsync();
+        }
+
         public List<TagModel> GetDefaultAmountOfTags()
         {
             List<TagModel> tags = _dbContext.Tags!
@@ -180,7 +192,7 @@ namespace totten_romatoes.Server.Services
             return tags;
         }
 
-        public async Task DeleteReviewDromDb(long id)
+        public async Task DeleteReviewFromDb(long id)
         {
             var reviewToDelete = await _dbContext.Reviews!.FirstOrDefaultAsync(r => r.Id == id);
             if (reviewToDelete != null)
