@@ -9,7 +9,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<NpgsqlTsVector>(
+            _ = migrationBuilder.AddColumn<NpgsqlTsVector>(
                 name: "SearchVector",
                 table: "Reviews",
                 type: "tsvector",
@@ -17,7 +17,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:TsVectorConfig", "english")
                 .Annotation("Npgsql:TsVectorProperties", new[] { "ReviewBody", "Title" });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Reviews_SearchVector",
                 table: "Reviews",
                 column: "SearchVector")
@@ -26,11 +26,11 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Reviews_SearchVector",
                 table: "Reviews");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "SearchVector",
                 table: "Reviews");
         }

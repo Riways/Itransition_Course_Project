@@ -29,9 +29,9 @@
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
-    private IJSRuntime _JSRuntime { get; set; }
+    private IJSRuntime _JSRuntime { get; set; } = null!;
     [Inject]
-    private IStringLocalizer<Reviews>? _loc {get; set;}
+    private IStringLocalizer<Reviews> _loc { get; set; } = null!;
     private SortBy _sortType = SortBy.Newest;
     private HttpClient? _anonymousHttpClient;
     private List<ReviewModel>? _reviews;
@@ -52,7 +52,7 @@
 
     public async Task DeleteReviewFromList(long id)
     {
-        if(_reviews != null)
+        if(_reviews != null && _anonymousHttpClient != null)
         {
             _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
             int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
@@ -81,11 +81,14 @@
 
     private void UpdateReviewAuthorRating(ApplicationUser user)
     {
-        foreach(var review in _reviews)
+        if (_reviews != null)
         {
-            if(review.Author.Id == user.Id)
+            foreach (var review in _reviews)
             {
-                review.Author.Rating = user.Rating;
+                if (review.Author!.Id == user.Id)
+                {
+                    review.Author.Rating = user.Rating;
+                }
             }
         }
     }

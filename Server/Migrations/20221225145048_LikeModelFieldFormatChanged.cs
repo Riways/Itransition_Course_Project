@@ -8,28 +8,28 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Likes_Reviews_ReviewModelId",
                 table: "Likes");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Likes_ReviewModelId",
                 table: "Likes");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "Review",
                 table: "Likes");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ReviewModelId",
                 table: "Likes");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Likes_ReviewId",
                 table: "Likes",
                 column: "ReviewId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Likes_Reviews_ReviewId",
                 table: "Likes",
                 column: "ReviewId",
@@ -40,33 +40,33 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Likes_Reviews_ReviewId",
                 table: "Likes");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Likes_ReviewId",
                 table: "Likes");
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "Review",
                 table: "Likes",
                 type: "bigint",
                 nullable: false,
                 defaultValue: 0L);
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ReviewModelId",
                 table: "Likes",
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Likes_ReviewModelId",
                 table: "Likes",
                 column: "ReviewModelId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Likes_Reviews_ReviewModelId",
                 table: "Likes",
                 column: "ReviewModelId",

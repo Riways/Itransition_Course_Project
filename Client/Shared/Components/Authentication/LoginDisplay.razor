@@ -16,7 +16,7 @@
 </AuthorizeView>
 @code{
     [Inject]
-    private IStringLocalizer<LoginDisplay> _loc { get; set; }
+    private IStringLocalizer<LoginDisplay> _loc { get; set; } = null!;
     private async Task BeginSignOut(MouseEventArgs args)
     {
         await SignOutManager.SetSignOutState();

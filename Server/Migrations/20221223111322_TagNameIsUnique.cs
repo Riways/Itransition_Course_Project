@@ -8,7 +8,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Tags",
                 type: "character varying(40)",
@@ -17,7 +17,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AddUniqueConstraint(
+            _ = migrationBuilder.AddUniqueConstraint(
                 name: "AK_Tags_Name",
                 table: "Tags",
                 column: "Name");
@@ -25,11 +25,11 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropUniqueConstraint(
+            _ = migrationBuilder.DropUniqueConstraint(
                 name: "AK_Tags_Name",
                 table: "Tags");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Tags",
                 type: "text",

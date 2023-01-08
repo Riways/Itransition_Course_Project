@@ -25,8 +25,11 @@ namespace totten_romatoes.Server.Controllers
         public async Task<ActionResult<IEnumerable<ReviewModel>>> FullTextSearch(string key)
         {
             if (key.IsNullOrEmpty())
+            {
                 return BadRequest("No word to search was provided");
-            var searchResult = await _reviewService.FullTextSearch(key);
+            }
+
+            List<ReviewModel> searchResult = await _reviewService.FullTextSearch(key);
             return searchResult;
         }
 
@@ -61,21 +64,17 @@ namespace totten_romatoes.Server.Controllers
         [HttpGet("chunk")]
         public async Task<ActionResult<IEnumerable<ReviewModel>>> GetChunkOfReviews([FromQuery] int number, [FromQuery] int sortType)
         {
-            if (number < 0)
-                return BadRequest("Page number can't be less then 0");
-            return Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType));
+            return number < 0
+                ? (ActionResult<IEnumerable<ReviewModel>>)BadRequest("Page number can't be less then 0")
+                : (ActionResult<IEnumerable<ReviewModel>>)Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType));
         }
 
         [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<ReviewModel>> GetReviewModel(long id)
         {
-            var reviewModel = await _reviewService.GetReviewById(id);
-            if (reviewModel == null)
-            {
-                return NotFound();
-            }
-            return Ok(reviewModel);
+            ReviewModel reviewModel = await _reviewService.GetReviewById(id);
+            return reviewModel == null ? (ActionResult<ReviewModel>)NotFound() : (ActionResult<ReviewModel>)Ok(reviewModel);
         }
 
         [Authorize(Policy = "AdminOnly")]
@@ -83,7 +82,10 @@ namespace totten_romatoes.Server.Controllers
         public async Task<ActionResult> GenerateReviews(int amount)
         {
             if (amount <= 0)
+            {
                 return BadRequest("Amount of reviews should be more then 0");
+            }
+
             await _reviewService.GenerateFakeReviews(amount);
             return Ok();
         }

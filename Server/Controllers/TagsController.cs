@@ -2,8 +2,6 @@
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace totten_romatoes.Server.Controllers
 {
     [Route("api/tags")]
@@ -21,7 +19,7 @@ namespace totten_romatoes.Server.Controllers
         [Route("take")]
         public IEnumerable<string> GetSpecificAmountOftags()
         {
-            var tags = _reviewService.GetDefaultAmountOfTags();
+            List<TagModel> tags = _reviewService.GetDefaultAmountOfTags();
             return tags.Select(t => t.Name).ToList();
         }
 
@@ -29,7 +27,7 @@ namespace totten_romatoes.Server.Controllers
         [Route("search/{key}")]
         public async Task<IEnumerable<TagModel>> SearchTagsInDatabase(string key)
         {
-            var tags = await _reviewService.GetListOfSimilarTagsFromDatabase(key);
+            List<TagModel> tags = await _reviewService.GetListOfSimilarTagsFromDatabase(key);
             return tags.ToList();
         }
     }

@@ -82,11 +82,11 @@
     [Inject]
     private HttpClient? _httpClient { get; set; }
     [Inject]
-    private NavigationManager _nav { get; set; }
+    private NavigationManager _nav { get; set; } = null!;
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
-    private IStringLocalizer<UserPage> _loc { get; set; } ?? new ();
+    private IStringLocalizer<UserPage> _loc { get; set; } = null!;
     private List<ReviewModel> _reviews = new();
     private HashSet<ReviewModel> _selectedItems = new();
     private string _userId = string.Empty;
@@ -101,7 +101,7 @@
         {
             _userId = user.FindFirstValue("sub");
             if (_httpClient != null)
-                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}");
+                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}") ?? new ();
         }
         else
         {
@@ -109,9 +109,9 @@
             {
                 _nav.NavigateTo("/");
             }
-            _userId = Id;
+            _userId = Id ?? string.Empty;
             if (_httpClient != null)
-                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}");
+                _reviews = await _httpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_LIGHTWEIGHT_LIST_URL}?userId={_userId}") ?? new();
         }
         await base.OnInitializedAsync();
     }

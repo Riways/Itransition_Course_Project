@@ -7,14 +7,14 @@ using totten_romatoes.Server.Data;
 using totten_romatoes.Server.Services;
 using totten_romatoes.Shared.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "config", "secrets.json"));
 
-var connectionString = builder.Configuration["DefaultConnection"];
+string connectionString = builder.Configuration["DefaultConnection"];
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(connectionString);
+    _ = options.UseNpgsql(connectionString);
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -56,7 +56,7 @@ builder.Services.AddAuthorization(opts =>
 
     opts.AddPolicy("AdminOnly", policy =>
     {
-        policy.RequireClaim(ClaimTypes.Role, "Admin");
+        _ = policy.RequireClaim(ClaimTypes.Role, "Admin");
     });
 });
 
@@ -75,19 +75,19 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddLocalization();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.Services.CreateScope().ServiceProvider.GetService<InitializeDatabase>()!.Run();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    _ = app.UseMigrationsEndPoint();
     app.UseWebAssemblyDebugging();
 }
 else
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    _ = app.UseExceptionHandler("/Error");
+    _ = app.UseHsts();
 }
 
 app.UseHttpsRedirection();

@@ -67,7 +67,7 @@
             </MudItem>
             <MudItem Class="mt-n4 pt-4 px-6" xs="12" >
                 <MudDivider Class="mb-4"></MudDivider>
-                <MudButton Variant="Variant.Outlined" OnClick="ReadFullReview" Size="Size.Medium"  Color="Color.Transparent">@_loc["Read"]</MudButton>
+                <MudButton Variant="Variant.Outlined" OnClick="ReadFullReview" Size="Size.Medium"  Color="Color.Transparent">@_loc!["Read"]</MudButton>
             </MudItem>
         }
         else
@@ -88,7 +88,7 @@
         }
         <AuthorizeView>
             <Authorized >
-                @if((_userId != null && _userId.Equals(CurrentReview.Author.Id))  || context.User.IsInRole("Admin"))
+                @if((_userId != null && _userId.Equals(CurrentReview!.Author!.Id))  || context.User.IsInRole("Admin"))
                 {
                     <MudItem Class="px-6 pb-4" xs="12">
                         <MudButton Variant="Variant.Outlined" OnClick="DeleteReview" Color="Color.Error"> @_loc!["DELETE"]</MudButton>
@@ -135,7 +135,7 @@
 </MudPaper>
 @code {
     [Parameter]
-    public ReviewModel CurrentReview { get; set; } 
+    public ReviewModel CurrentReview { get; set; } = null!;
     [Parameter]
     public AuthenticationStateProvider? AuthStateProvider { get; set; }
     [Parameter]
@@ -217,7 +217,7 @@
 
     private void ModifyReview()
     {
-        _nav.NavigateTo($"create-review/{CurrentReview.Id}");
+        _nav?.NavigateTo($"create-review/{CurrentReview.Id}");
     }
 
     private Color RandomColorPick()
@@ -240,7 +240,7 @@
 
     private void ReadFullReview()
     {
-        _nav.NavigateTo($"review/{CurrentReview.Id}");
+        _nav?.NavigateTo($"review/{CurrentReview.Id}");
     }
 
     private async Task UserLikedReview()

@@ -29,8 +29,8 @@ namespace totten_romatoes.Server.Data
         {
             if (!_dbContext.Roles.Any(r => r.Name == "Admin"))
             {
-                var roleStore = new RoleStore<IdentityRole>(_dbContext);
-                var adminRole = new IdentityRole
+                RoleStore<IdentityRole> roleStore = new(_dbContext);
+                IdentityRole adminRole = new()
                 {
                     Name = "Admin",
                     NormalizedName = "Admin".ToUpper()
@@ -43,8 +43,8 @@ namespace totten_romatoes.Server.Data
         {
             if (!_dbContext.Users.Any(u => u.UserName == _appConfig["admin_username"]))
             {
-                var hasher = new PasswordHasher<ApplicationUser>();
-                var administrator = new ApplicationUser
+                PasswordHasher<ApplicationUser> hasher = new();
+                ApplicationUser administrator = new()
                 {
                     UserName = _appConfig["admin_username"],
                     NormalizedUserName = _appConfig["admin_username"].ToUpper(),

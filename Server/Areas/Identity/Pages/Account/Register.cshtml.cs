@@ -108,9 +108,9 @@ namespace totten_romatoes.Server.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = CreateUser();
+                ApplicationUser user = CreateUser();
                 IdentityResult result = new();
-                var exisitingUser = await _emailStore.FindByEmailAsync(Input.Email.ToUpper(), CancellationToken.None);
+                ApplicationUser exisitingUser = await _emailStore.FindByEmailAsync(Input.Email.ToUpper(), CancellationToken.None);
                 if (exisitingUser == null)
                 {
                     await _userStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
@@ -126,7 +126,7 @@ namespace totten_romatoes.Server.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
                     }
                     else
                     {
@@ -134,7 +134,7 @@ namespace totten_romatoes.Server.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
-                foreach (var error in result.Errors)
+                foreach (IdentityError error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
@@ -159,11 +159,9 @@ namespace totten_romatoes.Server.Areas.Identity.Pages.Account
 
         private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-            return (IUserEmailStore<ApplicationUser>)_userStore;
+            return !_userManager.SupportsUserEmail
+                ? throw new NotSupportedException("The default UI requires a user store with email support.")
+                : (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }

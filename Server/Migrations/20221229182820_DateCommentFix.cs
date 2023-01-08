@@ -8,7 +8,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
+            _ = migrationBuilder.AddColumn<DateTime>(
                 name: "DateOfCreationInUTC",
                 table: "Comments",
                 type: "timestamp with time zone",
@@ -18,7 +18,7 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "DateOfCreationInUTC",
                 table: "Comments");
         }

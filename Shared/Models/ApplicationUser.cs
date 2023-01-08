@@ -8,13 +8,13 @@ namespace totten_romatoes.Shared.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
-        [MaxLength(25)]
-        [MinLength(2)]
+        [MaxLength(25, ErrorMessage = "Username is too long")]
+        [MinLength(2, ErrorMessage = "Username is too short")]
         public override string UserName { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(100)]
-        [MinLength(5)]
+        [MaxLength(100, ErrorMessage = "Email is too long")]
+        [MinLength(5, ErrorMessage = "Email is too short")]
         [EmailAddress]
         public override string Email { get; set; } = string.Empty;
 

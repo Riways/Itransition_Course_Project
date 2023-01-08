@@ -9,7 +9,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "TagModel",
                 type: "bigint",
@@ -19,7 +19,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "Reviews",
                 type: "bigint",
@@ -29,7 +29,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "TagsId",
                 table: "ReviewModelTagModel",
                 type: "bigint",
@@ -37,7 +37,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(int),
                 oldType: "integer");
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "ReviewsId",
                 table: "ReviewModelTagModel",
                 type: "bigint",
@@ -45,7 +45,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(int),
                 oldType: "integer");
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "ReviewId",
                 table: "Grades",
                 type: "bigint",
@@ -53,7 +53,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(int),
                 oldType: "integer");
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "Grades",
                 type: "bigint",
@@ -63,7 +63,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "ReviewModelId",
                 table: "Comments",
                 type: "bigint",
@@ -72,7 +72,7 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "integer",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<long>(
+            _ = migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "Comments",
                 type: "bigint",
@@ -85,7 +85,7 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "Id",
                 table: "TagModel",
                 type: "integer",
@@ -95,7 +95,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "Id",
                 table: "Reviews",
                 type: "integer",
@@ -105,7 +105,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "TagsId",
                 table: "ReviewModelTagModel",
                 type: "integer",
@@ -113,7 +113,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(long),
                 oldType: "bigint");
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "ReviewsId",
                 table: "ReviewModelTagModel",
                 type: "integer",
@@ -121,7 +121,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(long),
                 oldType: "bigint");
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "ReviewId",
                 table: "Grades",
                 type: "integer",
@@ -129,7 +129,7 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(long),
                 oldType: "bigint");
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "Id",
                 table: "Grades",
                 type: "integer",
@@ -139,7 +139,7 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "ReviewModelId",
                 table: "Comments",
                 type: "integer",
@@ -148,7 +148,7 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "bigint",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<int>(
+            _ = migrationBuilder.AlterColumn<int>(
                 name: "Id",
                 table: "Comments",
                 type: "integer",

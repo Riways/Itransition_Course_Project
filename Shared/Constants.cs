@@ -58,6 +58,8 @@
         public const int FAKER_MAX_SENTENCES_IN_COMMENT_AMOUNT = 4;
         public const int FAKER_MIN_TAGS_AMOUNT = 0;
         public const int FAKER_MAX_TAGS_AMOUNT = 5;
+        public const int FAKER_MIN_LIKES_AMOUNT = 9;
+        public const int FAKER_MAX_LIKES_AMOUNT = 101;
         public const int FAKER_MIN_WORDS_IN_TAG_AMOUNT = 1;
         public const int FAKER_MAX_WORDS_IN_TAG_AMOUNT = 2;
         public const int FAKER_IMAGE_HEIGHT = 720;

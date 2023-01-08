@@ -9,14 +9,14 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
+            _ = migrationBuilder.AddColumn<DateTime>(
                 name: "DateOfCreationInUTC",
                 table: "Reviews",
                 type: "timestamp with time zone",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "TagModel",
                 columns: table => new
                 {
@@ -27,15 +27,15 @@ namespace totten_romatoes.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagModel", x => x.Id);
-                    table.ForeignKey(
+                    _ = table.PrimaryKey("PK_TagModel", x => x.Id);
+                    _ = table.ForeignKey(
                         name: "FK_TagModel_Reviews_ReviewModelId",
                         column: x => x.ReviewModelId,
                         principalTable: "Reviews",
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_TagModel_ReviewModelId",
                 table: "TagModel",
                 column: "ReviewModelId");
@@ -43,10 +43,10 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "TagModel");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "DateOfCreationInUTC",
                 table: "Reviews");
         }

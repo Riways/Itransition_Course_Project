@@ -8,7 +8,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
+            _ = migrationBuilder.RenameColumn(
                 name: "SubjectOfReview",
                 table: "Reviews",
                 newName: "Title");
@@ -16,7 +16,7 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
+            _ = migrationBuilder.RenameColumn(
                 name: "Title",
                 table: "Reviews",
                 newName: "SubjectOfReview");

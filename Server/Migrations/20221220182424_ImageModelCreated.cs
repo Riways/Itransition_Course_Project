@@ -9,7 +9,7 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "ReviewBody",
                 table: "Reviews",
                 type: "character varying(5000)",
@@ -18,19 +18,19 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ImageId",
                 table: "Reviews",
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ReviewImageId",
                 table: "Reviews",
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "UserName",
                 table: "AspNetUsers",
                 type: "character varying(256)",
@@ -42,7 +42,7 @@ namespace totten_romatoes.Server.Migrations
                 oldMaxLength: 256,
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Email",
                 table: "AspNetUsers",
                 type: "character varying(256)",
@@ -54,7 +54,7 @@ namespace totten_romatoes.Server.Migrations
                 oldMaxLength: 256,
                 oldNullable: true);
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "Images",
                 columns: table => new
                 {
@@ -66,15 +66,15 @@ namespace totten_romatoes.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => x.Id);
+                    _ = table.PrimaryKey("PK_Images", x => x.Id);
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Reviews_ReviewImageId",
                 table: "Reviews",
                 column: "ReviewImageId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Reviews_Images_ReviewImageId",
                 table: "Reviews",
                 column: "ReviewImageId",
@@ -84,26 +84,26 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Reviews_Images_ReviewImageId",
                 table: "Reviews");
 
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "Images");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Reviews_ReviewImageId",
                 table: "Reviews");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ImageId",
                 table: "Reviews");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ReviewImageId",
                 table: "Reviews");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "ReviewBody",
                 table: "Reviews",
                 type: "text",
@@ -112,7 +112,7 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "character varying(5000)",
                 oldMaxLength: 5000);
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "UserName",
                 table: "AspNetUsers",
                 type: "character varying(256)",
@@ -122,7 +122,7 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "character varying(256)",
                 oldMaxLength: 256);
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Email",
                 table: "AspNetUsers",
                 type: "character varying(256)",

@@ -34,7 +34,7 @@ namespace totten_romatoes.Shared.Models
         public List<CommentModel>? Comments { get; set; }
         [NotMapped]
         public int? CommentsAmount { get; set; }
-        [MaxLength(Constants.MAX_AMOUNT_OF_TAGS_IN_REVIEW, ErrorMessage = $"Max amount of tags is exceeded")]
+        [MaxLength(Constants.MAX_AMOUNT_OF_TAGS_IN_REVIEW, ErrorMessage = "Max amount of tags is exceeded")]
         public List<TagModel>? Tags { get; set; }
         public List<LikeModel> Likes { get; set; } = new();
         [JsonIgnore]

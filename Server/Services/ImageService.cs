@@ -19,8 +19,14 @@ namespace totten_romatoes.Server.Services
 
         public async Task<ImageModel> SaveImageToDb(ImageModel imageModel)
         {
-            if (imageModel.ImageType != Constants.IMAGE_FORMAT || imageModel.ImageData.Length > Constants.MAX_IMAGE_SIZE)
-                throw new Exception("Image format or size is not proper");
+            if (imageModel.ImageData == null)
+            {
+                throw new ArgumentException("No data provided to upload in ImageModel");
+            }
+            if ( imageModel.ImageType != Constants.IMAGE_FORMAT || imageModel.ImageData.Length > Constants.MAX_IMAGE_SIZE)
+            {
+                throw new ArgumentException("Image format or size is not proper");
+            }
             await _dbContext.Images!.AddAsync(imageModel);
             await _dbContext.SaveChangesAsync();
             return imageModel;

@@ -3,14 +3,14 @@
 @using System.Security.Claims;
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@_loc["Users"]</MudText>
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@_loc!["Users"]</MudText>
     <MudGrid Spacing="6"  Class="mt-1" Justify="Justify.Center">
         <MudItem xs="12">
             <MudTable ServerData="@(new Func<TableState, Task<TableData<ApplicationUser>>>(ServerReload))" MultiSelection="true" @bind-SelectedItems="@_selectedItems" FixedHeader="true" Height="60vh"
                  Striped="true" Items="_users" RowsPerPage="@Constants.USERS_ON_ADMIN_PAGE" TotalItems="_usersSummary" CurrentPage="_selectedPage" T="ApplicationUser">
                 <HeaderContent >
                     <MudTh Class="fs-6 fw-bold">
-                        @_loc["Name"]
+                        @_loc!["Name"]
                     </MudTh>
                     <MudHidden Breakpoint="Breakpoint.MdAndDown">
                         <MudTh Class="fs-6 fw-bold">
@@ -42,18 +42,18 @@
             </MudTable>
             @if (_selectedItems.Count > 0)
             {
-                <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">@_loc["Delete"]</MudButton>
+                <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">@_loc!["Delete"]</MudButton>
             }
             else
             {
-                <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">@_loc["Delete"]</MudButton>
+                <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">@_loc!["Delete"]</MudButton>
             }
         </MudItem>
         <MudItem  xs="5" md="9">
         </MudItem>
         <MudItem Class="d-flex" xs="7" md="3">
-             <MudTextField  @bind-Value="FakesAmount"  FullWidth="false" Label="@(_loc["Amount"])" Variant="Variant.Outlined"></MudTextField>
-             <MudButton Class="my-auto ml-3" Size="Size.Medium" Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateFakes">@_loc["Create fake reviews"]</MudButton>
+             <MudTextField  @bind-Value="FakesAmount"  FullWidth="false" Label="@(_loc!["Amount"])" Variant="Variant.Outlined"></MudTextField>
+             <MudButton Class="my-auto ml-3" Size="Size.Medium" Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateFakes">@_loc!["Create fake reviews"]</MudButton>
          </MudItem>
     </MudGrid>
 </MudContainer>
@@ -77,7 +77,7 @@
         if (_httpClient != null)
         {
             _usersSummary = await _httpClient.GetFromJsonAsync<int>(Constants.USERS_AMOUNT_URL);
-            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new List<ApplicationUser>();
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new ();
         }
         await base.OnInitializedAsync();
     }
@@ -105,7 +105,8 @@
     private async Task<TableData<ApplicationUser>> ServerReload(TableState tableState)
     {
         _selectedPage = tableState.Page;
-        _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new();
+        if(_httpClient != null)
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new();
         return new TableData<ApplicationUser>() { TotalItems = _usersSummary, Items = _users };
     }
 

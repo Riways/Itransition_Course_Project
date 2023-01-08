@@ -9,23 +9,23 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Comments_Reviews_ReviewModelId",
                 table: "Comments");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Comments_ReviewModelId",
                 table: "Comments");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ReviewModelId",
                 table: "Comments");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "Text",
                 table: "Comments");
 
-            migrationBuilder.AlterColumn<NpgsqlTsVector>(
+            _ = migrationBuilder.AlterColumn<NpgsqlTsVector>(
                 name: "SearchVector",
                 table: "Reviews",
                 type: "tsvector",
@@ -37,7 +37,7 @@ namespace totten_romatoes.Server.Migrations
                 .OldAnnotation("Npgsql:TsVectorConfig", "english")
                 .OldAnnotation("Npgsql:TsVectorProperties", new[] { "ReviewBody", "Title" });
 
-            migrationBuilder.AddColumn<string>(
+            _ = migrationBuilder.AddColumn<string>(
                 name: "CommentBody",
                 table: "Comments",
                 type: "character varying(255)",
@@ -45,14 +45,14 @@ namespace totten_romatoes.Server.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ReviewId",
                 table: "Comments",
                 type: "bigint",
                 nullable: false,
                 defaultValue: 0L);
 
-            migrationBuilder.AddColumn<NpgsqlTsVector>(
+            _ = migrationBuilder.AddColumn<NpgsqlTsVector>(
                 name: "SearchVector",
                 table: "Comments",
                 type: "tsvector",
@@ -60,18 +60,18 @@ namespace totten_romatoes.Server.Migrations
                 .Annotation("Npgsql:TsVectorConfig", "english")
                 .Annotation("Npgsql:TsVectorProperties", new[] { "CommentBody" });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Comments_ReviewId",
                 table: "Comments",
                 column: "ReviewId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Comments_SearchVector",
                 table: "Comments",
                 column: "SearchVector")
                 .Annotation("Npgsql:IndexMethod", "GIN");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Comments_Reviews_ReviewId",
                 table: "Comments",
                 column: "ReviewId",
@@ -82,31 +82,31 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Comments_Reviews_ReviewId",
                 table: "Comments");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Comments_ReviewId",
                 table: "Comments");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Comments_SearchVector",
                 table: "Comments");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "CommentBody",
                 table: "Comments");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ReviewId",
                 table: "Comments");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "SearchVector",
                 table: "Comments");
 
-            migrationBuilder.AlterColumn<NpgsqlTsVector>(
+            _ = migrationBuilder.AlterColumn<NpgsqlTsVector>(
                 name: "SearchVector",
                 table: "Reviews",
                 type: "tsvector",
@@ -119,25 +119,25 @@ namespace totten_romatoes.Server.Migrations
                 .OldAnnotation("Npgsql:TsVectorConfig", "english")
                 .OldAnnotation("Npgsql:TsVectorProperties", new[] { "ReviewBody", "Title" });
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ReviewModelId",
                 table: "Comments",
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.AddColumn<string>(
+            _ = migrationBuilder.AddColumn<string>(
                 name: "Text",
                 table: "Comments",
                 type: "text",
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Comments_ReviewModelId",
                 table: "Comments",
                 column: "ReviewModelId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Comments_Reviews_ReviewModelId",
                 table: "Comments",
                 column: "ReviewModelId",

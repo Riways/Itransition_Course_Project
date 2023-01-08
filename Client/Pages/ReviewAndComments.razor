@@ -34,17 +34,17 @@
     [Parameter]
     public long? Id { get; set; }
     [Inject]
-    private IHttpClientFactory? _clientFactory { get; set; }
+    private IHttpClientFactory _clientFactory { get; set; } = null!;
     [Inject]
-    private AuthenticationStateProvider? _authStateProvider { get; set; }
+    private AuthenticationStateProvider _authStateProvider { get; set; } = null!;
     [Inject]
-    private IStringLocalizer<ReviewAndComments> _loc { get; set; }
-    private HttpClient _anonymousHttpClient;
+    private IStringLocalizer<ReviewAndComments> _loc { get; set; } = null!;
+    private HttpClient? _anonymousHttpClient;
     private ReviewModel? _currentReview { get; set; }
 
     protected async override Task OnParametersSetAsync()
     {
-        _anonymousHttpClient = _clientFactory!.CreateClient("totten_romatoes.AnonymousAPI");
+        _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
         _currentReview = await _anonymousHttpClient.GetFromJsonAsync<ReviewModel>($"{Constants.REVIEWS_URL}/{Id}");
         await base.OnParametersSetAsync();
         CheckForNewComments();

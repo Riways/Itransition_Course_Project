@@ -8,19 +8,19 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_ReviewModelTagModel_TagModel_TagsId",
                 table: "ReviewModelTagModel");
 
-            migrationBuilder.DropPrimaryKey(
+            _ = migrationBuilder.DropPrimaryKey(
                 name: "PK_TagModel",
                 table: "TagModel");
 
-            migrationBuilder.RenameTable(
+            _ = migrationBuilder.RenameTable(
                 name: "TagModel",
                 newName: "Tags");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "ImageUrl",
                 table: "Images",
                 type: "text",
@@ -28,12 +28,12 @@ namespace totten_romatoes.Server.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AddPrimaryKey(
+            _ = migrationBuilder.AddPrimaryKey(
                 name: "PK_Tags",
                 table: "Tags",
                 column: "Id");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_ReviewModelTagModel_Tags_TagsId",
                 table: "ReviewModelTagModel",
                 column: "TagsId",
@@ -44,19 +44,19 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_ReviewModelTagModel_Tags_TagsId",
                 table: "ReviewModelTagModel");
 
-            migrationBuilder.DropPrimaryKey(
+            _ = migrationBuilder.DropPrimaryKey(
                 name: "PK_Tags",
                 table: "Tags");
 
-            migrationBuilder.RenameTable(
+            _ = migrationBuilder.RenameTable(
                 name: "Tags",
                 newName: "TagModel");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "ImageUrl",
                 table: "Images",
                 type: "text",
@@ -66,12 +66,12 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "text",
                 oldNullable: true);
 
-            migrationBuilder.AddPrimaryKey(
+            _ = migrationBuilder.AddPrimaryKey(
                 name: "PK_TagModel",
                 table: "TagModel",
                 column: "Id");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_ReviewModelTagModel_TagModel_TagsId",
                 table: "ReviewModelTagModel",
                 column: "TagsId",

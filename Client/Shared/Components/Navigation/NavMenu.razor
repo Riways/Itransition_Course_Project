@@ -26,13 +26,13 @@
 
 @code {
     [Inject]
-    private IHttpClientFactory _clientFactory { get; set; }
+    private IHttpClientFactory _clientFactory { get; set; } = null!;
     [Inject]
-    private NavigationManager _nav { get; set; }
+    private NavigationManager _nav { get; set; } = null!;
     [Inject]
-    private IStringLocalizer<NavMenu> _loc { get; set; }
+    private IStringLocalizer<NavMenu> _loc { get; set; } = null!;
     [Inject]
-    private IJSRuntime _JSRuntime { get; set; }
+    private IJSRuntime _JSRuntime { get; set; } = null!;
     private ReviewModel? _chosenReview { get; set; }
     private String? _searchString { get; set; }
 
@@ -41,7 +41,7 @@
         if (value == null || value == string.Empty)
             return new List<ReviewModel>();
         HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-        var response = await _anonymousHttpClient.GetFromJsonAsync<IEnumerable<ReviewModel>>($"{Constants.REVIEWS_SEARCH_URL}/{value}");
+        var response = await _anonymousHttpClient.GetFromJsonAsync<IEnumerable<ReviewModel>>($"{Constants.REVIEWS_SEARCH_URL}/{value}") ?? new List<ReviewModel>();
         return response;
     }
 

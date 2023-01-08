@@ -8,19 +8,19 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_TagModel_Reviews_ReviewModelId",
                 table: "TagModel");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_TagModel_ReviewModelId",
                 table: "TagModel");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ReviewModelId",
                 table: "TagModel");
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "ReviewModelTagModel",
                 columns: table => new
                 {
@@ -29,14 +29,14 @@ namespace totten_romatoes.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReviewModelTagModel", x => new { x.ReviewsId, x.TagsId });
-                    table.ForeignKey(
+                    _ = table.PrimaryKey("PK_ReviewModelTagModel", x => new { x.ReviewsId, x.TagsId });
+                    _ = table.ForeignKey(
                         name: "FK_ReviewModelTagModel_Reviews_ReviewsId",
                         column: x => x.ReviewsId,
                         principalTable: "Reviews",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    _ = table.ForeignKey(
                         name: "FK_ReviewModelTagModel_TagModel_TagsId",
                         column: x => x.TagsId,
                         principalTable: "TagModel",
@@ -44,7 +44,7 @@ namespace totten_romatoes.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_ReviewModelTagModel_TagsId",
                 table: "ReviewModelTagModel",
                 column: "TagsId");
@@ -52,21 +52,21 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "ReviewModelTagModel");
 
-            migrationBuilder.AddColumn<int>(
+            _ = migrationBuilder.AddColumn<int>(
                 name: "ReviewModelId",
                 table: "TagModel",
                 type: "integer",
                 nullable: true);
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_TagModel_ReviewModelId",
                 table: "TagModel",
                 column: "ReviewModelId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_TagModel_Reviews_ReviewModelId",
                 table: "TagModel",
                 column: "ReviewModelId",

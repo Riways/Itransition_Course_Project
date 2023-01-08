@@ -8,15 +8,15 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "ImageId",
                 table: "Reviews");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Subjects",
                 type: "character varying(60)",
@@ -26,12 +26,12 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "character varying(255)",
                 oldMaxLength: 255);
 
-            migrationBuilder.AddUniqueConstraint(
+            _ = migrationBuilder.AddUniqueConstraint(
                 name: "AK_Subjects_Name",
                 table: "Subjects",
                 column: "Name");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail",
@@ -40,15 +40,15 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropUniqueConstraint(
+            _ = migrationBuilder.DropUniqueConstraint(
                 name: "AK_Subjects_Name",
                 table: "Subjects");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers");
 
-            migrationBuilder.AlterColumn<string>(
+            _ = migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Subjects",
                 type: "character varying(255)",
@@ -58,13 +58,13 @@ namespace totten_romatoes.Server.Migrations
                 oldType: "character varying(60)",
                 oldMaxLength: 60);
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "ImageId",
                 table: "Reviews",
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");

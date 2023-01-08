@@ -9,32 +9,32 @@ namespace totten_romatoes.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Grades_Reviews_ReviewId",
                 table: "Grades");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Grades_ReviewId",
                 table: "Grades");
 
-            migrationBuilder.RenameColumn(
+            _ = migrationBuilder.RenameColumn(
                 name: "ReviewId",
                 table: "Grades",
                 newName: "SubjectId");
 
-            migrationBuilder.AddColumn<long>(
+            _ = migrationBuilder.AddColumn<long>(
                 name: "SubjectId",
                 table: "Reviews",
                 type: "bigint",
                 nullable: false,
                 defaultValue: 0L);
 
-            migrationBuilder.AddUniqueConstraint(
+            _ = migrationBuilder.AddUniqueConstraint(
                 name: "AK_Grades_SubjectId_AuthorId",
                 table: "Grades",
                 columns: new[] { "SubjectId", "AuthorId" });
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "Likes",
                 columns: table => new
                 {
@@ -48,27 +48,27 @@ namespace totten_romatoes.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Likes", x => x.Id);
-                    table.ForeignKey(
+                    _ = table.PrimaryKey("PK_Likes", x => x.Id);
+                    _ = table.ForeignKey(
                         name: "FK_Likes_AspNetUsers_FromUserId",
                         column: x => x.FromUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    _ = table.ForeignKey(
                         name: "FK_Likes_AspNetUsers_ToUserId",
                         column: x => x.ToUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    _ = table.ForeignKey(
                         name: "FK_Likes_Reviews_ReviewModelId",
                         column: x => x.ReviewModelId,
                         principalTable: "Reviews",
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "Subjects",
                 columns: table => new
                 {
@@ -78,30 +78,30 @@ namespace totten_romatoes.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subjects", x => x.Id);
+                    _ = table.PrimaryKey("PK_Subjects", x => x.Id);
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Reviews_SubjectId",
                 table: "Reviews",
                 column: "SubjectId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Likes_FromUserId",
                 table: "Likes",
                 column: "FromUserId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Likes_ReviewModelId",
                 table: "Likes",
                 column: "ReviewModelId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Likes_ToUserId",
                 table: "Likes",
                 column: "ToUserId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Grades_Subjects_SubjectId",
                 table: "Grades",
                 column: "SubjectId",
@@ -109,7 +109,7 @@ namespace totten_romatoes.Server.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Reviews_Subjects_SubjectId",
                 table: "Reviews",
                 column: "SubjectId",
@@ -120,43 +120,43 @@ namespace totten_romatoes.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Grades_Subjects_SubjectId",
                 table: "Grades");
 
-            migrationBuilder.DropForeignKey(
+            _ = migrationBuilder.DropForeignKey(
                 name: "FK_Reviews_Subjects_SubjectId",
                 table: "Reviews");
 
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "Likes");
 
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "Subjects");
 
-            migrationBuilder.DropIndex(
+            _ = migrationBuilder.DropIndex(
                 name: "IX_Reviews_SubjectId",
                 table: "Reviews");
 
-            migrationBuilder.DropUniqueConstraint(
+            _ = migrationBuilder.DropUniqueConstraint(
                 name: "AK_Grades_SubjectId_AuthorId",
                 table: "Grades");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "SubjectId",
                 table: "Reviews");
 
-            migrationBuilder.RenameColumn(
+            _ = migrationBuilder.RenameColumn(
                 name: "SubjectId",
                 table: "Grades",
                 newName: "ReviewId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_Grades_ReviewId",
                 table: "Grades",
                 column: "ReviewId");
 
-            migrationBuilder.AddForeignKey(
+            _ = migrationBuilder.AddForeignKey(
                 name: "FK_Grades_Reviews_ReviewId",
                 table: "Grades",
                 column: "ReviewId",

@@ -27,9 +27,9 @@
 </MudLayout>
 @code {
     [Inject]
-    private IStringLocalizer<MainLayout> _loc { get; set; }
+    private IStringLocalizer<MainLayout> _loc { get; set; } = null!;
     [Inject]
-    private IJSRuntime _JSRuntime { get; set; }
+    private IJSRuntime _JSRuntime { get; set; } = null!;
     bool _drawerOpen = false;
     private bool _isDarkMode;
 
