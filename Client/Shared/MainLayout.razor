@@ -19,7 +19,7 @@
         </MudDrawerHeader> 
         <NavMenu/>
         <CultureSelector />
-        <MudSwitch Class="d-flex flex-1 justify-center align-end pb-4 " @bind-Checked="_isDarkMode" Color="Color.Primary"  T="bool" Label="@(_loc["Dark mode"])"/>
+        <MudSwitch Class="d-flex flex-1 justify-center align-end pb-4 " Checked="_isDarkMode" CheckedChanged="SetDarkMode" Color="Color.Primary"  T="bool" Label="@(_loc["Dark mode"])"/>
     </MudDrawer>
     <MudMainContent>
         @Body
@@ -28,8 +28,16 @@
 @code {
     [Inject]
     private IStringLocalizer<MainLayout> _loc { get; set; }
+    [Inject]
+    private IJSRuntime _JSRuntime { get; set; }
     bool _drawerOpen = false;
     private bool _isDarkMode;
+
+    protected async override void OnParametersSet()
+    {
+        _isDarkMode = await _JSRuntime.InvokeAsync<bool>("getIsDarkMode");
+        base.OnParametersSet();
+    }
 
     void DrawerToggle()
     {
@@ -44,9 +52,9 @@
         }
     };
 
-    public void DarkModeSetter(bool isDarkMode)
+    public async void SetDarkMode(bool isDarkMode)
     {
         _isDarkMode = isDarkMode;
+        await _JSRuntime.InvokeVoidAsync("setIsDarkMode", _isDarkMode);
     }
-
 }

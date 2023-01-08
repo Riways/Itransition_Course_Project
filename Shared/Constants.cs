@@ -8,6 +8,7 @@ namespace totten_romatoes.Shared
 
         //dropbox
         public const string DROPBOX_PATH = "/romatoes/";
+        public const string DROPBOX_URL = "https://api.dropbox.com/oauth2/token";
 
         //image
         public const int MAX_IMAGE_SIZE = 2 * 1024 * 1024;
