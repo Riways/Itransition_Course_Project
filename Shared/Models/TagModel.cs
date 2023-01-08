@@ -8,8 +8,8 @@ namespace totten_romatoes.Shared.Models
     {
         public long Id { get; set; }
         [Required]
-        [MaxLength(Constants.MAX_TAG_LENGTH, ErrorMessage ="Tag is too long")]
-        [MinLength(Constants.MIN_TAG_LENGTH, ErrorMessage ="Tag is too short")]
+        [MaxLength(Constants.MAX_TAG_LENGTH, ErrorMessage = "Tag is too long")]
+        [MinLength(Constants.MIN_TAG_LENGTH, ErrorMessage = "Tag is too short")]
         public string Name { get; set; } = string.Empty;
         public List<ReviewModel>? Reviews { get; set; }
 

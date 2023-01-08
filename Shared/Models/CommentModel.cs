@@ -14,7 +14,7 @@ namespace totten_romatoes.Shared.Models
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }
         [Required]
-        public string AuthorId { get; set; }
+        public string AuthorId { get; set; } = string.Empty;
         public ApplicationUser? Author { get; set; }
         public long ReviewId { get; set; }
         public ReviewModel? Review { get; set; }

@@ -1,6 +1,4 @@
-﻿using totten_romatoes.Shared.Models;
-
-namespace totten_romatoes.Shared
+﻿namespace totten_romatoes.Shared
 {
     public static class Constants
     {

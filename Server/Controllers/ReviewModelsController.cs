@@ -13,7 +13,7 @@ namespace totten_romatoes.Server.Controllers
     {
         private readonly IReviewService _reviewService;
 
-        public ReviewModelsController(IReviewService reviewService )
+        public ReviewModelsController(IReviewService reviewService)
         {
             _reviewService = reviewService;
         }
@@ -63,7 +63,7 @@ namespace totten_romatoes.Server.Controllers
         {
             if (number < 0)
                 return BadRequest("Page number can't be less then 0");
-            return Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy) sortType));
+            return Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType));
         }
 
         [AllowAnonymous]
@@ -100,11 +100,11 @@ namespace totten_romatoes.Server.Controllers
         {
             await _reviewService.AddCommentToDb(commentModel);
         }
-        
+
         [HttpPost("like")]
         public void PostLike(LikeModel likeModel)
         {
-             _reviewService.AddLikeToDb(likeModel);
+            _reviewService.AddLikeToDb(likeModel);
         }
 
         [HttpDelete("like/{id}")]

@@ -1,8 +1,6 @@
 ﻿using NpgsqlTypes;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 namespace totten_romatoes.Shared.Models
@@ -13,7 +11,7 @@ namespace totten_romatoes.Shared.Models
         [Required(ErrorMessage = "Title is required")]
         [MaxLength(255, ErrorMessage = "Maximum tile length is 255")]
         [MinLength(2, ErrorMessage = "Minimum title length is 2")]
-        public string? Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         [Required]
         public Category ReviewCategory { get; set; }
         [Required]
@@ -22,7 +20,7 @@ namespace totten_romatoes.Shared.Models
         [Required(ErrorMessage = "Review body is required")]
         [MaxLength(5000, ErrorMessage = "Review body is too long")]
         [MinLength(1, ErrorMessage = "Review body is too short")]
-        public string? ReviewBody { get; set; } = string.Empty;
+        public string ReviewBody { get; set; } = string.Empty;
         [Required]
         public DateTime DateOfCreationInUTC { get; set; }
         [Required]
@@ -31,7 +29,7 @@ namespace totten_romatoes.Shared.Models
         public long? ReviewImageId { get; set; }
         public ImageModel? ReviewImage { get; set; }
         [Required]
-        public string AuthorId { get; set; }
+        public string AuthorId { get; set; } = string.Empty;
         public ApplicationUser? Author { get; set; }
         public List<CommentModel>? Comments { get; set; }
         [NotMapped]
@@ -53,6 +51,6 @@ namespace totten_romatoes.Shared.Models
         Newest, Popular
     }
 
-    
+
 }
 

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using System.Globalization;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
+using System.Globalization;
 using totten_romatoes.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

@@ -77,7 +77,7 @@
         if (_httpClient != null)
         {
             _usersSummary = await _httpClient.GetFromJsonAsync<int>(Constants.USERS_AMOUNT_URL);
-            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new List<ApplicationUser>();
         }
         await base.OnInitializedAsync();
     }
@@ -97,7 +97,7 @@
         if (_httpClient != null)
         {
             await _httpClient.DeleteAsync(query);
-            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+            _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new();
         }
         _deleteButtonDisabled = false;
     }
@@ -105,7 +105,7 @@
     private async Task<TableData<ApplicationUser>> ServerReload(TableState tableState)
     {
         _selectedPage = tableState.Page;
-        _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}");
+        _users = await _httpClient.GetFromJsonAsync<List<ApplicationUser>>($"{Constants.USERS_CHUNK_URL}?chunkNumber={_selectedPage}") ?? new();
         return new TableData<ApplicationUser>() { TotalItems = _usersSummary, Items = _users };
     }
 

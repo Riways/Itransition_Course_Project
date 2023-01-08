@@ -22,7 +22,6 @@
             <MudNavLink Disabled="true" Match="NavLinkMatch.Prefix">@_loc["Admin panel"]</MudNavLink>  
         </NotAuthorized>
     </AuthorizeView>
-      
 </MudNavMenu>
 
 @code {
@@ -34,11 +33,8 @@
     private IStringLocalizer<NavMenu> _loc { get; set; }
     [Inject]
     private IJSRuntime _JSRuntime { get; set; }
-    [Parameter]
-    public EventCallback<bool> DarkModeSetter { get; set; }
     private ReviewModel? _chosenReview { get; set; }
     private String? _searchString { get; set; }
-    private bool _isDarkMode = false;
 
     public async Task<IEnumerable<ReviewModel>> Search1(string value)
     {

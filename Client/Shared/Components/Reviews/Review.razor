@@ -8,13 +8,13 @@
         <MudItem Class="px-6 py-4" xs="12" id="reviewHeader">
             <MudGrid>
                 <MudItem Class="d-flex align-center flex-wrap" xs="12" md="6">
-                    <MudAvatar   Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview.Author.UserName.First())</MudAvatar>
+                    <MudAvatar   Variant="Variant.Outlined" Color="@RandomColorPick()">@(@CurrentReview?.Author?.UserName.First())</MudAvatar>
                         <MudText Class="d-flex align-content-center flex-wrap ml-2 mr-1" Typo="Typo.h6" >
-                        @CurrentReview.Author!.UserName   
+                        @CurrentReview?.Author?.UserName   
                     </MudText >
                     <h5 class="my-auto">[</h5>
                     <MudText  Class="d-flex align-content-center flex-wrap px-1 " Color="Color.Success" Typo="Typo.h6" >
-                        @CurrentReview.Author.Rating 
+                        @CurrentReview?.Author?.Rating 
                     </MudText>
                     <h5 class="my-auto">]</h5>
                     <MudText  Class="d-flex align-content-center flex-wrap pt-1 ml-3" Typo="Typo.body2" >
@@ -153,8 +153,8 @@
     [Inject]
     private NavigationManager? _nav { get; set; }
     private AuthenticationState? authState;
-    private string? _htmlReviewBody;
-    private string? _userId;
+    private string _htmlReviewBody = string.Empty;
+    private string _userId = string.Empty;
     private double _subjectRating = double.MinValue;
     private int _userGrade = 0;
     private bool _likeButtonDisabled = false;
@@ -215,7 +215,7 @@
         }
     }
 
-    private async Task ModifyReview()
+    private void ModifyReview()
     {
         _nav.NavigateTo($"create-review/{CurrentReview.Id}");
     }

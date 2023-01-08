@@ -16,7 +16,7 @@ namespace totten_romatoes.Server.Controllers
         {
             _reviewService = reviewService;
         }
-        
+
         [HttpGet]
         [Route("take")]
         public IEnumerable<string> GetSpecificAmountOftags()

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using totten_romatoes.Server.Data;
@@ -52,9 +51,11 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["microsoft_client_secret"];
     });
 
-builder.Services.AddAuthorization(opts => {
+builder.Services.AddAuthorization(opts =>
+{
 
-    opts.AddPolicy("AdminOnly", policy => {
+    opts.AddPolicy("AdminOnly", policy =>
+    {
         policy.RequireClaim(ClaimTypes.Role, "Admin");
     });
 });

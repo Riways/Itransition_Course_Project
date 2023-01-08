@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace totten_romatoes.Shared.Models
 {
@@ -12,9 +7,9 @@ namespace totten_romatoes.Shared.Models
     {
         public long Id { get; set; }
         [Required]
-        public string ImageType { get; set; }
+        public string ImageType { get; set; } = string.Empty;
         [Required]
-        public string ImageName { get; set; } 
+        public string ImageName { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
         [NotMapped]
         [MaxLength(Constants.MAX_IMAGE_SIZE)]

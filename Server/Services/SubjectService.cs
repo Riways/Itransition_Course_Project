@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using totten_romatoes.Server.Data;
+﻿using totten_romatoes.Server.Data;
 using totten_romatoes.Shared.Models;
 
 namespace totten_romatoes.Server.Services

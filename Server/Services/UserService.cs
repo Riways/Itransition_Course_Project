@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using totten_romatoes.Server.Data;
-using totten_romatoes.Shared.Models;
-using totten_romatoes.Shared;
 using Microsoft.EntityFrameworkCore;
+using totten_romatoes.Server.Data;
+using totten_romatoes.Shared;
+using totten_romatoes.Shared.Models;
 
 namespace totten_romatoes.Server.Services
 {
@@ -56,7 +55,7 @@ namespace totten_romatoes.Server.Services
         public async Task DeleteMuiltipleUsers(List<string> ids)
         {
             List<ApplicationUser> usersToDelete = await _dbContext.Users.Where(u => ids.Contains(u.Id)).ToListAsync();
-            if(usersToDelete.Count > 0)
+            if (usersToDelete.Count > 0)
             {
                 _dbContext.Users.RemoveRange(usersToDelete);
                 await _dbContext.SaveChangesAsync();

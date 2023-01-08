@@ -86,10 +86,10 @@
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
-    private IStringLocalizer<UserPage>? _loc { get; set; }
+    private IStringLocalizer<UserPage> _loc { get; set; } ?? new ();
     private List<ReviewModel> _reviews = new();
     private HashSet<ReviewModel> _selectedItems = new();
-    private string _userId;
+    private string _userId = string.Empty;
     private string searchString = "";
     private bool _deleteButtonDisabled=false;
 

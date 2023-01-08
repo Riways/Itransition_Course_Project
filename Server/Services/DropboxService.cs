@@ -1,11 +1,9 @@
 ﻿using Dropbox.Api;
 using Dropbox.Api.Files;
 using Dropbox.Api.Sharing;
-using totten_romatoes.Shared.Models;
-using totten_romatoes.Shared;
 using System.Net.Http.Headers;
-using Duende.IdentityServer.EntityFramework.Entities;
-using NuGet.Protocol;
+using totten_romatoes.Shared;
+using totten_romatoes.Shared.Models;
 
 namespace totten_romatoes.Server.Services
 {
@@ -55,7 +53,7 @@ namespace totten_romatoes.Server.Services
                         pathToFileOnDropbox,
                         WriteMode.Overwrite.Instance,
                         body: mem);
-                SharedLinkMetadata linkData  = await _dropBoxClient.Sharing.CreateSharedLinkWithSettingsAsync(pathToFileOnDropbox, new SharedLinkSettings(allowDownload:true));
+                SharedLinkMetadata linkData = await _dropBoxClient.Sharing.CreateSharedLinkWithSettingsAsync(pathToFileOnDropbox, new SharedLinkSettings(allowDownload: true));
                 imageUrl = linkData.Url;
             }
             imageUrl = imageUrl.Remove(imageUrl.Length - 4, 4) + "raw=1";
