@@ -120,6 +120,12 @@
   <data name="Category:" xml:space="preserve">
     <value>Категория:</value>
   </data>
+  <data name="DELETE" xml:space="preserve">
+    <value>УДАЛИТЬ</value>
+  </data>
+  <data name="MODIFY" xml:space="preserve">
+    <value>РЕДАКТИРОВАТЬ</value>
+  </data>
   <data name="Read" xml:space="preserve">
     <value>Читать</value>
   </data>

@@ -117,22 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Admin panel" xml:space="preserve">
-    <value>Панель администратора</value>
+  <data name="Newest" xml:space="preserve">
+    <value>Новые</value>
   </data>
-  <data name="Create review" xml:space="preserve">
-    <value>Создать обзор</value>
+  <data name="Popular" xml:space="preserve">
+    <value>Популярные</value>
   </data>
-  <data name="Dark mode" xml:space="preserve">
-    <value>Тёмный режим</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Главная</value>
-  </data>
-  <data name="My profile" xml:space="preserve">
-    <value>Мой профиль</value>
-  </data>
-  <data name="Search review" xml:space="preserve">
-    <value>Найти обзор</value>
+  <data name="Sort by" xml:space="preserve">
+    <value>Сортировать</value>
   </data>
 </root>

@@ -6,10 +6,10 @@
     </MudGrid>
 }else
 {
-    <MudSelect T="SortBy" ValueChanged="SortTypeChanged" Placeholder="Sort by" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+    <MudSelect T="SortBy" ValueChanged="SortTypeChanged" Label="@(_loc["Sort by"])" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
         @foreach (SortBy sort in Enum.GetValues(typeof(SortBy)))
         {
-            <MudSelectItem Value="@sort">@sort</MudSelectItem>
+            <MudSelectItem Value="@sort">@_loc[sort.ToString()]</MudSelectItem>
         }
     </MudSelect>
     <MudGrid >
@@ -30,6 +30,8 @@
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
     private IJSRuntime _JSRuntime { get; set; }
+    [Inject]
+    private IStringLocalizer<Reviews>? _loc {get; set;}
     private SortBy _sortType = SortBy.Newest;
     private HttpClient? _anonymousHttpClient;
     private List<ReviewModel>? _reviews;
@@ -74,7 +76,7 @@
     public async Task SortTypeChanged(SortBy selectedType)
     {
         _sortType = selectedType;
-        PageChanged(1);
+        await PageChanged(1);
     }
 
     private void UpdateReviewAuthorRating(ApplicationUser user)

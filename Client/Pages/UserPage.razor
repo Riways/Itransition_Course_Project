@@ -3,7 +3,7 @@
 @using System.Security.Claims;
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Yours reviews</MudText>
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true"> @_loc["Your reviews"]</MudText>
     <MudGrid Spacing="6"  Class="mt-1" Justify="Justify.Center">
         @if(_reviews.Count == 0)
         {
@@ -19,25 +19,25 @@
                 Striped="true" Items="_reviews" T="ReviewModel" Filter="new Func<ReviewModel,bool>(FilterFunc)">
                     <ToolBarContent>
                         <MudSpacer />
-                        <MudTextField @bind-Value="searchString" Placeholder="Filter" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                        <MudTextField @bind-Value="searchString" Placeholder="@(_loc["Filter"])" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                     </ToolBarContent>
                     <HeaderContent >
                         <MudTh>
-                            <MudTableSortLabel Class="fs-6 fw-bold" InitialDirection="SortDirection.Ascending" SortBy="new Func<ReviewModel, object>(r=>r.Title)">Title</MudTableSortLabel>
+                            <MudTableSortLabel Class="fs-6 fw-bold" InitialDirection="SortDirection.Ascending" SortBy="new Func<ReviewModel, object>(r=>r.Title)">@_loc["Title"]</MudTableSortLabel>
                         </MudTh>
                         <MudHidden Breakpoint="Breakpoint.MdAndDown">
                             <MudTh>
-                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Subject.Name)">Subject</MudTableSortLabel>
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Subject.Name)">@_loc["Subject"]</MudTableSortLabel>
                             </MudTh>
                             <MudTh>
-                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Likes.Count)">Rating</MudTableSortLabel>
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.Likes.Count)">@_loc["Rating"]</MudTableSortLabel>
                             </MudTh>
                             <MudTh >
-                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.DateOfCreationInUTC)">Date</MudTableSortLabel>
+                                <MudTableSortLabel Class="fs-6 fw-bold" SortBy="new Func<ReviewModel, object>(r=>r.DateOfCreationInUTC)">@_loc["Date"]</MudTableSortLabel>
                             </MudTh>
                         </MudHidden>
                         <MudTh Class="fs-6 fw-bold">
-                            Modify
+                            @_loc["Modify"]
                         </MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -55,23 +55,23 @@
                         </MudHidden>
                         <MudTd DataLabel="Modify">
                             <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="@(() => ModifyReview(context.Id))">
-                                Modify
+                                @_loc["Modify"]
                             </MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
                 @if(_selectedItems.Count > 0)
                 {
-                    <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">Delete</MudButton>
+                    <MudButton Disabled="_deleteButtonDisabled" Variant="Variant.Filled" Class="mt-4" OnClick="DeleteSelectedItems" Color="Color.Error">@_loc["Delete"]</MudButton>
                 }
                 else
                 {
-                    <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">Delete</MudButton>
+                    <MudButton Disabled="true" Variant="Variant.Filled" Class="mt-4"  Color="Color.Error">@_loc["Delete"]</MudButton>
                 }
             </MudItem>        
         }
         <MudItem xs="12">
-            <MudButton Class="mx-2" Variant="Variant.Outlined" OnClick="CreateReview" Color="Color.Info">CREATE REVIEW</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="CreateReview" Color="Color.Info">@_loc["Create review"]</MudButton>
         </MudItem>
     </MudGrid>
 </MudContainer>
