@@ -354,6 +354,10 @@ namespace totten_romatoes.Server.Services
                                 DateOfCreationInUTC = f.Date.Between(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow),
                                 CommentBody = f.Lorem.Sentences(f.Random.Int(Constants.FAKER_MIN_SENTENCES_IN_COMMENT_AMOUNT, Constants.FAKER_MAX_SENTENCES_IN_COMMENT_AMOUNT))
                             };
+                            if(newComment.CommentBody.Length > Constants.MAX_COMMENT_LENGTH)
+                            {
+                                newComment.CommentBody = newComment.CommentBody.Substring(0, Constants.MAX_COMMENT_LENGTH);
+                            }
                             comments.Add(newComment);
                         }
                         return comments;
