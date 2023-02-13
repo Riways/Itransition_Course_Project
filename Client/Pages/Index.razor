@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/{tag?}"
 @using totten_romatoes.Client.Shared.Components.Reviews
 @using totten_romatoes.Client.Shared.Components.Tags
 @using totten_romatoes.Client.Shared.Components
@@ -10,7 +10,7 @@
     <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">@_loc["Reviews"]</MudText>
     <MudGrid Spacing="6" Class="mt-1" Justify="Justify.Center">
         <MudItem xs="12" lg="9">
-            <Reviews/>
+            <Reviews Tag="@tag"/>
         </MudItem>
         <MudHidden Breakpoint="Breakpoint.MdAndDown"  >
             <MudItem  lg="3">
@@ -21,6 +21,8 @@
 </MudContainer>
 
 @code{
+    [Parameter]
+    public string? tag{ get; set; }
     [Inject]
     private IStringLocalizer<Index> _loc { get; set; } = null!;
 }

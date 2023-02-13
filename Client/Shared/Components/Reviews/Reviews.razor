@@ -1,31 +1,37 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-@if(_reviews == null){
-    <MudGrid Class="d-flex align-content-center flex-grow-1 flex-wrap justify-center"  Style="height:80vh">
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-    </MudGrid>
-}else
+@if (_reviews == null)
 {
-    <MudSelect T="SortBy" ValueChanged="SortTypeChanged" Label="@(_loc["Sort by"])" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+        <MudGrid Class="d-flex align-content-center flex-grow-1 flex-wrap justify-center"  Style="height:80vh">
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        </MudGrid>
+}
+else
+{
+        <MudSelect T="SortBy" ValueChanged="SortTypeChanged" Label="@(_loc["Sort by"])" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
         @foreach (SortBy sort in Enum.GetValues(typeof(SortBy)))
         {
-            <MudSelectItem Value="@sort">@_loc[sort.ToString()]</MudSelectItem>
+                    <MudSelectItem Value="@sort">@_loc[sort.ToString()]</MudSelectItem>
         }
-    </MudSelect>
-    <MudGrid >
+        </MudSelect>
+        <MudGrid >
         @foreach (var review in _reviews)
         {
-            <MudItem xs="12" >
-                <Review UpdateReviewAuthorRating="UpdateReviewAuthorRating" IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
-            </MudItem>
+                    <MudItem xs="12" >
+                        <Review UpdateReviewAuthorRating="UpdateReviewAuthorRating" IsReviewWrapped="true" CurrentReview="review" AuthStateProvider="_authenticationStateProvider" DeleteReviewFromList="@DeleteReviewFromList"/>
+                    </MudItem>
         }
-        <MudPagination Selected="@_selectedPage" BoundaryCount="2" MiddleCount="3" Class="d-flex flex-1 justify-center" SelectedChanged="PageChanged" Size="Size.Large" Color="Color.Primary" Count="@_pagesSummary" />
-    </MudGrid>
+            <MudPagination Selected="@_selectedPage" BoundaryCount="2" MiddleCount="3" Class="d-flex flex-1 justify-center" SelectedChanged="PageChanged" Size="Size.Large" Color="Color.Primary" Count="@_pagesSummary" />
+        </MudGrid>
 }
 
 @code {
+    [Parameter]
+    public string? Tag { get; set; }
     [Inject]
     private IHttpClientFactory? _clientFactory { get; set; }
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = null!;
     [Inject]
     private AuthenticationStateProvider? _authenticationStateProvider { get; set; }
     [Inject]
@@ -40,19 +46,47 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(_clientFactory != null)
+        await LoadReviews();
+    }
+
+    protected override async void OnParametersSet()
+    {
+        await LoadReviews();
+        base.OnParametersSet();
+    }
+
+    private int CalculatePagesAmount(int reviewAmount)
+    {
+        int div = reviewAmount / Constants.REVIEWS_ON_HOME_PAGE;
+        return reviewAmount % Constants.REVIEWS_ON_HOME_PAGE == 0 ? div : div + 1;
+
+    }
+
+    private async Task LoadReviews()
+    {
+        if (_clientFactory != null)
         {
             _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
-            int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
-            int div = reviewAmount / Constants.REVIEWS_ON_HOME_PAGE;
-            _pagesSummary = reviewAmount % Constants.REVIEWS_ON_HOME_PAGE == 0 ? div : div + 1;
+            if (Tag != null && Tag.Length > 0)
+            {
+                _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}&tag={Tag}");
+                int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>($"{Constants.REVIEWS_WITH_SPECIFIC_TAG_AMOUNT_URL}?tag={Tag}");
+                _pagesSummary = CalculatePagesAmount(reviewAmount);
+            }
+            else
+            {
+                int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
+                _pagesSummary = CalculatePagesAmount(reviewAmount);
+                _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
+            
+            }
         }
+        StateHasChanged();
     }
 
     public async Task DeleteReviewFromList(long id)
     {
-        if(_reviews != null && _anonymousHttpClient != null)
+        if (_reviews != null && _anonymousHttpClient != null)
         {
             _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={_selectedPage - 1}&sortType={(int)_sortType}");
             int reviewAmount = await _anonymousHttpClient.GetFromJsonAsync<int>(Constants.REVIEWS_AMOUNT_URL);
@@ -65,12 +99,9 @@
     public async Task PageChanged(int page)
     {
         _selectedPage = page;
-        if(_anonymousHttpClient != null)
-        {
-            _reviews = await _anonymousHttpClient.GetFromJsonAsync<List<ReviewModel>>($"{Constants.REVIEWS_CHUNK_URL}?number={page - 1}&sortType={(int)_sortType}");
-            await Task.Delay(300);
-            await _JSRuntime.InvokeVoidAsync("scrollToTop");
-        }
+        await LoadReviews();
+        await Task.Delay(300);
+        await _JSRuntime.InvokeVoidAsync("scrollToTop");
     }
 
     public async Task SortTypeChanged(SortBy selectedType)

@@ -3,7 +3,7 @@
     <MudPaper Class="d-flex justify-space-around flex-wrap flex-grow-1 pa-4"  Outlined="true" >
         @foreach (var tag in _currentTags)
         {
-            <MudChip>@tag</MudChip>
+            <MudChip OnClick="@(() =>NavigateToReviewsWithSelectedTag(@tag))">@tag</MudChip>
         }
     </MudPaper>
 }else
@@ -18,6 +18,8 @@
 @code {
     [Inject]
     private IHttpClientFactory _clientFactory { get; set; } = null!;
+    [Inject]
+    private NavigationManager _navigationManager { get; set; }
     private List<string> _currentTags = new();
 
     protected override async Task OnInitializedAsync()
@@ -25,6 +27,11 @@
         HttpClient _anonymousHttpClient = _clientFactory.CreateClient("totten_romatoes.AnonymousAPI");
         _currentTags = await _anonymousHttpClient.GetFromJsonAsync<List<string>>(Constants.TAG_GET_DEFAULT_AMOUNT_URL) ?? new();
         base.OnInitialized();
+    }
+
+    private void NavigateToReviewsWithSelectedTag(string tag)
+    {
+        _navigationManager.NavigateTo($"/{tag}"); 
     }
 
 }

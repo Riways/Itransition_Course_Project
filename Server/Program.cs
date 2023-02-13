@@ -56,7 +56,7 @@ builder.Services.AddAuthorization(opts =>
 
     opts.AddPolicy("AdminOnly", policy =>
     {
-        _ = policy.RequireClaim(ClaimTypes.Role, "Admin");
+        policy.RequireClaim(ClaimTypes.Role, "Admin");
     });
 });
 

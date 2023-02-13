@@ -18,8 +18,10 @@ namespace totten_romatoes.Server.Services
         public Task AddLikesToDb(List<LikeModel> likes);
         public Task<List<ReviewModel>> GetLightweightListOfReviews(string userId);
         public Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType);
+        public Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType, string tag);
         public Task<ReviewModel> GetReviewById(long id);
         public Task<int> GetAmountOfReviews();
+        public Task<int> GetAmountOfReviewsWithSpecificTag(string tag);
         public Task<int> GetAmountOfCommentsInReview(long id);
         public Task<List<CommentModel>> GetCommentsFromReview(long id);
         public List<TagModel> GetDefaultAmountOfTags();
@@ -140,6 +142,44 @@ namespace totten_romatoes.Server.Services
             return reviews;
         }
 
+        public async Task<List<ReviewModel>> GetChunkOfSortedReviews(int page, SortBy sortType, string tag)
+        {
+            int reviewsToSkip = Constants.REVIEWS_ON_HOME_PAGE * page;
+            List<ReviewModel> reviews = await _dbContext.Reviews!
+                .Include(r => r.Author)
+                .Include(r => r.ReviewImage)
+                .Include(r => r.Tags)
+                .Include(r => r.Subject)
+                    .ThenInclude(s => s.Grades)
+                .Include(r => r.Likes)
+                .Include(r => r.Comments)
+                .Where(r => r.Tags.Select(t => t.Name).Contains(tag))
+                .OrderByDescending(ChooseSortType(sortType))
+                .Skip(reviewsToSkip)
+                .Take(Constants.REVIEWS_ON_HOME_PAGE)
+                .ToListAsync();
+            List<ApplicationUser> usersWithCountedRating = new();
+            foreach (ReviewModel? review in reviews)
+            {
+                if (!review.Comments.IsNullOrEmpty())
+                {
+                    review.CommentsAmount = review.Comments!.Count;
+                    review.Comments = null;
+                }
+                ApplicationUser? userWithCountedRating = usersWithCountedRating.SingleOrDefault(r => r.Id == review.AuthorId);
+                if (userWithCountedRating == null)
+                {
+                    review.Author!.Rating = CountUserRating(review.Author.Id);
+                    usersWithCountedRating.Add(review.Author);
+                }
+                else
+                {
+                    review.Author!.Rating = userWithCountedRating.Rating;
+                }
+            }
+            return reviews;
+        }
+
         private static Expression<Func<ReviewModel, object>> ChooseSortType(SortBy sortType)
         {
             Expression<Func<ReviewModel, object>> NewestSort = r => r.DateOfCreationInUTC;
@@ -176,6 +216,15 @@ namespace totten_romatoes.Server.Services
         public async Task<int> GetAmountOfReviews()
         {
             return await _dbContext.Reviews!.CountAsync();
+        }
+
+        public async Task<int> GetAmountOfReviewsWithSpecificTag(string tag)
+        {
+            return await _dbContext.Reviews!
+                .Include(r => r.Tags)
+                .Where(r => r.Tags.Select(t => t.Name).Contains(tag))
+                .CountAsync();
+
         }
 
         public async Task<int> GetAmountOfCommentsInReview(long id)

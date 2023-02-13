@@ -23,7 +23,7 @@
                 </MudItem>
                 <MudItem xs="12" md="6">
                     <MudText  Class="d-flex flex-1 flex-wrap justify-end" Typo="Typo.h6">
-                        <MudLink Typo="Typo.h6" Class=" d-flex flex-wrap justify-end"  Href="/">@CurrentReview.Subject.Name</MudLink>
+                     <MudText Typo="Typo.h6" Style="@($"color:{Colors.BlueGrey.Default}")" Class=" d-flex flex-wrap justify-end"  >@CurrentReview.Subject.Name</MudText>
                         (
                         <MudIcon Class="d-flex pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
                         @(_subjectRating == double.MinValue ? "--" : _subjectRating) )
@@ -80,10 +80,10 @@
         @if (CurrentReview.Tags != null)
         {
             <MudItem Class="px-6 py-4" xs="12">
-            @foreach (var tag in CurrentReview.Tags)
-            {
-                <MudChip Size="Size.Small">@tag.Name</MudChip>
-            }
+                @foreach (var tag in CurrentReview.Tags)
+                {
+                    <MudChip OnClick="@(() =>NavigateToReviewsWithSelectedTag(@tag.Name))">@tag.Name</MudChip>
+                }
             </MudItem>
         }
         <AuthorizeView>
@@ -115,11 +115,11 @@
                         <MudIcon Class="ml-6 my-auto" ViewBox="0 -1 24 24" Icon="@Icons.Rounded.ChatBubbleOutline" Size="Size.Medium" />
                         @if (CurrentReview.Comments == null)
                         {
-                            <MudLink Class="d-flex align-content-center pl-1 flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.CommentsAmount )</MudLink> 
+                            <MudLink Class="d-flex align-content-center pl-1 flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">@CurrentReview.CommentsAmount</MudLink> 
                         }
                         else
                         {
-                            <MudLink Class="d-flex align-content-center pl-1  flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">( @CurrentReview.Comments.Count )</MudLink> 
+                            <MudLink Class="d-flex align-content-center pl-1  flex-wrap" Href="@($"/review/{CurrentReview.Id}")" Typo="Typo.subtitle1">@CurrentReview.Comments.Count</MudLink> 
                         }
                     }
                 </MudItem>
@@ -127,7 +127,7 @@
                     <MudText Class="d-flex flex-1 justify-end" Typo="Typo.body2" >
                         @_loc!["Category:"] 
                     </MudText>
-                    <MudLink Class="pl-1" Href="/" Typo="Typo.body2"> @_sharedLoc![CurrentReview.ReviewCategory.ToString()]</MudLink>  
+                    <MudText Class="pl-1" Style="@($"color:{Colors.BlueGrey.Default}")"  Typo="Typo.body2"> @_sharedLoc![CurrentReview.ReviewCategory.ToString()]</MudText>  
                 </MudItem>
             </MudGrid>
         </MudItem>
@@ -152,6 +152,8 @@
     private IStringLocalizer<SharedLocalization>? _sharedLoc { get; set; }
     [Inject]
     private NavigationManager? _nav { get; set; }
+    [Inject]
+    private NavigationManager _navigationManager { get; set; }
     private AuthenticationState? authState;
     private string _htmlReviewBody = string.Empty;
     private string _userId = string.Empty;
@@ -284,6 +286,11 @@
         await Task.Delay(100);
         _likeButtonDisabled = false;
         StateHasChanged();
+    }
+
+    private void NavigateToReviewsWithSelectedTag(string tag)
+    {
+        _navigationManager.NavigateTo($"/{tag}");
     }
 
 }

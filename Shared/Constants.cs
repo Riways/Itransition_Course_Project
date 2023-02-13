@@ -32,6 +32,7 @@
         public const string REVIEWS_CHUNK_URL = $"{REVIEWS_URL}/chunk";
         public const string REVIEWS_SEARCH_URL = $"{REVIEWS_URL}/search";
         public const string REVIEWS_AMOUNT_URL = $"{REVIEWS_URL}/amount";
+        public const string REVIEWS_WITH_SPECIFIC_TAG_AMOUNT_URL = $"{REVIEWS_URL}/amount-containing-tag";
         public const string REVIEWS_ADD_FAKE_URL = $"{REVIEWS_URL}/add-fakes";
         public const string REVIEWS_GET_COMMENT_URL = $"{REVIEWS_URL}/comment";
         public const string REVIEWS_GET_COMMENT_AMOUNT_URL = $"{REVIEWS_URL}/comment-amount";

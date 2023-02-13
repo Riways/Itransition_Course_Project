@@ -41,6 +41,13 @@ namespace totten_romatoes.Server.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("amount-containing-tag")]
+        public async Task<int> GetAmountOfReviewsWithSpecificTag([FromQuery] string tag)
+        {
+            return await _reviewService.GetAmountOfReviewsWithSpecificTag(tag);
+        }
+
+        [AllowAnonymous]
         [HttpGet("comment-amount/{id}")]
         public async Task<int> GetAmountOfCommentsInReview(long id)
         {
@@ -62,11 +69,12 @@ namespace totten_romatoes.Server.Controllers
 
         [AllowAnonymous]
         [HttpGet("chunk")]
-        public async Task<ActionResult<IEnumerable<ReviewModel>>> GetChunkOfReviews([FromQuery] int number, [FromQuery] int sortType)
+        public async Task<ActionResult<IEnumerable<ReviewModel>>> GetChunkOfReviews([FromQuery] int number, [FromQuery] int sortType, [FromQuery] string? tag)
         {
-            return number < 0
-                ? (ActionResult<IEnumerable<ReviewModel>>)BadRequest("Page number can't be less then 0")
-                : (ActionResult<IEnumerable<ReviewModel>>)Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType));
+            if(number<0)
+                return (ActionResult<IEnumerable<ReviewModel>>)BadRequest("Page number can't be less then 0");
+            return (ActionResult<IEnumerable<ReviewModel>>) (tag.IsNullOrEmpty()?Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType)):
+                Ok(await _reviewService.GetChunkOfSortedReviews(number, (SortBy)sortType, tag)));
         }
 
         [AllowAnonymous]
