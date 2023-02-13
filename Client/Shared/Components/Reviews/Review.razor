@@ -23,7 +23,7 @@
                 </MudItem>
                 <MudItem xs="12" md="6">
                     <MudText  Class="d-flex flex-1 flex-wrap justify-end" Typo="Typo.h6">
-                     <MudText Typo="Typo.h6" Style="@($"color:{Colors.BlueGrey.Default}")" Class=" d-flex flex-wrap justify-end"  >@CurrentReview.Subject.Name</MudText>
+                             <MudText Typo="Typo.h6" Style="@($"color:{Colors.DeepPurple.Darken2}")" Class=" d-flex flex-wrap justify-end"  >@CurrentReview.Subject.Name</MudText>
                         (
                         <MudIcon Class="d-flex pt-1" Icon="@Icons.Filled.Star" Color="Color.Warning" Size="Size.Medium"/>
                         @(_subjectRating == double.MinValue ? "--" : _subjectRating) )
